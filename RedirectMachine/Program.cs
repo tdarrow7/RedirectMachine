@@ -43,10 +43,10 @@ namespace RedirectMachine
 
 
             // initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\Dropbox\Coding\Scorpion\C#\RedirectMachine\OldSiteUrls.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\Dropbox\Coding\Scorpion\C#\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\FoundUrls.csv";
 
 
             Stopwatch stopwatch = new Stopwatch();
@@ -239,7 +239,6 @@ namespace RedirectMachine
                     }
                 }
             }
-            Console.WriteLine('test');
             return false;
         }
 
