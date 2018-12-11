@@ -239,6 +239,7 @@ namespace RedirectMachine
                     }
                 }
             }
+            Console.WriteLine('test');
             return false;
         }
 
