@@ -21,7 +21,8 @@ namespace RedirectMachine
         public static List<string> osDoctorList = new List<string>();
         public static string[] osBlogParams = { "/news/", "/blogs/" };
         public static string[] osDoctorParams = { "/provider/", "/providers/" };
-        public static string[] osDoctorTitles = { "md", "do", "mph", "pa-c", "macp", "mba", "agacnp-bc", "np", "np-c", "fnp-c", "msn", "aprn", "phd", "ms", "cnm", "facs", "facog", "facp", "dpm", "mmci", "rd", "cdn", "msc", "facmg", "fapa", "mhs", "faaa", "np-bc", "cgc", "facr", "med", "whnp-bc" };
+        public static string[,] osParams = { { "/bakersfield/pages/ehealth/kramescontent/", "/bakersfield/*" }, { "/castle/event/", "/castle/classes-and-events/*" }, { "/central-valley/ages/ehealth/kramescontent/", "/blog/*" } };
+        public static string[] osDoctorTitles = { "-md", "-do", "-mph", "-pa-c", "-macp", "-mba", "-agacnp-bc", "-np", "-np-c", "-fnp-c", "-msn", "-aprn", "-phd", "-ms", "-cnm", "-facs", "-facog", "-facp", "-dpm", "-mmci", "-rd", "-cdn", "-msc", "-facmg", "-fapa", "-mhs", "-faaa", "-np-bc", "-cgc", "-facr", "-med", "-whnp-bc" };
 
         public static List<string> nsBlogList = new List<string>();
         public static List<string> nsDoctorList = new List<string>();
@@ -32,22 +33,30 @@ namespace RedirectMachine
         static int foundMatch = 0;
         static int lostMatch = 0;
 
+        static int osDoctorCount = 0;
+
 
         static void Main(string[] args)
         {
 
             // initialize paths to files
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\FoundUrls.csv";
 
+            string osDocUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSite_docs.csv";
+            string osBlogUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSite_blog.csv";
+
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            ReadCSV(osUrls, osUrlFile, false);
-            ReadCSV(nsUrls, nsUrlFile, true);
+            ReadCSV(osUrls, osUrlFile);
+            ReadCSV(nsUrls, nsUrlFile);
+
+            //LogList(osUrls);
 
 
             Console.WriteLine($"size of oldUrls list: {osUrls.Count}");
@@ -60,8 +69,16 @@ namespace RedirectMachine
             Console.WriteLine("begin search: ");
 
             // search url lists for new items
-            findUrl(osBlogList, nsBlogList);
-            findUrl(osDoctorList, nsDoctorList);
+            //findUrl(osBlogList, nsBlogList);
+            //findDocUrl(osDoctorList, nsDoctorList, osDoctorTitles);
+            //FilterUrls(osUrls, osParams);
+            findUrl(osUrls, nsUrls);
+
+            foreach (var item in osParams)
+            {
+                Console.WriteLine($"item[0]: {item[0]}");
+                Console.WriteLine($"item[1]: {item[1]}");
+            }
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
@@ -77,36 +94,26 @@ namespace RedirectMachine
             Console.WriteLine($"lostList count: {lostList.Count}");
             Console.WriteLine($"foundList count: {foundList.Count}");
             Console.WriteLine($"Run time: {elapsedTime}");
+            Console.WriteLine($"osDoctor Count: {osDoctorCount}");
         }
 
         // End of main function
 
-        // function to find doctors in url
-        public static void findDoctorUrl(List<string> oldList, List<string> newList)
+        public static void FilterUrls(List<string> list, string[,] i)
         {
-            foreach (var path in oldList)
+            foreach (var j in i)
             {
-
-                bool temp = checkList(path, newList);
-                if (temp == false)
-                {
-                    lostMatch++;
-                    lostList.Add(path);
-                }
-                else
-                {
-                    foundMatch++;
-                }
+                list.RemoveAll(item => item == j[0].ToString());
+                list.Add(j[1].ToString());
+                Console.WriteLine($"line 102 - j[1]: {j[1].ToString()}");
             }
         }
-
 
         public static void findUrl(List<string> oldList, List<string> newList)
         {
             foreach (var path in oldList)
             {
-                bool temp = checkList(path, newList);
-                if (temp == false)
+                if (!checkList(path, newList))
                 {
                     lostMatch++;
                     lostList.Add(path);
@@ -118,24 +125,38 @@ namespace RedirectMachine
             }
         }
 
-
-        // delete checklist 
         public static bool checkList(string value, List<string> urls)
         {
             // get last piece of url in string
             string subString = TruncateString(value, 48);
-
             foreach (var item in urls)
             {
                 if (item.Contains(subString))
                 {
-                    foundList.Add(value + "," + item);
+                    string s = value + "," + item;
+                    TruncateList(s, foundList);
+                    //foundList.Add(s);
                     return true;
                 }
             }
             return false;
         }
 
+        public static void TruncateList(string value, List<string> list)
+        {
+            bool found = false;
+            foreach (var i in list)
+            {
+                if (i == value)
+                {
+                    found = true;
+                    break;
+                }
+                    
+            }
+            if (found == false)
+                list.Add(value);
+        }
 
         public static string TruncateString(string value, int maxLength)
         {
@@ -143,58 +164,51 @@ namespace RedirectMachine
             // Step 2: get url text after last slash in url
             // Step 3: truncate temporary value to maxLength
             string temp = value;
+            int index = value.Length;
             if (temp.EndsWith("/"))
-                temp = temp.Substring(0, temp.Length - 1);
+                index = getIndex(temp, "/");
+            else if (temp.EndsWith("-"))
+                index = getIndex(temp, "-");
             else if (temp.EndsWith("/*"))
-                temp = temp.Substring(0, temp.Length - 2);
+                index = getIndex(temp, "/*");
+            else if (temp.Contains(".aspx"))
+            {
+                index = getIndex(temp, ".aspx");
+            }
+            temp = temp.Substring(0, index);
+
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
             if (string.IsNullOrEmpty(temp)) return temp;
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
         }
 
-        static void ReadCSV(List<string> list, string filePath, bool conditional)
+        public static int getIndex(string i, string j)
+        {
+            return i.LastIndexOf(j) - 1;
+        }
+
+        static void ReadCSV(List<string> list, string filePath)
         {
             // add CSV file contents to list
-            bool foundHome;
-
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    foundHome = false;
-                    if (conditional == false)
-                    {
-                        if ((checkParams(osBlogList, osBlogParams, line) == true) || (checkParams(osDoctorList, osDoctorParams, line) == true))
-                            foundHome = true;
-                    }
-                    else
-                    {
-                        if ((checkParams(nsBlogList, nsBlogParams, line) == true) || (checkParams(nsDoctorList, nsDoctorParams, line) == true))
-                            foundHome = true;
-                    }
-                    // if a parameter couldn't be found, change 
-                    if (foundHome == false)
-                        list.Add(line);
+                    line = line.ToLower();
+                    list.Add(line);
                 }
                 list.Sort();
             }
         }
 
-        // check if item is in array of potential solutions
-        static bool checkParams(List<string> list, string[] variables, string value)
+        static void PrintList(List<string> list)
         {
-            foreach (var item in variables)
+            foreach (var item in list)
             {
-                if (value.Contains(item))
-                {
-                    // add item to list if found
-                    list.Add(value);
-                    return true;
-                }
+                Console.WriteLine(item);
             }
-            return false;
         }
 
         // method that builds a new CSV for the user to view at the specified file path
