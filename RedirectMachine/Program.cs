@@ -19,9 +19,8 @@ namespace RedirectMachine
         public static List<string> osBlogList = new List<string>();
         public static List<string> osDoctorList = new List<string>();
         //public static List<string[]> priorityList = new List<string[]>();
-        public static string[,] priorityList = new string[,] {
-            {"", "" }
-        };
+
+        public static Dictionary<string, int> priorityList = new Dictionary<string, int>();
 
 
         public static string[,] osParams =  { 
@@ -78,7 +77,8 @@ namespace RedirectMachine
             { "/white-memorial/event/", "/white-memorial/" },
             { "/white-memorial/Pages/ehealth/kramescontent/", "/white-memorial/" },
             { "/white-memorial/pages/enrs/", "/white-memorial/" },
-            { "/white-memorial/Pages/OHAM/", "/white-memorial/" }
+            { "/white-memorial/Pages/OHAM/", "/white-memorial/" },
+            { "/white-memorial/pages/pnrs/providerprofile.aspx", "/doctors/" }
         };
         public static string[,] subProjects =
         {
@@ -153,7 +153,10 @@ namespace RedirectMachine
             Console.WriteLine($"osDoctor Count: {osDoctorCount}");
         }
 
-        // End of main function
+        static void Testing(List<string> list, string filePath, bool x)
+        {
+            // Purpose of method: while iterating through CSV, create new elements
+        }
 
         public static void FilterUrls(List<string> list, string[,] keyVals)
         {
@@ -170,14 +173,15 @@ namespace RedirectMachine
 
         public static void findUrl(List<string> oldList, List<string> newList)
         {
+            // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
+            // Pass path variable into checkList method.
+            // If checkList returns true, path found a match and was added to foundList List<>
+            // If checklist returns false, path did not find a match. Add to lostList List<>
+            // ++ either lostMatch or foundMatch
             foreach (var path in oldList)
             {
                 if (!checkList(path, newList))
                 {
-                    if (path == "")
-                    {
-
-                    }
                     lostMatch++;
                     lostList.Add(path);
                 }
@@ -223,6 +227,7 @@ namespace RedirectMachine
 
         public static string TruncateString(string value, int maxLength)
         {
+            // Purpose of method: retrieve usable/searchable end of url from variable value.
             // Step 1: remove unnecessary contents on end of url if found
             // Step 2: get url text after last slash in url
             // Step 3: truncate temporary value to maxLength
@@ -246,12 +251,13 @@ namespace RedirectMachine
 
         public static int getIndex(string i, string j)
         {
+            // Purpose of method: return position of j variable in string i. Specifically build for method TruncateString
             return i.LastIndexOf(j) - 1;
         }
 
         static void ReadCSV(List<string> list, string filePath)
         {
-            // add CSV file contents to list
+            // Purpose of method: add CSV file contents to list
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
@@ -266,9 +272,12 @@ namespace RedirectMachine
 
         static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
         {
+            // Purpose of method: Overload original ReadCSV method to search for catchAlls.
+            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+            // using counter variable, let console know how many lines were skipped
+
             int counter = 0;
-            // add CSV file contents to list
-            
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
@@ -292,20 +301,10 @@ namespace RedirectMachine
                 Console.WriteLine($"Counter: {counter}");
             }
         }
-
-        static void PrintList(List<string> list)
-        {
-            // method for testing purposes only
-            foreach (var item in list)
-            {
-                Console.WriteLine(item);
-            }
-        }
-
         
         static void buildCSV(List<string> list, string filePath)
         {
-            // method that builds a new CSV for the user to view at the specified file path
+            // Purpose of method: builds a new CSV for the user to view at the specified file path
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 foreach (var item in list)
@@ -315,24 +314,4 @@ namespace RedirectMachine
             }
         }
     }
-
-    /*
-    public class PriorityObject
-    {
-        private string url { get; set; }
-        public int priority { get; set; }
-
-        public PriorityObject()
-        {
-            url = "";
-            priority = 0;
-        }
-
-        public PriorityObject(string url)
-        {
-            this.url = url;
-        }
-
-    }
-    */
 }
