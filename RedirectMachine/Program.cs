@@ -155,7 +155,31 @@ namespace RedirectMachine
 
         static void Testing(List<string> list, string filePath, bool x)
         {
-            // Purpose of method: while iterating through CSV, create new elements
+            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    line = line.ToLower();
+                    line = TrimExcess(line);
+
+                    list.Add(line);
+
+                }
+                list.Sort();
+            }
+        }
+
+        public static string TrimExcess(string line)
+        {
+            int index;
+            string x = line;
+            if (x.Contains("?"))
+            {
+                index = getIndex(x, "?");
+            }
+            return x;
         }
 
         public static void FilterUrls(List<string> list, string[,] keyVals)
@@ -234,14 +258,18 @@ namespace RedirectMachine
             string temp = value;
             int index = value.Length;
             if (temp.EndsWith("/"))
-                index = getIndex(temp, "/");
+                temp = GetSubString(temp, "/");
+            //index = getIndex(temp, "/");
             else if (temp.EndsWith("-"))
-                index = getIndex(temp, "-");
+                temp = GetSubString(temp, "-");
+            //index = getIndex(temp, "-");
             else if (temp.EndsWith("/*"))
-                index = getIndex(temp, "/*");
+                temp = GetSubString(temp, "/*");
+            //index = getIndex(temp, "/*");
             else if (temp.Contains(".aspx"))
-                index = getIndex(temp, ".aspx");
-            temp = temp.Substring(0, index);
+                temp = GetSubString(temp, ".aspx");
+            //index = getIndex(temp, ".aspx");
+            //temp = temp.Substring(0, index);
 
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
@@ -253,6 +281,13 @@ namespace RedirectMachine
         {
             // Purpose of method: return position of j variable in string i. Specifically build for method TruncateString
             return i.LastIndexOf(j) - 1;
+        }
+
+        public static string GetSubString(string i, string j)
+        {
+            int index = getIndex(i, j);
+            string temp = i.Substring(0, index);
+            return temp;
         }
 
         static void ReadCSV(List<string> list, string filePath)
