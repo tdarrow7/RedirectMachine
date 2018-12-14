@@ -105,17 +105,19 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             ReadCSV(osUrls, osUrlFile, osParams);
-            //ReadCSV(osUrls, osUrlFile);
+            ReadCSV(osUrls, osUrlFile, osParams, true);
+            ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
 
             //LogList(osUrls);
@@ -138,6 +140,7 @@ namespace RedirectMachine
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
+            buildCSV(priorityList, probabilityDictionary);
 
             // stop stopwatch and record elapsed time
             stopwatch.Stop();
@@ -153,33 +156,46 @@ namespace RedirectMachine
             Console.WriteLine($"osDoctor Count: {osDoctorCount}");
         }
 
-        static void Testing(List<string> list, string filePath, bool x)
-        {
-            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    line = line.ToLower();
-                    line = TrimExcess(line);
-
-                    list.Add(line);
-
-                }
-                list.Sort();
-            }
-        }
+        
 
         public static string TrimExcess(string line)
         {
-            int index;
             string x = line;
             if (x.Contains("?"))
-            {
                 x = GetSubString(x, "?");
+            else if (x.Contains(".aspx"))
+            {
+                x = GetSubString(x, ".aspx", true);
+                return x;
+            }
+            if (x.Substring(x.Length - 1) != "/")
+            {
+                int i = x.LastIndexOf("/");
+                x = x.Substring(0, i + 1);
             }
             return x;
+        }
+
+        public static void checkDictionary(string line)
+        {
+
+            if (!priorityList.ContainsKey(line))
+            {
+                priorityList.Add(line, 1);
+            }
+            else
+            {
+                int value = priorityList[line];
+                value++;
+                priorityList[line] = value;
+                //priorityList[line] = (x => priorityList[line] += 1);
+            }
+            var count = line.Count(x => x == '/');
+            if (count >= 2)
+            {
+                line = GetSubString(line, "/", 2);
+                checkDictionary(line);
+            }
         }
 
         public static void FilterUrls(List<string> list, string[,] keyVals)
@@ -275,13 +291,39 @@ namespace RedirectMachine
         public static int getIndex(string i, string j)
         {
             // Purpose of method: return position of j variable in string i. Specifically build for method TruncateString
-            return i.LastIndexOf(j) - 1;
+            return i.LastIndexOf(j);
         }
 
         public static string GetSubString(string i, string j)
         {
+            // Purpose of method: return the substring of the string that is passed into this function.
             int index = getIndex(i, j);
             string temp = i.Substring(0, index);
+            return temp;
+        }
+
+        public static string GetSubString(string i, string j, bool x)
+        {
+            // Purpose of method: return the substring of the string that is passed into this function.
+            // This method is overloaded with a bool. The bool indicates to the function that it must return
+            // a substring that includes the string j rather than excluding it.
+            int index = getIndex(i, j);
+            string temp = i.Substring(0, index + j.Length);
+            return temp;
+        }
+
+        public static string GetSubString(string i, string j, int x)
+        {
+            // Purpose of method: return the substring of the string that is passed into this function.
+            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
+            var pos = 0;
+            string temp = i;
+            while (pos <= x)
+            {
+                int index = getIndex(i, j);
+                temp = temp.Substring(0, index);
+                pos++;
+            }
             return temp;
         }
 
@@ -331,7 +373,58 @@ namespace RedirectMachine
                 Console.WriteLine($"Counter: {counter}");
             }
         }
-        
+
+        static void ReadCSV(List<string> list, string filePath, bool x)
+        {
+            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+                using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    line = line.ToLower();
+                    line = TrimExcess(line);
+                    checkDictionary(line);
+
+                    list.Add(line);
+                }
+                list.Sort();
+            }
+        }
+
+        static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
+        {
+            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+            // using counter variable, let console know how many lines were skipped
+            int counter = 0;
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    bool catchAll = false;
+                    var line = reader.ReadLine();
+                    var temp = line.ToLower().Trim('"');
+                    for (int i = 0; i < keyVals.GetLength(0); i++)
+                    {
+                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+                        {
+                            catchAll = true;
+                            counter++;
+                            break;
+                        }
+                    }
+                    if (catchAll == false)
+                        list.Add(line);
+                    line = TrimExcess(line);
+                    checkDictionary(line);
+                }
+                list.Sort();
+                Console.WriteLine($"Counter: {counter}");
+            }
+        }
+
         static void buildCSV(List<string> list, string filePath)
         {
             // Purpose of method: builds a new CSV for the user to view at the specified file path
@@ -340,6 +433,19 @@ namespace RedirectMachine
                 foreach (var item in list)
                 {
                     tw.WriteLine(item);
+                }
+            }
+        }
+
+        static void buildCSV(Dictionary<string, int> list, string filePath)
+        {
+            // Purpose of method: builds a new CSV for the user to view at the specified file path
+            using (TextWriter tw = new StreamWriter(@"" + filePath))
+            {
+                foreach (var item in list)
+                {
+                    string line = $"{item.Key},{item.Value}";
+                    tw.WriteLine(line);
                 }
             }
         }
