@@ -177,7 +177,7 @@ namespace RedirectMachine
             string x = line;
             if (x.Contains("?"))
             {
-                index = getIndex(x, "?");
+                x = GetSubString(x, "?");
             }
             return x;
         }
@@ -259,17 +259,12 @@ namespace RedirectMachine
             int index = value.Length;
             if (temp.EndsWith("/"))
                 temp = GetSubString(temp, "/");
-            //index = getIndex(temp, "/");
             else if (temp.EndsWith("-"))
                 temp = GetSubString(temp, "-");
-            //index = getIndex(temp, "-");
             else if (temp.EndsWith("/*"))
                 temp = GetSubString(temp, "/*");
-            //index = getIndex(temp, "/*");
             else if (temp.Contains(".aspx"))
                 temp = GetSubString(temp, ".aspx");
-            //index = getIndex(temp, ".aspx");
-            //temp = temp.Substring(0, index);
 
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
