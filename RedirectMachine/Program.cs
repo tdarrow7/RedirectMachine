@@ -112,6 +112,12 @@ namespace RedirectMachine
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
             string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
