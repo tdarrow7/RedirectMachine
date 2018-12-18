@@ -105,8 +105,8 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -121,9 +121,9 @@ namespace RedirectMachine
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            ReadCSV(osUrls, osUrlFile, osParams);
+            //ReadCSV(osUrls, osUrlFile, osParams);
             ReadCSV(osUrls, osUrlFile, osParams, true);
-            ReadCSV(osUrls, osUrlFile, true);
+            //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
 
             //LogList(osUrls);
@@ -139,8 +139,6 @@ namespace RedirectMachine
             Console.WriteLine("begin search: ");
 
             // search url lists for new items
-            //findUrl(osBlogList, nsBlogList);
-            //findDocUrl(osDoctorList, nsDoctorList, osDoctorTitles);
             FilterUrls(osUrls, osParams);
             findUrl(osUrls, nsUrls);
 
@@ -162,7 +160,229 @@ namespace RedirectMachine
             Console.WriteLine($"osDoctor Count: {osDoctorCount}");
         }
 
-        
+        /*---------------------------------------------------------------------------
+         * ---------------------------------------------------------------------------
+         * ---------------------------------------------------------------------------
+        */
+
+        static void ReadCSV(List<string> list, string filePath)
+        {
+            // Purpose of method: add CSV file contents to list
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    line = line.ToLower();
+                    list.Add(line);
+                }
+                list.Sort();
+            }
+        }
+
+        static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
+        {
+            // Purpose of method: Overload original ReadCSV method to search for catchAlls.
+            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+            // using counter variable, let console know how many lines were skipped
+
+            int counter = 0;
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    bool catchAll = false;
+                    var line = reader.ReadLine();
+                    var temp = line.ToLower().Trim('"');
+                    for (int i = 0; i < keyVals.GetLength(0); i++)
+                    {
+                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+                        {
+                            catchAll = true;
+                            counter++;
+                            break;
+                        }
+                    }
+                    if (catchAll == false)
+                        list.Add(line);
+                }
+                list.Sort();
+                Console.WriteLine($"Counter: {counter}");
+            }
+        }
+
+        static void ReadCSV(List<string> list, string filePath, bool x)
+        {
+            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    line = line.ToLower();
+                    line = TrimExcess(line);
+                    checkDictionary(line);
+
+                    list.Add(line);
+                }
+                list.Sort();
+            }
+        }
+
+        static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
+        {
+            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+            // using counter variable, let console know how many lines were skipped
+            int counter = 0;
+            using (var reader = new StreamReader(@"" + filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    bool catchAll = false;
+                    var line = reader.ReadLine();
+                    var temp = line.ToLower().Trim('"');
+                    for (int i = 0; i < keyVals.GetLength(0); i++)
+                    {
+                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+                        {
+                            catchAll = true;
+                            counter++;
+                            break;
+                        }
+                    }
+                    if (catchAll == false)
+                        list.Add(line);
+                    line = TrimExcess(line);
+                    checkDictionary(line);
+                }
+                list.Sort();
+                Console.WriteLine($"Counter: {counter}");
+            }
+        }
+
+        /*---------------------------------------------------------------------------
+         * ---------------------------------------------------------------------------
+         * ---------------------------------------------------------------------------
+        */
+
+
+        public static void FilterUrls(List<string> list, string[,] keyVals)
+        {
+            // purpose of function: the reps multidimensional array houses a key/value pair
+            // The key is a url that occurs repeatedly in the old site map.
+            // The value is the new site's url that will be where all urls using the key will redirect to
+
+            for (int i = 0; i < keyVals.GetLength(0); i++)
+            {
+                list.RemoveAll(item => item == keyVals[i, 0].ToString().ToLower());
+                foundList.Add($"{keyVals[i, 0].ToString()}*,{keyVals[i, 1].ToString()}");
+            }
+        }
+
+        public static void findUrl(List<string> oldList, List<string> newList)
+        {
+            // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
+            // Pass path variable into checkList method.
+            // If checkList returns true, path found a match and was added to foundList List<>
+            // If checklist returns false, path did not find a match. Add to lostList List<>
+            // ++ either lostMatch or foundMatch
+            foreach (var path in oldList)
+            {
+                if (!checkList(path, newList))
+                {
+                    if (!AdvCheckList(path, newList))
+                    {
+                        lostMatch++;
+                        lostList.Add(path);
+                    }
+                }
+                else
+                {
+                    foundMatch++;
+                }
+            }
+        }
+
+        public static bool checkList(string value, List<string> urls)
+        {
+            // get last piece of url in string
+            string subString = TruncateString(value, 48);
+            foreach (var item in urls)
+            {
+                if (item.Contains(subString))
+                {
+                    string s = value + "," + item;
+                    TruncateList(s, foundList);
+                    //foundList.Add(s);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool AdvCheckList(string value, List<string> urls)
+        {
+            //Console.WriteLine("Within AdvCheckList function");
+            string subString = TruncateString(value, 48);
+            string[] tempArray = subString.Split('-');
+            string temp = "";
+            int counter = 0;
+            string s = "";
+            for (int i = 1; i < tempArray.Length; i++)
+            {
+                counter = 0;
+                temp = "";
+                for (int j = 0; j <= i; j++)
+                {
+                    temp = String.Concat(str0: temp, str1: tempArray[j]) + "-";
+                }
+                temp = temp.Substring(0, temp.Length - 1);
+                Console.WriteLine($"New String: {temp}");
+
+                foreach (var u in urls)
+                {
+                    if (u.Contains(temp))
+                    {
+                        counter++;
+                        s = $"{value},{u}";
+                    }
+                }
+                if (counter == 1)
+                {
+                    Console.WriteLine("found an item");
+                    TruncateList(s, foundList);
+                    return true;
+                }
+                else if (counter > 1)
+                {
+                    Console.WriteLine($"too many matches. Counter is: {counter}");
+                }
+                else if (counter < 1)
+                {
+                    Console.WriteLine("----didn't find any matches");
+                }
+            }
+            return false;
+        }
+
+        public static void TruncateList(string value, List<string> list)
+        {
+            bool found = false;
+            foreach (var i in list)
+            {
+                if (i == value)
+                {
+                    found = true;
+                    break;
+                }
+                    
+            }
+            if (found == false)
+                list.Add(value);
+        }
 
         public static string TrimExcess(string line)
         {
@@ -202,73 +422,6 @@ namespace RedirectMachine
                 line = GetSubString(line, "/", 2);
                 checkDictionary(line);
             }
-        }
-
-        public static void FilterUrls(List<string> list, string[,] keyVals)
-        {
-            // purpose of function: the reps multidimensional array houses a key/value pair
-            // The key is a url that occurs repeatedly in the old site map.
-            // The value is the new site's url that will be where all urls using the key will redirect to
-
-            for (int i = 0; i < keyVals.GetLength(0); i++)
-            {
-                list.RemoveAll(item => item == keyVals[i, 0].ToString().ToLower());
-                foundList.Add($"{keyVals[i, 0].ToString()}*,{keyVals[i, 1].ToString()}");
-            }
-        }
-
-        public static void findUrl(List<string> oldList, List<string> newList)
-        {
-            // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
-            // Pass path variable into checkList method.
-            // If checkList returns true, path found a match and was added to foundList List<>
-            // If checklist returns false, path did not find a match. Add to lostList List<>
-            // ++ either lostMatch or foundMatch
-            foreach (var path in oldList)
-            {
-                if (!checkList(path, newList))
-                {
-                    lostMatch++;
-                    lostList.Add(path);
-                }
-                else
-                {
-                    foundMatch++;
-                }
-            }
-        }
-
-        public static bool checkList(string value, List<string> urls)
-        {
-            // get last piece of url in string
-            string subString = TruncateString(value, 48);
-            foreach (var item in urls)
-            {
-                if (item.Contains(subString))
-                {
-                    string s = value + "," + item;
-                    TruncateList(s, foundList);
-                    //foundList.Add(s);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static void TruncateList(string value, List<string> list)
-        {
-            bool found = false;
-            foreach (var i in list)
-            {
-                if (i == value)
-                {
-                    found = true;
-                    break;
-                }
-                    
-            }
-            if (found == false)
-                list.Add(value);
         }
 
         public static string TruncateString(string value, int maxLength)
@@ -333,103 +486,7 @@ namespace RedirectMachine
             return temp;
         }
 
-        static void ReadCSV(List<string> list, string filePath)
-        {
-            // Purpose of method: add CSV file contents to list
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    line = line.ToLower();
-                    list.Add(line);
-                }
-                list.Sort();
-            }
-        }
-
-        static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
-        {
-            // Purpose of method: Overload original ReadCSV method to search for catchAlls.
-            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
-            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-            // using counter variable, let console know how many lines were skipped
-
-            int counter = 0;
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    bool catchAll = false;
-                    var line = reader.ReadLine();
-                    var temp = line.ToLower().Trim('"');
-                    for (int i = 0; i < keyVals.GetLength(0); i++)
-                    {
-                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-                        {
-                            catchAll = true;
-                            counter++;
-                            break;
-                        }
-                    }
-                    if (catchAll == false)
-                        list.Add(line);
-                }
-                list.Sort();
-                Console.WriteLine($"Counter: {counter}");
-            }
-        }
-
-        static void ReadCSV(List<string> list, string filePath, bool x)
-        {
-            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-                using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    line = line.ToLower();
-                    line = TrimExcess(line);
-                    checkDictionary(line);
-
-                    list.Add(line);
-                }
-                list.Sort();
-            }
-        }
-
-        static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
-        {
-            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
-            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-            // using counter variable, let console know how many lines were skipped
-            int counter = 0;
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    bool catchAll = false;
-                    var line = reader.ReadLine();
-                    var temp = line.ToLower().Trim('"');
-                    for (int i = 0; i < keyVals.GetLength(0); i++)
-                    {
-                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-                        {
-                            catchAll = true;
-                            counter++;
-                            break;
-                        }
-                    }
-                    if (catchAll == false)
-                        list.Add(line);
-                    line = TrimExcess(line);
-                    checkDictionary(line);
-                }
-                list.Sort();
-                Console.WriteLine($"Counter: {counter}");
-            }
-        }
+        
 
         static void buildCSV(List<string> list, string filePath)
         {
