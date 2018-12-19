@@ -105,18 +105,19 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
             //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -139,7 +140,7 @@ namespace RedirectMachine
             Console.WriteLine("begin search: ");
 
             // search url lists for new items
-            FilterUrls(osUrls, osParams);
+            //FilterUrls(osUrls, osParams);
             findUrl(osUrls, nsUrls);
 
             buildCSV(lostList, lostUrlFile);
@@ -258,6 +259,9 @@ namespace RedirectMachine
                     line = TrimExcess(line);
                     checkDictionary(line);
                 }
+
+                AddUrls(list, keyVals);
+                
                 list.Sort();
                 Console.WriteLine($"Counter: {counter}");
             }
@@ -269,7 +273,7 @@ namespace RedirectMachine
         */
 
 
-        public static void FilterUrls(List<string> list, string[,] keyVals)
+        public static void AddUrls(List<string> list, string[,] keyVals)
         {
             // purpose of function: the reps multidimensional array houses a key/value pair
             // The key is a url that occurs repeatedly in the old site map.
@@ -277,7 +281,7 @@ namespace RedirectMachine
 
             for (int i = 0; i < keyVals.GetLength(0); i++)
             {
-                list.RemoveAll(item => item == keyVals[i, 0].ToString().ToLower());
+                //list.RemoveAll(item => item == keyVals[i, 0].ToString().ToLower());
                 foundList.Add($"{keyVals[i, 0].ToString()}*,{keyVals[i, 1].ToString()}");
             }
         }
@@ -316,7 +320,6 @@ namespace RedirectMachine
                 {
                     string s = value + "," + item;
                     TruncateList(s, foundList);
-                    //foundList.Add(s);
                     return true;
                 }
             }
@@ -325,47 +328,37 @@ namespace RedirectMachine
 
         public static bool AdvCheckList(string value, List<string> urls)
         {
-            //Console.WriteLine("Within AdvCheckList function");
-            string subString = TruncateString(value, 48);
-            string[] tempArray = subString.Split('-');
-            string temp = "";
-            int counter = 0;
-            string s = "";
+            string[] tempArray = TruncateString(value, 48).Split('-');
             for (int i = 1; i < tempArray.Length; i++)
             {
-                counter = 0;
-                temp = "";
-                for (int j = 0; j <= i; j++)
-                {
-                    temp = String.Concat(str0: temp, str1: tempArray[j]) + "-";
-                }
-                temp = temp.Substring(0, temp.Length - 1);
-                Console.WriteLine($"New String: {temp}");
-
+                int counter = 0;
+                string temp = BuildTempString(tempArray, i);
                 foreach (var u in urls)
                 {
                     if (u.Contains(temp))
                     {
                         counter++;
-                        s = $"{value},{u}";
+                        temp = $"{value},{u}";
                     }
                 }
                 if (counter == 1)
                 {
-                    Console.WriteLine("found an item");
-                    TruncateList(s, foundList);
+                    TruncateList(temp, foundList);
                     return true;
-                }
-                else if (counter > 1)
-                {
-                    Console.WriteLine($"too many matches. Counter is: {counter}");
-                }
-                else if (counter < 1)
-                {
-                    Console.WriteLine("----didn't find any matches");
                 }
             }
             return false;
+        }
+
+        public static string BuildTempString(string[] tempArray, int i)
+        {
+            // Purpose of method: return a temporary string from an array of strings
+            string x = "";
+            for (int j = 0; j <= i; j++)
+            {
+                x = String.Concat(str0: x, str1: tempArray[j]) + "-";
+            }
+            return x.Substring(0, tempArray.Length - 1);
         }
 
         public static void TruncateList(string value, List<string> list)
@@ -378,7 +371,6 @@ namespace RedirectMachine
                     found = true;
                     break;
                 }
-                    
             }
             if (found == false)
                 list.Add(value);
@@ -404,7 +396,6 @@ namespace RedirectMachine
 
         public static void checkDictionary(string line)
         {
-
             if (!priorityList.ContainsKey(line))
             {
                 priorityList.Add(line, 1);
@@ -414,7 +405,6 @@ namespace RedirectMachine
                 int value = priorityList[line];
                 value++;
                 priorityList[line] = value;
-                //priorityList[line] = (x => priorityList[line] += 1);
             }
             var count = line.Count(x => x == '/');
             if (count >= 2)
