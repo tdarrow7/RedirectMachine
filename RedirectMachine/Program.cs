@@ -16,10 +16,6 @@ namespace RedirectMachine
         static List<string> osUrls = new List<string>();
         static List<string> nsUrls = new List<string>();
 
-        public static List<string> osBlogList = new List<string>();
-        public static List<string> osDoctorList = new List<string>();
-        //public static List<string[]> priorityList = new List<string[]>();
-
         public static Dictionary<string, int> priorityList = new Dictionary<string, int>();
 
 
@@ -82,31 +78,37 @@ namespace RedirectMachine
         };
         public static string[,] subProjects =
         {
+            { "/bakersfield/", "/bakersfield/" },
+            { "/castle/", "/castle/" },
+            { "/clear-lake/", "/clear-lake/" },
+            { "/lodimemorial/", "/lodi-memorial/" },
+            { "/tehachapivalley/", "tehachapi-valley" },
+            { "/sthelena/", "/st-helena/" },
+            { "/sonora/", "/sonora/" },
+            { "/simi-valley/", "/simi-valley/" },
+            { "/reedley/", "/reedley/" },
+            { "/selma/", "/selma/" },
+            { "/rideout/", "/rideout/" },
+            { "/portland/", "/portland/" },
+            { "/glendale/", "/glendale/" },
+            { "/howard-memorial/", "/howard-memorial/" },
+            { "/hanford/", "/hanford/" },
+            { "/feather-river/", "/feather-river/" },
+            { "/vallejo/", "/vallejo/" },
+            { "/tillamook/", "/tillamook/" },
             { "/white-memorial/", "/white-memorial/" },
-            { "/tehachapivalley/", "/tehachapivalley/" },
-            { "/bakersfield/", "/bakersfield/" }
-
+            { "/ukiah-valley/", "/ukiah-valley/" }
         };
-        public static string[] osDoctorTitles = { "-md", "-do", "-mph", "-pa-c", "-macp", "-mba", "-agacnp-bc", "-np", "-np-c", "-fnp-c", "-msn", "-aprn", "-phd", "-ms", "-cnm", "-facs", "-facog", "-facp", "-dpm", "-mmci", "-rd", "-cdn", "-msc", "-facmg", "-fapa", "-mhs", "-faaa", "-np-bc", "-cgc", "-facr", "-med", "-whnp-bc" };
-
-        public static List<string> nsBlogList = new List<string>();
-        public static List<string> nsDoctorList = new List<string>();
-        public static string[] nsBlogParams = { "/blog/" };
-        public static string[] nsDoctorParams = { "/doctors/" };
 
         // list out number of found urls
         static int foundMatch = 0;
         static int lostMatch = 0;
-
-        static int osDoctorCount = 0;
-
-
         static void Main(string[] args)
         {
 
             // initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -124,20 +126,13 @@ namespace RedirectMachine
 
             //ReadCSV(osUrls, osUrlFile, osParams);
             ReadCSV(osUrls, osUrlFile, osParams, true);
+            AddUrls(foundList, osParams);
             //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
-
-            Console.WriteLine($"size of oldUrls list: {osUrls.Count}");
-            Console.WriteLine($"size of newUrls list: {nsUrls.Count}");
-            Console.WriteLine($"size of osBlogList: {osBlogList.Count}");
-            Console.WriteLine($"size of nsBlogList: {nsBlogList.Count}");
-            Console.WriteLine($"size of osDoctorList: {osDoctorList.Count}");
-            Console.WriteLine($"size of nsDoctorList: {nsDoctorList.Count}");
 
             Console.WriteLine("begin search: ");
 
             // search url lists for new items
-            //FilterUrls(osUrls, osParams);
             findUrl(osUrls, nsUrls);
 
             buildCSV(lostList, lostUrlFile);
@@ -155,7 +150,6 @@ namespace RedirectMachine
             Console.WriteLine($"lostList count: {lostList.Count}");
             Console.WriteLine($"foundList count: {foundList.Count}");
             Console.WriteLine($"Run time: {elapsedTime}");
-            Console.WriteLine($"osDoctor Count: {osDoctorCount}");
         }
 
         /*---------------------------------------------------------------------------
@@ -257,7 +251,7 @@ namespace RedirectMachine
                     checkDictionary(line);
                 }
 
-                // AddUrls(list, keyVals);
+                
                 // commented out for testing purposes
                 
                 list.Sort();
@@ -298,9 +292,7 @@ namespace RedirectMachine
                     }
                 }
                 else
-                {
                     foundMatch++;
-                }
             }
         }
 
@@ -328,7 +320,6 @@ namespace RedirectMachine
                 int counter = 0;
                 string temp = BuildTempString(tempArray, i);
                 string s = "";
-                Console.WriteLine($"temp var: {temp}");
                 foreach (var u in urls)
                 {
                     if (u.Contains(temp))
@@ -339,17 +330,8 @@ namespace RedirectMachine
                 }
                 if (counter == 1)
                 {
-                    Console.WriteLine("found a single match");
                     TruncateList(s, foundList);
                     return true;
-                }
-                else if (counter > 1)
-                {
-                    Console.WriteLine($"Too many matches. Counter: {counter}");
-                }
-                else if (counter < 1)
-                {
-                    Console.WriteLine($"Too few matches. Counter: {counter}");
                 }
             }
             return false;
