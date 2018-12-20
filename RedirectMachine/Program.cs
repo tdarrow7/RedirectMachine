@@ -106,18 +106,18 @@ namespace RedirectMachine
 
             // initialize paths to files
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -126,9 +126,6 @@ namespace RedirectMachine
             ReadCSV(osUrls, osUrlFile, osParams, true);
             //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
-
-            //LogList(osUrls);
-
 
             Console.WriteLine($"size of oldUrls list: {osUrls.Count}");
             Console.WriteLine($"size of newUrls list: {nsUrls.Count}");
@@ -260,7 +257,8 @@ namespace RedirectMachine
                     checkDictionary(line);
                 }
 
-                AddUrls(list, keyVals);
+                // AddUrls(list, keyVals);
+                // commented out for testing purposes
                 
                 list.Sort();
                 Console.WriteLine($"Counter: {counter}");
@@ -275,13 +273,9 @@ namespace RedirectMachine
 
         public static void AddUrls(List<string> list, string[,] keyVals)
         {
-            // purpose of function: the reps multidimensional array houses a key/value pair
-            // The key is a url that occurs repeatedly in the old site map.
-            // The value is the new site's url that will be where all urls using the key will redirect to
-
+            // purpose of function: add catch-alls to List
             for (int i = 0; i < keyVals.GetLength(0); i++)
             {
-                //list.RemoveAll(item => item == keyVals[i, 0].ToString().ToLower());
                 foundList.Add($"{keyVals[i, 0].ToString()}*,{keyVals[i, 1].ToString()}");
             }
         }
@@ -328,23 +322,34 @@ namespace RedirectMachine
 
         public static bool AdvCheckList(string value, List<string> urls)
         {
-            string[] tempArray = TruncateString(value, 48).Split('-');
+            string[] tempArray = TruncateString(value, 48).Split('-');  // could be root problem
             for (int i = 1; i < tempArray.Length; i++)
             {
                 int counter = 0;
                 string temp = BuildTempString(tempArray, i);
+                string s = "";
+                Console.WriteLine($"temp var: {temp}");
                 foreach (var u in urls)
                 {
                     if (u.Contains(temp))
                     {
                         counter++;
-                        temp = $"{value},{u}";
+                        s = $"{value},{u}";
                     }
                 }
                 if (counter == 1)
                 {
-                    TruncateList(temp, foundList);
+                    Console.WriteLine("found a single match");
+                    TruncateList(s, foundList);
                     return true;
+                }
+                else if (counter > 1)
+                {
+                    Console.WriteLine($"Too many matches. Counter: {counter}");
+                }
+                else if (counter < 1)
+                {
+                    Console.WriteLine($"Too few matches. Counter: {counter}");
                 }
             }
             return false;
@@ -358,7 +363,7 @@ namespace RedirectMachine
             {
                 x = String.Concat(str0: x, str1: tempArray[j]) + "-";
             }
-            return x.Substring(0, tempArray.Length - 1);
+            return x.Substring(0, x.Length - 1);
         }
 
         public static void TruncateList(string value, List<string> list)
