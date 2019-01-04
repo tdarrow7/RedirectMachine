@@ -314,7 +314,7 @@ namespace RedirectMachine
 
         public static bool AdvCheckList(string value, List<string> urls)
         {
-            string[] tempArray = TruncateString(value, 48).Split('-');  // could be root problem
+            string[] tempArray = TruncateString(value, 48).Split('-'); 
             for (int i = 1; i < tempArray.Length; i++)
             {
                 int counter = 0;
