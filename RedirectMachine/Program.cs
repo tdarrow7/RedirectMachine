@@ -35,7 +35,7 @@ namespace RedirectMachine
             { "/glendale/pages/pnrs/providerprofile.aspx/", "/doctors/" },
             { "/howard-memorial/Pages/ehealth/kramescontent/", "/howard-memorial/" },
             { "/howard-memorial/pages/news/newssearchresult.aspx", "/blog/" },
-            { "/lodimemorial/Pages/ehealth/kramescontent/default.aspx/", "/lodi-memorial/" },
+            { "/lodimemorial/Pages/ehealth/kramescontent/", "/lodi-memorial/" },
             { "/lodimemorial/pages/enrs/eventscartregistration.aspx", "/lodi-memorial/" },
             { "/lodimemorial/pages/enrs/eventssearchresult.aspx", "/lodi-memorial/" },
             { "/napa-valley/Pages/ehealth/kramescontent/", "/st-helena/" },
@@ -100,6 +100,9 @@ namespace RedirectMachine
             { "/ukiah-valley/", "/ukiah-valley/" }
         };
 
+
+        public static int subProjectCounter = 0;
+
         // list out number of found urls
         static int foundMatch = 0;
         static int lostMatch = 0;
@@ -107,8 +110,8 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -149,6 +152,7 @@ namespace RedirectMachine
             Console.WriteLine($"foundMatch count: {foundMatch}");
             Console.WriteLine($"lostList count: {lostList.Count}");
             Console.WriteLine($"foundList count: {foundList.Count}");
+            Console.WriteLine($"sub project counter: {subProjectCounter}");
             Console.WriteLine($"Run time: {elapsedTime}");
         }
 
@@ -304,6 +308,16 @@ namespace RedirectMachine
             {
                 if (item.Contains(subString))
                 {
+                    foreach (var subProject in subProjects)
+                    {
+                        if (value.StartsWith(subProject[0]))
+                        {
+                            if (item.StartsWith(subProject[1]))
+                            {
+                                subProjectCounter++;
+                            }
+                        }
+                    }
                     string s = value + "," + item;
                     TruncateList(s, foundList);
                     return true;
