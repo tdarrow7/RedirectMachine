@@ -381,7 +381,7 @@ namespace RedirectMachine
         {
             string x = line;
             if (x.Contains("?"))
-                x = GetSubString(x, "?");
+                x = GetSubString(x, "?", false);
             else if (x.Contains(".aspx"))
             {
                 x = GetSubString(x, ".aspx", true);
@@ -424,13 +424,13 @@ namespace RedirectMachine
             string temp = value;
             int index = value.Length;
             if (temp.EndsWith("/"))
-                temp = GetSubString(temp, "/");
-            else if (temp.EndsWith("-"))
-                temp = GetSubString(temp, "-");
+                temp = GetSubString(temp, "/", false);
             else if (temp.EndsWith("/*"))
-                temp = GetSubString(temp, "/*");
-            else if (temp.Contains(".aspx"))
-                temp = GetSubString(temp, ".aspx");
+                temp = GetSubString(temp, "/*", false);
+            else if (temp.EndsWith("-"))
+                temp = GetSubString(temp, "-", false);
+            else if (temp.Contains("."))
+                temp = GetSubString(temp, ".", false);
 
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
@@ -444,21 +444,20 @@ namespace RedirectMachine
             return i.LastIndexOf(j);
         }
 
-        public static string GetSubString(string i, string j)
-        {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            int index = getIndex(i, j);
-            string temp = i.Substring(0, index);
-            return temp;
-        }
-
         public static string GetSubString(string i, string j, bool x)
         {
             // Purpose of method: return the substring of the string that is passed into this function.
             // This method is overloaded with a bool. The bool indicates to the function that it must return
-            // a substring that includes the string j rather than excluding it.
+            // a substring that 1) if true, includes the string j rather than excluding it, or
+            // 2) if false, returns a substring that excludes string j.
             int index = getIndex(i, j);
-            string temp = i.Substring(0, index + j.Length);
+            string temp;
+            if (x == true)
+            {
+                temp = i.Substring(0, index + j.Length);
+            }
+            else
+                temp = i.Substring(0, index);
             return temp;
         }
 
