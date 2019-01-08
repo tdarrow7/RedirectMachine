@@ -110,8 +110,8 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -298,7 +298,12 @@ namespace RedirectMachine
                 else
                     foundMatch++;
             }
+            //List<Tuple<string, string>> old = new List<Tuple<string, string>>();
+            //List<Tuple<string, string>> newlist  = new List<Tuple<string, string>>();
+
+            //List<Resouces> wat = new List<Resouces>();
         }
+
 
         public static bool checkList(string value, List<string> urls)
         {
@@ -309,7 +314,7 @@ namespace RedirectMachine
                 if (item.Contains(subString))
                 {
                     foreach (var subProject in subProjects)
-                    {
+                    { 
                         if (value.StartsWith(subProject[0]))
                         {
                             if (item.StartsWith(subProject[1]))
@@ -440,15 +445,15 @@ namespace RedirectMachine
 
         public static int getIndex(string i, string j)
         {
-            // Purpose of method: return position of j variable in string i. Specifically build for method TruncateString
+            // Purpose of method: return position of j variable in string i.
             return i.LastIndexOf(j);
         }
 
         public static string GetSubString(string i, string j, bool x)
         {
             // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with a bool. The bool indicates to the function that it must return
-            // a substring that 1) if true, includes the string j rather than excluding it, or
+            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
+            // 1) if true, includes the string j rather than excluding it, or
             // 2) if false, returns a substring that excludes string j.
             int index = getIndex(i, j);
             string temp;
@@ -475,8 +480,6 @@ namespace RedirectMachine
             }
             return temp;
         }
-
-        
 
         static void buildCSV(List<string> list, string filePath)
         {
