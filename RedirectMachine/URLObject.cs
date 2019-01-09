@@ -9,7 +9,7 @@ namespace RedirectMachine
         private string originalUrl;
         private string urlSubDirectory;
         private int score = 0;
-        public string[] matchedUrls = new string[]{};
+        public List<string> matchedUrls = new List<string>();
 
         URLObject urlObject = new URLObject();
     }
