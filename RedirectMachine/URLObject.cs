@@ -75,7 +75,7 @@ namespace RedirectMachine
             count--;
         }
 
-        public bool ScanMatchedUrls(string l)
+        public bool ScanMatchedUrls()
         {
             if (count == 1)
             {
@@ -84,13 +84,31 @@ namespace RedirectMachine
             }
             else
             {
+                string oTemp = TruncateUrl(originalUrl);
                 foreach (var url in matchedUrls)
                 {
-                    
+                    string temp = TruncateUrl();
                 }
             }
 
                 return false;
+        }
+
+        public string TruncateUrl(string i)
+        {
+            string temp = i;
+            if (i.StartsWith("http://") || i.StartsWith("https://"))
+            {
+                int index = i.IndexOf("//");
+                temp = temp.Substring(index, originalUrl.Length);
+            }
+
+            return temp;
+        }
+
+        public int GetIndex(string line, string criteria)
+        {
+            return line.IndexOf(criteria)
         }
     }
 
