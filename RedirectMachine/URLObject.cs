@@ -7,26 +7,24 @@ namespace RedirectMachine
 {
     class URLObject
     {
-        private string originalUrl, urlSub, newUrl;
+        private string originalUrl, head, tail, newUrl, redirect;
         private int score, count;
         public List<string> matchedUrls;
         
         public URLObject()
         {
             // default constructor
-            score = 0;
-            matchedUrls = new List<string>();
         }
 
         
-        public URLObject(string originalUrl, string urlSub)
+        public URLObject(string originalUrl)
         {
             // create working constructor
             this.originalUrl = originalUrl;
-            this.urlSub = urlSub;
+            head = TruncateStringHead(originalUrl);
+            tail = TruncateString(originalUrl, 48);
             score = 0;
             matchedUrls = new List<string>();
-            
         }
 
         
@@ -36,14 +34,26 @@ namespace RedirectMachine
             return originalUrl;
         }
 
+        public string GetNewUrl()
+        {
+            // Purpose: return private string newUrl
+            return newUrl;
+        }
+
         public string GetUrlSub()
         {
             // Purpose: return private stirng urlSub
-            return urlSub;
+            return tail;
         }
 
         
         public int GetScore()
+        {
+            // Purpose: return private int score
+            return score;
+        }
+
+        public int GetCount()
         {
             // Purpose: return private int score
             return score;
@@ -75,23 +85,45 @@ namespace RedirectMachine
             count--;
         }
 
+        public void CheckUrl(string url)
+        {
+            string temp = TruncateString(url, 48);
+            Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
+            if (url.Contains(head))
+                AddMatchedUrl(url);
+        }
+
         public bool ScanMatchedUrls()
         {
-            if (count == 1)
+            
+            if (count == 0)
+            {
+                return false;
+            }
+                
+            else if (count == 1)
             {
                 newUrl = matchedUrls.First();
+                AddScore();
                 return true;
             }
             else
             {
-                string oTemp = TruncateUrl(originalUrl);
                 foreach (var url in matchedUrls)
                 {
-                    string temp = TruncateString(url);
+                    string temp = TruncateStringHead(url);
+                    if (!temp.Contains(head))
+                        matchedUrls.Remove(temp);
+                    count--;
+                }
+                if (count == 1)
+                {
+                    newUrl = matchedUrls.First();
+                    AddScore();
+                    return true;
                 }
             }
-
-                return false;
+            return false;
         }
 
         public string TruncateString(string value)
@@ -119,6 +151,22 @@ namespace RedirectMachine
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
         }
 
+        public string TruncateStringHead(string value)
+        {
+            // Purpose: return first chunk of url. 
+            // Check if url starts with http or https. If it does, grab entire domain of url
+            // if that doesn't exist, return the first chunk of the url in between the first two '/'
+            string temp = value;
+            int index = 2;
+            if (value.StartsWith("http"))
+                temp = TrimFullUrl(value);
+            if (temp.StartsWith("/"))
+                temp = temp.Substring(1);
+            if (temp.EndsWith("/"))
+                temp = temp.Substring(0, temp.Length - 1);
+            return value.Substring(0, index);
+        }
+
         public string CheckVars(string value)
         {
             // Purpose: remove unnecessary contents on end of url if found
@@ -133,10 +181,22 @@ namespace RedirectMachine
             return value;
         }
 
-        public static int GetIndex(string i, string j)
+        public static int GetFirstIndex(string i, string j)
         {
-            // Purpose of method: return position of j variable in string i.
-            return i.LastIndexOf(j);
+            // Purpose of method: return first position of j variable in string i.
+            if (i.Contains(j))
+                return i.IndexOf(j);
+            else
+                return i.Length;
+        }
+
+        public static int GetLastIndex(string i, string j)
+        {
+            // Purpose of method: return last position of j variable in string i.
+            if (i.Contains(j))
+                return i.LastIndexOf(j);
+            else
+                return i.Length;
         }
 
         public static string GetSubString(string i, string j, bool x)
@@ -145,7 +205,7 @@ namespace RedirectMachine
             // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
             // 1) if true, includes the string j rather than excluding it, or
             // 2) if false, returns a substring that excludes string j.
-            int index = GetIndex(i, j);
+            int index = GetLastIndex(i, j);
             string temp;
             if (x == true)
             {
@@ -164,13 +224,23 @@ namespace RedirectMachine
             string temp = i;
             while (pos <= x)
             {
-                int index = GetIndex(i, j);
+                int index = GetLastIndex(i, j);
                 temp = temp.Substring(0, index);
                 pos++;
             }
             return temp;
         }
+
+        public string TrimFullUrl(string value)
+        {
+            int index = GetFirstIndex(value, "//");
+            string temp = value.Substring(index, value.Length);
+            temp = temp.Substring(0, GetFirstIndex(temp, "/"));
+            return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
+        }
+
     }
 
+    
 
 }

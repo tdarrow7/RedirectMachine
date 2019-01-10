@@ -111,8 +111,8 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -209,24 +209,6 @@ namespace RedirectMachine
             }
         }
 
-        //static void ReadCSV(List<string> list, string filePath, bool x)
-        //{
-        //    // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-        //    using (var reader = new StreamReader(@"" + filePath))
-        //    {
-        //        while (!reader.EndOfStream)
-        //        {
-        //            var line = reader.ReadLine();
-        //            line = line.ToLower();
-        //            line = TrimExcess(line);
-        //            checkDictionary(line);
-
-        //            list.Add(line);
-        //        }
-        //        list.Sort();
-        //    }
-        //}
-
         static void ReadCSV(List<URLObject> list, string filePath, bool x)
         {
             // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
@@ -237,50 +219,12 @@ namespace RedirectMachine
                 {
                     var line = reader.ReadLine();
                     line = line.ToLower();
-                    string temp = TruncateString(line, 48);
-                    list.Add(new URLObject(line, temp));
-                    line = TrimExcess(line);
-                    checkDictionary(line);
+                    list.Add(new URLObject(line));
+                    //line = TrimExcess(line);
+                    //checkDictionary(line);
                 }
             }
         }
-
-        //static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
-        //{
-        //    // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-        //    // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
-        //    // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-        //    // using counter variable, let console know how many lines were skipped
-        //    int counter = 0;
-        //    using (var reader = new StreamReader(@"" + filePath))
-        //    {
-        //        while (!reader.EndOfStream)
-        //        {
-        //            bool catchAll = false;
-        //            var line = reader.ReadLine();
-        //            var temp = line.ToLower().Trim('"');
-        //            for (int i = 0; i < keyVals.GetLength(0); i++)
-        //            {
-        //                if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-        //                {
-        //                    catchAll = true;
-        //                    counter++;
-        //                    break;
-        //                }
-        //            }
-        //            if (catchAll == false)
-        //                list.Add(line);
-        //            line = TrimExcess(line);
-        //            checkDictionary(line);
-        //        }
-
-                
-        //        // commented out for testing purposes
-                
-        //        list.Sort();
-        //        Console.WriteLine($"Counter: {counter}");
-        //    }
-        //}
 
         static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals, bool x)
         {
@@ -307,11 +251,10 @@ namespace RedirectMachine
                     }
                     if (catchAll == false)
                     {
-                        temp = TruncateString(temp, 48);
-                        list.Add(new URLObject(line, temp));
+                        list.Add(new URLObject(line));
                     }
-                    line = TrimExcess(line);
-                    checkDictionary(line);
+                    //line = TrimExcess(line);
+                    //checkDictionary(line);
                 }
                 Console.WriteLine($"Counter: {counter}");
             }
@@ -332,32 +275,6 @@ namespace RedirectMachine
             }
         }
 
-        //public static void findUrl(List<string> oldList, List<string> newList)
-        //{
-        //    // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
-        //    // Pass path variable into checkList method.
-        //    // If checkList returns true, path found a match and was added to foundList List<>
-        //    // If checklist returns false, path did not find a match. Add to lostList List<>
-        //    // ++ either lostMatch or foundMatch
-        //    foreach (var path in oldList)
-        //    {
-        //        if (!checkList(path, newList))
-        //        {
-        //            if (!AdvCheckList(path, newList))
-        //            {
-        //                lostMatch++;
-        //                lostList.Add(path);
-        //            }
-        //        }
-        //        else
-        //            foundMatch++;
-        //    }
-        //    //List<Tuple<string, string>> old = new List<Tuple<string, string>>();
-        //    //List<Tuple<string, string>> newlist  = new List<Tuple<string, string>>();
-
-        //    //List<Resouces> wat = new List<Resouces>();
-        //}
-
         public static void findUrl(List<URLObject> oldList, List<string> newList)
         {
             // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
@@ -368,102 +285,34 @@ namespace RedirectMachine
             foreach (var obj in oldList)
             {
                 //string temp = obj.GetUrlSub();
-                if (!CheckList(obj, newList))
+                if (CheckList(obj, newList))
                 {
-                    if (!AdvCheckList(obj, newList))
-                    {
-                        lostMatch++;
-                        lostList.Add(obj);
-                    }
+
+                    //if (!AdvCheckList(obj, newList))
+                    //{
+                    //    lostMatch++;
+                    //    lostList.Add(obj);
+                    //}
+                    foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
+                    foundMatch++;
                 }
                 else
-                    foundMatch++;
+                {
+                    lostList.Add(obj.GetOriginalUrl());
+                    lostMatch++;
+                }
+                    
             }
-            //List<Tuple<string, string>> old = new List<Tuple<string, string>>();
-            //List<Tuple<string, string>> newlist  = new List<Tuple<string, string>>();
-
-            //List<Resouces> wat = new List<Resouces>();
         }
-
-
-        //public static bool CheckList(string value, List<string> urls)
-        //{
-        //    // get last piece of url in string
-        //    string subString = TruncateString(value, 48);
-        //    foreach (var item in urls)
-        //    {
-        //        string temp = TruncateString(item, 48);
-        //        if (temp.Contains(subString))
-        //        {
-        //            foreach (var subProject in subProjects)
-        //            { 
-        //                if (value.StartsWith(subProject[0]))
-        //                {
-        //                    if (temp.StartsWith(subProject[1]))
-        //                    {
-        //                        subProjectCounter++;
-        //                    }
-        //                }
-        //            }
-        //            string s = value + "," + item;
-        //            TruncateList(s, foundList);
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
 
         public static bool CheckList(URLObject obj, List<string> urls)
         {
             // get last piece of url in string
-            string subString = obj.GetUrlSub();
             foreach (var item in urls)
             {
-                string temp = TruncateString(item, 48);
-                if (temp.Contains(subString))
-                {
-                    string s = value + "," + item;
-                    TruncateList(s, foundList);
-                    return true;
-                }
+                obj.CheckUrl(item);
             }
-            return false;
-        }
-
-        public static bool AdvCheckList(string value, List<string> urls)
-        {
-            string[] tempArray = TruncateString(value, 48).Split('-'); 
-            for (int i = 1; i < tempArray.Length; i++)
-            {
-                int counter = 0;
-                string temp = BuildTempString(tempArray, i);
-                string s = "";
-                foreach (var u in urls)
-                {
-                    if (u.Contains(temp))
-                    {
-                        counter++;
-                        s = $"{value},{u}";
-                    }
-                }
-                if (counter == 1)
-                {
-                    TruncateList(s, foundList);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static string BuildTempString(string[] tempArray, int i)
-        {
-            // Purpose of method: return a temporary string from an array of strings
-            string x = "";
-            for (int j = 0; j <= i; j++)
-            {
-                x = String.Concat(str0: x, str1: tempArray[j]) + "-";
-            }
-            return x.Substring(0, x.Length - 1);
+            return obj.ScanMatchedUrls();
         }
 
         public static void TruncateList(string value, List<string> list)
@@ -481,104 +330,43 @@ namespace RedirectMachine
                 list.Add(value);
         }
 
-        public static string TrimExcess(string line)
-        {
-            string x = line;
-            if (x.Contains("?"))
-                x = GetSubString(x, "?", false);
-            else if (x.Contains(".aspx"))
-            {
-                x = GetSubString(x, ".aspx", true);
-                return x;
-            }
-            if (x.Substring(x.Length - 1) != "/")
-            {
-                int i = x.LastIndexOf("/");
-                x = x.Substring(0, i + 1);
-            }
-            return x;
-        }
+        //public static string TrimExcess(string line)
+        //{
+        //    string x = line;
+        //    if (x.Contains("?"))
+        //        x = GetSubString(x, "?", false);
+        //    else if (x.Contains(".aspx"))
+        //    {
+        //        x = GetSubString(x, ".aspx", true);
+        //        return x;
+        //    }
+        //    if (x.Substring(x.Length - 1) != "/")
+        //    {
+        //        int i = x.LastIndexOf("/");
+        //        x = x.Substring(0, i + 1);
+        //    }
+        //    return x;
+        //}
 
-        public static void checkDictionary(string line)
-        {
-            if (!priorityList.ContainsKey(line))
-            {
-                priorityList.Add(line, 1);
-            }
-            else
-            {
-                int value = priorityList[line];
-                value++;
-                priorityList[line] = value;
-            }
-            var count = line.Count(x => x == '/');
-            if (count >= 2)
-            {
-                line = GetSubString(line, "/", 2);
-                checkDictionary(line);
-            }
-        }
-
-        public static string TruncateString(string value, int maxLength)
-        {
-            // Purpose of method: retrieve usable/searchable end of url from variable value.
-            // Step 1: remove unnecessary contents on end of url if found
-            // Step 2: get url text after last slash in url
-            // Step 3: truncate temporary value to maxLength
-            string temp = value;
-            int index = value.Length;
-            if (temp.EndsWith("/"))
-                temp = GetSubString(temp, "/", false);
-            else if (temp.EndsWith("/*"))
-                temp = GetSubString(temp, "/*", false);
-            else if (temp.EndsWith("-"))
-                temp = GetSubString(temp, "-", false);
-            else if (temp.Contains("."))
-                temp = GetSubString(temp, ".", false);
-
-            int pos = temp.LastIndexOf("/") + 1;
-            temp = temp.Substring(pos, temp.Length - pos);
-            if (string.IsNullOrEmpty(temp)) return temp;
-            return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
-        }
-
-        public static int getIndex(string i, string j)
-        {
-            // Purpose of method: return position of j variable in string i.
-            return i.LastIndexOf(j);
-        }
-
-        public static string GetSubString(string i, string j, bool x)
-        {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
-            // 1) if true, includes the string j rather than excluding it, or
-            // 2) if false, returns a substring that excludes string j.
-            int index = getIndex(i, j);
-            string temp;
-            if (x == true)
-            {
-                temp = i.Substring(0, index + j.Length);
-            }
-            else
-                temp = i.Substring(0, index);
-            return temp;
-        }
-
-        public static string GetSubString(string i, string j, int x)
-        {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
-            var pos = 0;
-            string temp = i;
-            while (pos <= x)
-            {
-                int index = getIndex(i, j);
-                temp = temp.Substring(0, index);
-                pos++;
-            }
-            return temp;
-        }
+        //public static void checkDictionary(string line)
+        //{
+        //    if (!priorityList.ContainsKey(line))
+        //    {
+        //        priorityList.Add(line, 1);
+        //    }
+        //    else
+        //    {
+        //        int value = priorityList[line];
+        //        value++;
+        //        priorityList[line] = value;
+        //    }
+        //    var count = line.Count(x => x == '/');
+        //    if (count >= 2)
+        //    {
+        //        line = GetSubString(line, "/", 2);
+        //        checkDictionary(line);
+        //    }
+        //}
 
         static void buildCSV(List<string> list, string filePath)
         {
