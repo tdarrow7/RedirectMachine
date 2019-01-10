@@ -358,7 +358,7 @@ namespace RedirectMachine
         //    //List<Resouces> wat = new List<Resouces>();
         //}
 
-        public static void findUrl(List<string> oldList, List<string> newList)
+        public static void findUrl(List<URLObject> oldList, List<string> newList)
         {
             // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
             // Pass path variable into checkList method.
@@ -367,7 +367,8 @@ namespace RedirectMachine
             // ++ either lostMatch or foundMatch
             foreach (var obj in oldList)
             {
-                if (!checkList(obj, newList))
+                //string temp = obj.GetUrlSub();
+                if (!CheckList(obj, newList))
                 {
                     if (!AdvCheckList(obj, newList))
                     {
@@ -385,25 +386,42 @@ namespace RedirectMachine
         }
 
 
-        public static bool checkList(string value, List<string> urls)
+        //public static bool CheckList(string value, List<string> urls)
+        //{
+        //    // get last piece of url in string
+        //    string subString = TruncateString(value, 48);
+        //    foreach (var item in urls)
+        //    {
+        //        string temp = TruncateString(item, 48);
+        //        if (temp.Contains(subString))
+        //        {
+        //            foreach (var subProject in subProjects)
+        //            { 
+        //                if (value.StartsWith(subProject[0]))
+        //                {
+        //                    if (temp.StartsWith(subProject[1]))
+        //                    {
+        //                        subProjectCounter++;
+        //                    }
+        //                }
+        //            }
+        //            string s = value + "," + item;
+        //            TruncateList(s, foundList);
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        public static bool CheckList(URLObject obj, List<string> urls)
         {
             // get last piece of url in string
-            string subString = TruncateString(value, 48);
+            string subString = obj.GetUrlSub();
             foreach (var item in urls)
             {
                 string temp = TruncateString(item, 48);
                 if (temp.Contains(subString))
                 {
-                    foreach (var subProject in subProjects)
-                    { 
-                        if (value.StartsWith(subProject[0]))
-                        {
-                            if (temp.StartsWith(subProject[1]))
-                            {
-                                subProjectCounter++;
-                            }
-                        }
-                    }
                     string s = value + "," + item;
                     TruncateList(s, foundList);
                     return true;
