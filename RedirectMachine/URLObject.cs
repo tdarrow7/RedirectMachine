@@ -87,28 +87,88 @@ namespace RedirectMachine
                 string oTemp = TruncateUrl(originalUrl);
                 foreach (var url in matchedUrls)
                 {
-                    string temp = TruncateUrl();
+                    string temp = TruncateString(url);
                 }
             }
 
                 return false;
         }
 
-        public string TruncateUrl(string i)
+        public string TruncateString(string value)
         {
-            string temp = i;
-            if (i.StartsWith("http://") || i.StartsWith("https://"))
-            {
-                int index = i.IndexOf("//");
-                temp = temp.Substring(index, originalUrl.Length);
-            }
-
+            // Purpose of method: retrieve usable/searchable end of url from variable value.
+            // Get url text after last slash in url
+            string temp = CheckVars(value);
+            int index = value.Length;
+            int pos = temp.LastIndexOf("/") + 1;
+            temp = temp.Substring(pos, temp.Length - pos);
             return temp;
         }
 
-        public int GetIndex(string line, string criteria)
+        public string TruncateString(string value, int maxLength)
         {
-            return line.IndexOf(criteria)
+            // Purpose of method: retrieve usable/searchable end of url from variable value.
+            
+            // Get url text after last slash in url,
+            // truncate temporary value to maxLength
+            string temp = CheckVars(value);
+            int index = value.Length;
+            int pos = temp.LastIndexOf("/") + 1;
+            temp = temp.Substring(pos, temp.Length - pos);
+            if (string.IsNullOrEmpty(temp)) return temp;
+            return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
+        }
+
+        public string CheckVars(string value)
+        {
+            // Purpose: remove unnecessary contents on end of url if found
+            if (value.EndsWith("/"))
+                value = GetSubString(value, "/", false);
+            else if (value.EndsWith("/*"))
+                value = GetSubString(value, "/*", false);
+            else if (value.EndsWith("-"))
+                value = GetSubString(value, "-", false);
+            else if (value.Contains("."))
+                value = GetSubString(value, ".", false);
+            return value;
+        }
+
+        public static int GetIndex(string i, string j)
+        {
+            // Purpose of method: return position of j variable in string i.
+            return i.LastIndexOf(j);
+        }
+
+        public static string GetSubString(string i, string j, bool x)
+        {
+            // Purpose of method: return the substring of the string that is passed into this function.
+            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
+            // 1) if true, includes the string j rather than excluding it, or
+            // 2) if false, returns a substring that excludes string j.
+            int index = GetIndex(i, j);
+            string temp;
+            if (x == true)
+            {
+                temp = i.Substring(0, index + j.Length);
+            }
+            else
+                temp = i.Substring(0, index);
+            return temp;
+        }
+
+        public static string GetSubString(string i, string j, int x)
+        {
+            // Purpose of method: return the substring of the string that is passed into this function.
+            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
+            var pos = 0;
+            string temp = i;
+            while (pos <= x)
+            {
+                int index = GetIndex(i, j);
+                temp = temp.Substring(0, index);
+                pos++;
+            }
+            return temp;
         }
     }
 
