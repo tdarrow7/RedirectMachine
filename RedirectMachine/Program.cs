@@ -13,7 +13,8 @@ namespace RedirectMachine
         public static List<string> foundList = new List<string>();
 
         // site url lists
-        static List<string> osUrls = new List<string>();
+        //static List<string> osUrls = new List<string>();
+        static List<URLObject> osUrls = new List<URLObject>();
         static List<string> nsUrls = new List<string>();
 
         public static Dictionary<string, int> priorityList = new Dictionary<string, int>();
@@ -208,28 +209,83 @@ namespace RedirectMachine
             }
         }
 
-        static void ReadCSV(List<string> list, string filePath, bool x)
+        //static void ReadCSV(List<string> list, string filePath, bool x)
+        //{
+        //    // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+        //    using (var reader = new StreamReader(@"" + filePath))
+        //    {
+        //        while (!reader.EndOfStream)
+        //        {
+        //            var line = reader.ReadLine();
+        //            line = line.ToLower();
+        //            line = TrimExcess(line);
+        //            checkDictionary(line);
+
+        //            list.Add(line);
+        //        }
+        //        list.Sort();
+        //    }
+        //}
+
+        static void ReadCSV(List<URLObject> list, string filePath, bool x)
         {
             // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            // Add line and temp variables to new URLObject object
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
                     line = line.ToLower();
+                    string temp = TruncateString(line, 48);
+                    list.Add(new URLObject(line, temp));
                     line = TrimExcess(line);
                     checkDictionary(line);
-
-                    list.Add(line);
                 }
-                list.Sort();
             }
         }
 
-        static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
+        //static void ReadCSV(List<string> list, string filePath, string[,] keyVals, bool x)
+        //{
+        //    // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+        //    // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
+        //    // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+        //    // using counter variable, let console know how many lines were skipped
+        //    int counter = 0;
+        //    using (var reader = new StreamReader(@"" + filePath))
+        //    {
+        //        while (!reader.EndOfStream)
+        //        {
+        //            bool catchAll = false;
+        //            var line = reader.ReadLine();
+        //            var temp = line.ToLower().Trim('"');
+        //            for (int i = 0; i < keyVals.GetLength(0); i++)
+        //            {
+        //                if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+        //                {
+        //                    catchAll = true;
+        //                    counter++;
+        //                    break;
+        //                }
+        //            }
+        //            if (catchAll == false)
+        //                list.Add(line);
+        //            line = TrimExcess(line);
+        //            checkDictionary(line);
+        //        }
+
+                
+        //        // commented out for testing purposes
+                
+        //        list.Sort();
+        //        Console.WriteLine($"Counter: {counter}");
+        //    }
+        //}
+
+        static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals, bool x)
         {
             // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+            // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
             // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
             // using counter variable, let console know how many lines were skipped
             int counter = 0;
@@ -250,15 +306,13 @@ namespace RedirectMachine
                         }
                     }
                     if (catchAll == false)
-                        list.Add(line);
+                    {
+                        temp = TruncateString(temp, 48);
+                        list.Add(new URLObject(line, temp));
+                    }
                     line = TrimExcess(line);
                     checkDictionary(line);
                 }
-
-                
-                // commented out for testing purposes
-                
-                list.Sort();
                 Console.WriteLine($"Counter: {counter}");
             }
         }
@@ -278,6 +332,32 @@ namespace RedirectMachine
             }
         }
 
+        //public static void findUrl(List<string> oldList, List<string> newList)
+        //{
+        //    // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
+        //    // Pass path variable into checkList method.
+        //    // If checkList returns true, path found a match and was added to foundList List<>
+        //    // If checklist returns false, path did not find a match. Add to lostList List<>
+        //    // ++ either lostMatch or foundMatch
+        //    foreach (var path in oldList)
+        //    {
+        //        if (!checkList(path, newList))
+        //        {
+        //            if (!AdvCheckList(path, newList))
+        //            {
+        //                lostMatch++;
+        //                lostList.Add(path);
+        //            }
+        //        }
+        //        else
+        //            foundMatch++;
+        //    }
+        //    //List<Tuple<string, string>> old = new List<Tuple<string, string>>();
+        //    //List<Tuple<string, string>> newlist  = new List<Tuple<string, string>>();
+
+        //    //List<Resouces> wat = new List<Resouces>();
+        //}
+
         public static void findUrl(List<string> oldList, List<string> newList)
         {
             // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
@@ -285,14 +365,14 @@ namespace RedirectMachine
             // If checkList returns true, path found a match and was added to foundList List<>
             // If checklist returns false, path did not find a match. Add to lostList List<>
             // ++ either lostMatch or foundMatch
-            foreach (var path in oldList)
+            foreach (var obj in oldList)
             {
-                if (!checkList(path, newList))
+                if (!checkList(obj, newList))
                 {
-                    if (!AdvCheckList(path, newList))
+                    if (!AdvCheckList(obj, newList))
                     {
                         lostMatch++;
-                        lostList.Add(path);
+                        lostList.Add(obj);
                     }
                 }
                 else
@@ -311,13 +391,14 @@ namespace RedirectMachine
             string subString = TruncateString(value, 48);
             foreach (var item in urls)
             {
-                if (item.Contains(subString))
+                string temp = TruncateString(item, 48);
+                if (temp.Contains(subString))
                 {
                     foreach (var subProject in subProjects)
                     { 
                         if (value.StartsWith(subProject[0]))
                         {
-                            if (item.StartsWith(subProject[1]))
+                            if (temp.StartsWith(subProject[1]))
                             {
                                 subProjectCounter++;
                             }
