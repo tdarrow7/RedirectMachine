@@ -10,13 +10,13 @@ namespace RedirectMachine
         private string originalUrl, head, tail, newUrl, redirect;
         private int score, count;
         public List<string> matchedUrls;
+        public string[] urlChunks;
         
         public URLObject()
         {
             // default constructor
         }
 
-        
         public URLObject(string originalUrl)
         {
             // create working constructor
@@ -25,8 +25,8 @@ namespace RedirectMachine
             tail = TruncateString(originalUrl, 48);
             score = 0;
             matchedUrls = new List<string>();
+            urlChunks = tail.Split("-").ToArray();
         }
-
         
         public string GetOriginalUrl()
         {
@@ -46,7 +46,6 @@ namespace RedirectMachine
             return tail;
         }
 
-        
         public int GetScore()
         {
             // Purpose: return private int score
@@ -56,7 +55,7 @@ namespace RedirectMachine
         public int GetCount()
         {
             // Purpose: return private int score
-            return score;
+            return count;
         }
 
         public void AddScore()
@@ -65,7 +64,6 @@ namespace RedirectMachine
             score++;
         }
 
-        
         public void SubtractScore()
         {
             // Purpose of method: subtract score
@@ -85,21 +83,39 @@ namespace RedirectMachine
             count--;
         }
 
+        public void ClearMatches()
+        {
+            matchedUrls.Clear();
+        }
+
         public void CheckUrl(string url)
         {
             string temp = TruncateString(url, 48);
-            Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
-            if (url.Contains(head))
+            //Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
+            if (temp.Contains(tail))
+            {
                 AddMatchedUrl(url);
+            }
+        }
+
+        public void AdvCheckUrl(string url)
+        {
+
+            
+            string temp = TruncateString(url, 48);
+            //string chunk = tail.Substring()
+            //Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
+            if (temp.Contains(tail))
+            {
+                AddMatchedUrl(url);
+            }
         }
 
         public bool ScanMatchedUrls()
         {
-            
+            //Console.WriteLine($"count for {tail} is: {count}");
             if (count == 0)
-            {
                 return false;
-            }
                 
             else if (count == 1)
             {
@@ -109,12 +125,15 @@ namespace RedirectMachine
             }
             else
             {
+                count = 0;
                 foreach (var url in matchedUrls)
                 {
                     string temp = TruncateStringHead(url);
                     if (!temp.Contains(head))
+                    {
                         matchedUrls.Remove(temp);
-                    count--;
+                        count--;
+                    }
                 }
                 if (count == 1)
                 {
@@ -124,6 +143,47 @@ namespace RedirectMachine
                 }
             }
             return false;
+        }
+
+        public bool AdvScanUrls(int index, List<string> chunks)
+        {
+            Console.WriteLine("entering AdvScanUrls");
+            count = chunks.Count;
+            List<string> list = new List<string>();
+            string temp = BuildChunk(urlChunks, index);
+            Console.WriteLine($"temp = {temp}");
+            foreach (var url in chunks)
+            {
+                Console.WriteLine($"checking if {temp} is in {url}");
+                if (!url.Contains(temp))
+                {
+                    chunks.Remove(url);
+                    count--;
+                }
+                else
+                {
+                    Console.WriteLine($"found {temp} in {url}");
+                }
+            }
+            Console.WriteLine($"count is at {list.Count}");
+            if (list.Count == 0)
+                return false;
+            if (count == 1)
+            {
+                newUrl = chunks.First();
+                return true;
+            }
+            return (index <= urlChunks.Length) ? AdvScanUrls(index++, list) : false;
+        }
+
+        public string BuildChunk(string[] chunks, int index)
+        {
+            string temp = chunks[0];
+            for (int i = 0; i < index; i++)
+            {
+                temp = temp + chunks[i];
+            }
+            return temp;
         }
 
         public string TruncateString(string value)
@@ -144,7 +204,7 @@ namespace RedirectMachine
             // Get url text after last slash in url,
             // truncate temporary value to maxLength
             string temp = CheckVars(value);
-            int index = value.Length;
+            int index = temp.Length;
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
             if (string.IsNullOrEmpty(temp)) return temp;
@@ -157,27 +217,28 @@ namespace RedirectMachine
             // Check if url starts with http or https. If it does, grab entire domain of url
             // if that doesn't exist, return the first chunk of the url in between the first two '/'
             string temp = value;
-            int index = 2;
-            if (value.StartsWith("http"))
-                temp = TrimFullUrl(value);
+            
             if (temp.StartsWith("/"))
                 temp = temp.Substring(1);
-            if (temp.EndsWith("/"))
-                temp = temp.Substring(0, temp.Length - 1);
-            return value.Substring(0, index);
+            int index = temp.IndexOf("/");
+            if (index <= -1)
+                index = temp.Length;
+            return temp.Substring(0, index).ToLower();
         }
 
         public string CheckVars(string value)
         {
             // Purpose: remove unnecessary contents on end of url if found
+            if (value.Contains("?"))
+                value = GetSubString(value, "?", false);
+            if (value.Contains("."))
+                value = GetSubString(value, ".", false);
             if (value.EndsWith("/"))
                 value = GetSubString(value, "/", false);
-            else if (value.EndsWith("/*"))
+            if (value.EndsWith("/*"))
                 value = GetSubString(value, "/*", false);
-            else if (value.EndsWith("-"))
+            if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
-            else if (value.Contains("."))
-                value = GetSubString(value, ".", false);
             return value;
         }
 
@@ -233,14 +294,12 @@ namespace RedirectMachine
 
         public string TrimFullUrl(string value)
         {
-            int index = GetFirstIndex(value, "//");
-            string temp = value.Substring(index, value.Length);
+            int index = value.IndexOf("//");
+            Console.WriteLine($"Length of value: {value.Length}");
+            Console.WriteLine($"index of slashes: {index}");
+            string temp = value.Substring(value.IndexOf("//"), value.Length - value.IndexOf("//"));
             temp = temp.Substring(0, GetFirstIndex(temp, "/"));
             return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
         }
-
     }
-
-    
-
 }

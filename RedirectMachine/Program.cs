@@ -111,26 +111,27 @@ namespace RedirectMachine
         {
 
             // initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldBlogUrls.csv";
+            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             //ReadCSV(osUrls, osUrlFile, osParams);
             ReadCSV(osUrls, osUrlFile, osParams, true);
-            AddUrls(foundList, osParams);
+            //AddUrls(foundList, osParams);
             //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
 
@@ -138,6 +139,7 @@ namespace RedirectMachine
 
             // search url lists for new items
             findUrl(osUrls, nsUrls);
+            ScanUrlObjects(osUrls);
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
@@ -177,51 +179,47 @@ namespace RedirectMachine
             }
         }
 
-        static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
-        {
-            // Purpose of method: Overload original ReadCSV method to search for catchAlls.
-            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
-            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-            // using counter variable, let console know how many lines were skipped
-
-            int counter = 0;
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    bool catchAll = false;
-                    var line = reader.ReadLine();
-                    var temp = line.ToLower().Trim('"');
-                    for (int i = 0; i < keyVals.GetLength(0); i++)
-                    {
-                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-                        {
-                            catchAll = true;
-                            counter++;
-                            break;
-                        }
-                    }
-                    if (catchAll == false)
-                        list.Add(line);
-                }
-                list.Sort();
-                Console.WriteLine($"Counter: {counter}");
-            }
-        }
+        //static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
+        //{
+        //    // Purpose of method: Overload original ReadCSV method to search for catchAlls.
+        //    int counter = 0;
+        //    using (var reader = new StreamReader(@"" + filePath))
+        //    {
+        //        while (!reader.EndOfStream)
+        //        {
+        //            bool catchAll = false;
+        //            var line = reader.ReadLine();
+        //            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
+        //            var temp = line.ToLower().Trim('"');
+        //            for (int i = 0; i < keyVals.GetLength(0); i++)
+        //            {
+        //                // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+        //                if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+        //                {
+        //                    catchAll = true;
+        //                    counter++;
+        //                    break;
+        //                }
+        //            }
+        //            if (catchAll == false)
+        //                list.Add(line);
+        //        }
+        //        list.Sort();
+        //        // using counter variable, let console know how many lines were skipped
+        //        Console.WriteLine($"Counter: {counter}");
+        //    }
+        //}
 
         static void ReadCSV(List<URLObject> list, string filePath, bool x)
         {
             // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-            // Add line and temp variables to new URLObject object
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
                 {
-                    var line = reader.ReadLine();
-                    line = line.ToLower();
+                    var line = reader.ReadLine().ToLower();
+                    // Add new URLObject to list
                     list.Add(new URLObject(line));
-                    //line = TrimExcess(line);
-                    //checkDictionary(line);
                 }
             }
         }
@@ -229,9 +227,6 @@ namespace RedirectMachine
         static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals, bool x)
         {
             // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
-            // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
-            // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-            // using counter variable, let console know how many lines were skipped
             int counter = 0;
             using (var reader = new StreamReader(@"" + filePath))
             {
@@ -239,9 +234,11 @@ namespace RedirectMachine
                 {
                     bool catchAll = false;
                     var line = reader.ReadLine();
+                    // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
                     var temp = line.ToLower().Trim('"');
                     for (int i = 0; i < keyVals.GetLength(0); i++)
                     {
+                        // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
                         if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
                         {
                             catchAll = true;
@@ -250,21 +247,12 @@ namespace RedirectMachine
                         }
                     }
                     if (catchAll == false)
-                    {
                         list.Add(new URLObject(line));
-                    }
-                    //line = TrimExcess(line);
-                    //checkDictionary(line);
                 }
+                // using counter variable, let console know how many lines were skipped
                 Console.WriteLine($"Counter: {counter}");
             }
         }
-
-        /*---------------------------------------------------------------------------
-         * ---------------------------------------------------------------------------
-         * ---------------------------------------------------------------------------
-        */
-
 
         public static void AddUrls(List<string> list, string[,] keyVals)
         {
@@ -278,30 +266,17 @@ namespace RedirectMachine
         public static void findUrl(List<URLObject> oldList, List<string> newList)
         {
             // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
-            // Pass path variable into checkList method.
-            // If checkList returns true, path found a match and was added to foundList List<>
-            // If checklist returns false, path did not find a match. Add to lostList List<>
-            // ++ either lostMatch or foundMatch
             foreach (var obj in oldList)
             {
-                //string temp = obj.GetUrlSub();
+                // Pass URLObject into CheckList method. If result is true, match has been found
                 if (CheckList(obj, newList))
-                {
-
-                    //if (!AdvCheckList(obj, newList))
-                    //{
-                    //    lostMatch++;
-                    //    lostList.Add(obj);
-                    //}
-                    foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
                     foundMatch++;
-                }
+                // Pass URLObject into AdvCheckList method. If result is true, match has been found
+                else if (AdvCheckList(obj, newList))
+                    foundMatch++;
+                // couldn't find a match. add to lost list
                 else
-                {
-                    lostList.Add(obj.GetOriginalUrl());
                     lostMatch++;
-                }
-                    
             }
         }
 
@@ -315,19 +290,33 @@ namespace RedirectMachine
             return obj.ScanMatchedUrls();
         }
 
-        public static void TruncateList(string value, List<string> list)
+        public static bool AdvCheckList(URLObject obj, List<string> urls)
         {
-            bool found = false;
-            foreach (var i in list)
+            obj.ClearMatches();
+            // get last piece of url in string
+            foreach (var item in urls)
             {
-                if (i == value)
+                obj.AdvCheckUrl(item);
+            }
+            return obj.AdvScanUrls(0, obj.matchedUrls);
+        }
+
+        public static void ScanUrlObjects(List<URLObject> list)
+        {
+            foreach (var obj in list)
+            {
+                Console.WriteLine($"score is {obj.GetScore()}");
+                if (obj.GetScore() < 1)
                 {
-                    found = true;
-                    break;
+                    Console.WriteLine("lost");
+                    lostList.Add(obj.GetOriginalUrl());
+                }
+                else
+                {
+                    Console.WriteLine("found");
+                    foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
                 }
             }
-            if (found == false)
-                list.Add(value);
         }
 
         //public static string TrimExcess(string line)
