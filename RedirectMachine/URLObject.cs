@@ -145,38 +145,54 @@ namespace RedirectMachine
             return false;
         }
 
-        public bool AdvScanUrls(int index, List<string> chunks)
+        public bool AdvScanUrls(int index)
         {
             Console.WriteLine("entering AdvScanUrls");
-            count = chunks.Count;
-            List<string> list = new List<string>();
-            string temp = BuildChunk(urlChunks, index);
+            count = matchedUrls.Count;
+            //List<string> list = new List<string>();
+            string temp = BuildChunk(index);
             Console.WriteLine($"temp = {temp}");
-            foreach (var url in chunks)
+            Console.WriteLine($"index = {index}");
+            Console.WriteLine($"count = {count}");
+            Console.WriteLine($"length of urlChunks: {urlChunks.Length}");
+            Console.WriteLine($"size of matchedUrls list: {matchedUrls.Count}");
+            foreach (var url in matchedUrls)
             {
                 Console.WriteLine($"checking if {temp} is in {url}");
                 if (!url.Contains(temp))
                 {
-                    chunks.Remove(url);
+                    matchedUrls.Remove(url);
                     count--;
+                    Console.WriteLine($"removed {url} from matchedUrls");
                 }
                 else
                 {
                     Console.WriteLine($"found {temp} in {url}");
                 }
             }
-            Console.WriteLine($"count is at {list.Count}");
-            if (list.Count == 0)
+            Console.WriteLine($"matchedUrls.Count is at {matchedUrls.Count}");
+            Console.WriteLine($"count is at {count}");
+            Console.WriteLine();
+            if (count == 0)
+            {
+                Console.WriteLine("count is at 0. no matches. Returning false");
                 return false;
+            }
+                
             if (count == 1)
             {
-                newUrl = chunks.First();
+                Console.WriteLine("count is at 1. One match. Returning true");
+                newUrl = matchedUrls.First();
                 return true;
             }
-            return (index <= urlChunks.Length) ? AdvScanUrls(index++, list) : false;
+            if (index <= urlChunks.Length)
+                Console.WriteLine($"{index} is less than {urlChunks.Length}");
+            else
+                Console.WriteLine($"{index} is greater than or equal to {urlChunks.Length}");
+            return (index <= urlChunks.Length) ? AdvScanUrls(index++) : false;
         }
 
-        public string BuildChunk(string[] chunks, int index)
+        public string BuildChunk(int index)
         {
             string temp = chunks[0];
             for (int i = 0; i < index; i++)

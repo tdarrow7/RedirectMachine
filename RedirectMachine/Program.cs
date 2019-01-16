@@ -110,21 +110,21 @@ namespace RedirectMachine
         static void Main(string[] args)
         {
 
-            // initialize paths to files
-            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            //initialize paths to files
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldBlogUrls.csv";
-            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldBlogUrls.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -298,7 +298,8 @@ namespace RedirectMachine
             {
                 obj.AdvCheckUrl(item);
             }
-            return obj.AdvScanUrls(0, obj.matchedUrls);
+            Console.WriteLine($"recorded number of matches: {obj.matchedUrls.Count}");
+            return obj.AdvScanUrls(0);
         }
 
         public static void ScanUrlObjects(List<URLObject> list)
