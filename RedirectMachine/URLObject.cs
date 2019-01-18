@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
@@ -148,6 +149,7 @@ namespace RedirectMachine
         public bool AdvScanUrls(int index)
         {
             Console.WriteLine("entering AdvScanUrls");
+            
             count = matchedUrls.Count;
             //List<string> list = new List<string>();
             string temp = BuildChunk(index);
@@ -156,6 +158,8 @@ namespace RedirectMachine
             Console.WriteLine($"count = {count}");
             Console.WriteLine($"length of urlChunks: {urlChunks.Length}");
             Console.WriteLine($"size of matchedUrls list: {matchedUrls.Count}");
+            if (index >= urlChunks.Length)
+                return false;
             foreach (var url in matchedUrls)
             {
                 Console.WriteLine($"checking if {temp} is in {url}");
@@ -175,8 +179,7 @@ namespace RedirectMachine
             Console.WriteLine();
             if (count == 0)
             {
-                Console.WriteLine("count is at 0. no matches. Returning false");
-                return false;
+                Console.WriteLine("count is at 0. no matches");
             }
                 
             if (count == 1)
@@ -186,18 +189,20 @@ namespace RedirectMachine
                 return true;
             }
             if (index <= urlChunks.Length)
+            {
                 Console.WriteLine($"{index} is less than {urlChunks.Length}");
-            else
-                Console.WriteLine($"{index} is greater than or equal to {urlChunks.Length}");
-            return (index <= urlChunks.Length) ? AdvScanUrls(index++) : false;
+            }
+            index++;
+            Console.WriteLine($"index increased to {index}");
+            return AdvScanUrls(index);
         }
 
         public string BuildChunk(int index)
         {
-            string temp = chunks[0];
-            for (int i = 0; i < index; i++)
+            string temp = urlChunks[0];
+            for (int i = 1; i < index; i++)
             {
-                temp = temp + chunks[i];
+                temp = temp + "-" + urlChunks[i];
             }
             return temp;
         }
@@ -255,6 +260,7 @@ namespace RedirectMachine
                 value = GetSubString(value, "/*", false);
             if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
+            value = Regex.Replace(value, "--", "-");
             return value;
         }
 
