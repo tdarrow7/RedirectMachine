@@ -77,6 +77,7 @@ namespace RedirectMachine
             { "/white-memorial/Pages/OHAM/", "/white-memorial/" },
             { "/white-memorial/pages/pnrs/providerprofile.aspx", "/doctors/" }
         };
+        /*
         public static string[,] subProjects =
         {
             { "/bakersfield/", "/bakersfield/" },
@@ -100,8 +101,7 @@ namespace RedirectMachine
             { "/white-memorial/", "/white-memorial/" },
             { "/ukiah-valley/", "/ukiah-valley/" }
         };
-
-
+        */
         public static int subProjectCounter = 0;
 
         // list out number of found urls
@@ -111,8 +111,9 @@ namespace RedirectMachine
         {
 
             //initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldBlogUrls.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -166,7 +167,7 @@ namespace RedirectMachine
 
         static void ReadCSV(List<string> list, string filePath)
         {
-            // Purpose of method: add CSV file contents to list
+            // Purpose: add CSV file contents to list
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
@@ -181,7 +182,7 @@ namespace RedirectMachine
 
         //static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
         //{
-        //    // Purpose of method: Overload original ReadCSV method to search for catchAlls.
+        //    // Purpose: Overload original ReadCSV method to search for catchAlls.
         //    int counter = 0;
         //    using (var reader = new StreamReader(@"" + filePath))
         //    {
@@ -212,7 +213,7 @@ namespace RedirectMachine
 
         static void ReadCSV(List<URLObject> list, string filePath, bool x)
         {
-            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
             using (var reader = new StreamReader(@"" + filePath))
             {
                 while (!reader.EndOfStream)
@@ -226,7 +227,7 @@ namespace RedirectMachine
 
         static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals, bool x)
         {
-            // Purpose of method: while iterating through CSV, create list of potential candidates for catchall strings.
+            // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
             int counter = 0;
             using (var reader = new StreamReader(@"" + filePath))
             {
@@ -265,7 +266,7 @@ namespace RedirectMachine
 
         public static void findUrl(List<URLObject> oldList, List<string> newList)
         {
-            // Purpose of method: check every item in List<> oldList and compare with items in List<> newList.
+            // Purpose: check every item in List<> oldList and compare with items in List<> newList.
             foreach (var obj in oldList)
             {
                 // Pass URLObject into CheckList method. If result is true, match has been found
@@ -287,36 +288,32 @@ namespace RedirectMachine
             {
                 obj.CheckUrl(item);
             }
+            // will return whether or not it has found a match
             return obj.ScanMatchedUrls();
         }
 
         public static bool AdvCheckList(URLObject obj, List<string> urls)
         {
+            // reset matchedUrls for this current url and start over
             obj.ClearMatches();
-            // get last piece of url in string
             foreach (var item in urls)
             {
+                // check if item contains part of old url
                 obj.AdvCheckUrl(item);
             }
-            Console.WriteLine($"recorded number of matches: {obj.matchedUrls.Count}");
-            return obj.AdvScanUrls(0);
+            // will return whether or not it has found a match
+            return obj.AdvScanUrls();
         }
 
         public static void ScanUrlObjects(List<URLObject> list)
         {
             foreach (var obj in list)
             {
-                Console.WriteLine($"score is {obj.GetScore()}");
+                // if score is positive, url is found and add redirect to foundList. If negative, add old url to lostList
                 if (obj.GetScore() < 1)
-                {
-                    Console.WriteLine("lost");
                     lostList.Add(obj.GetOriginalUrl());
-                }
                 else
-                {
-                    Console.WriteLine("found");
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
-                }
             }
         }
 
@@ -360,7 +357,7 @@ namespace RedirectMachine
 
         static void buildCSV(List<string> list, string filePath)
         {
-            // Purpose of method: builds a new CSV for the user to view at the specified file path
+            // Purpose: builds a new CSV for the user to view at the specified file path
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 foreach (var item in list)
@@ -372,7 +369,7 @@ namespace RedirectMachine
 
         static void buildCSV(Dictionary<string, int> list, string filePath)
         {
-            // Purpose of method: builds a new CSV for the user to view at the specified file path
+            // Purpose: builds a new CSV for the user to view at the specified file path
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 foreach (var item in list)

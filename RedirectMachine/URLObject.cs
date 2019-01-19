@@ -21,7 +21,7 @@ namespace RedirectMachine
         public URLObject(string originalUrl)
         {
             // create working constructor
-            this.originalUrl = originalUrl;
+            this.originalUrl = CheckUrlTail(originalUrl);
             head = TruncateStringHead(originalUrl);
             tail = TruncateString(originalUrl, 48);
             score = 0;
@@ -101,12 +101,10 @@ namespace RedirectMachine
 
         public void AdvCheckUrl(string url)
         {
-
-            
             string temp = TruncateString(url, 48);
             //string chunk = tail.Substring()
             //Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
-            if (temp.Contains(tail))
+            if (temp.Contains(urlChunks[0]))
             {
                 AddMatchedUrl(url);
             }
@@ -127,7 +125,12 @@ namespace RedirectMachine
             else
             {
                 count = 0;
+                List<string> list1 = new List<string>();
                 foreach (var url in matchedUrls)
+                {
+                    list1.Add(url);
+                }
+                foreach (var url in list1)
                 {
                     string temp = TruncateStringHead(url);
                     if (!temp.Contains(head))
@@ -146,55 +149,61 @@ namespace RedirectMachine
             return false;
         }
 
-        public bool AdvScanUrls(int index)
+        public bool AdvScanUrls()
         {
-            Console.WriteLine("entering AdvScanUrls");
-            
             count = matchedUrls.Count;
-            //List<string> list = new List<string>();
-            string temp = BuildChunk(index);
-            Console.WriteLine($"temp = {temp}");
-            Console.WriteLine($"index = {index}");
-            Console.WriteLine($"count = {count}");
-            Console.WriteLine($"length of urlChunks: {urlChunks.Length}");
-            Console.WriteLine($"size of matchedUrls list: {matchedUrls.Count}");
-            if (index >= urlChunks.Length)
-                return false;
-            foreach (var url in matchedUrls)
+            List<string> activeList = new List<string>();
+            List<string> passiveList = new List<string>();
+
+            foreach (var item in matchedUrls)
             {
-                Console.WriteLine($"checking if {temp} is in {url}");
-                if (!url.Contains(temp))
+                passiveList.Add(item);
+            }
+            for (int i = 0; i < urlChunks.Length; i++)
+            {
+                activeList.Clear();
+                foreach (var item in passiveList)
                 {
-                    matchedUrls.Remove(url);
-                    count--;
-                    Console.WriteLine($"removed {url} from matchedUrls");
+                    activeList.Add(item);
                 }
-                else
+                string temp = BuildChunk(i);
+                foreach (var url in activeList)
                 {
-                    Console.WriteLine($"found {temp} in {url}");
+                    if (!url.Contains(temp))
+                    {
+                        passiveList.Remove(url);
+                        // if index is greater than two, keep it in the matchedUrls list in case we want to spit out potential redirects to user
+                        if (i < 2)
+                            matchedUrls.Remove(url);
+                        // subtract count. used to determine if a match has not been found.
+                        count--;
+                    }
+                }
+                if (count == 0)
+                {
+                    return false;
+                }
+                    
+                if (count == 1)
+                {
+                    // found a single url that matches paramaters. 
+                    // run one final check: 
+                    
+                    if (i < urlChunks.Length)
+                    {
+                        temp = BuildChunk(i + 1);
+                        if (!passiveList.First().Contains(temp))
+                        {
+                            return false;
+                        }
+                    }
+                    //Return this url as a redirect
+                    newUrl = passiveList.First();
+                    AddScore();
+                    return true;
                 }
             }
-            Console.WriteLine($"matchedUrls.Count is at {matchedUrls.Count}");
-            Console.WriteLine($"count is at {count}");
-            Console.WriteLine();
-            if (count == 0)
-            {
-                Console.WriteLine("count is at 0. no matches");
-            }
-                
-            if (count == 1)
-            {
-                Console.WriteLine("count is at 1. One match. Returning true");
-                newUrl = matchedUrls.First();
-                return true;
-            }
-            if (index <= urlChunks.Length)
-            {
-                Console.WriteLine($"{index} is less than {urlChunks.Length}");
-            }
-            index++;
-            Console.WriteLine($"index increased to {index}");
-            return AdvScanUrls(index);
+            return false;
         }
 
         public string BuildChunk(int index)
@@ -322,6 +331,18 @@ namespace RedirectMachine
             string temp = value.Substring(value.IndexOf("//"), value.Length - value.IndexOf("//"));
             temp = temp.Substring(0, GetFirstIndex(temp, "/"));
             return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
+        }
+
+        public string CheckUrlTail(string url)
+        {
+            // Purpose: return a url that has a slash on the end for redirection purposes.
+            // if url contains an ending extension already (eg .html), skip
+            if (url.Contains("?"))
+                url = GetSubString("url", "?", false);
+            if (url.Contains("."))
+                return url;
+            return url + "/";
+
         }
     }
 }
