@@ -193,9 +193,7 @@ namespace RedirectMachine
                     {
                         temp = BuildChunk(i + 1);
                         if (!passiveList.First().Contains(temp))
-                        {
                             return false;
-                        }
                     }
                     //Return this url as a redirect
                     newUrl = passiveList.First();
@@ -344,5 +342,22 @@ namespace RedirectMachine
             return url + "/";
 
         }
+
+        public List<string> GetUrlProbabilities()
+        {
+            List<string> returnList = new List<string>();
+            string[] passiveList = originalUrl.Split('/');
+            for (int i = 0; i < passiveList.Length; i++)
+            {
+                string temp = passiveList[0];
+                for (int j = 1; j <= i; j++)
+                {
+                    temp = temp + "/" + passiveList[j];
+                }
+                returnList.Add(temp);
+            }
+            return returnList;
+        }
     }
+
 }
