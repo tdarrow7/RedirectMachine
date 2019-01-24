@@ -317,43 +317,24 @@ namespace RedirectMachine
             }
         }
 
-        //public static string TrimExcess(string line)
-        //{
-        //    string x = line;
-        //    if (x.Contains("?"))
-        //        x = GetSubString(x, "?", false);
-        //    else if (x.Contains(".aspx"))
-        //    {
-        //        x = GetSubString(x, ".aspx", true);
-        //        return x;
-        //    }
-        //    if (x.Substring(x.Length - 1) != "/")
-        //    {
-        //        int i = x.LastIndexOf("/");
-        //        x = x.Substring(0, i + 1);
-        //    }
-        //    return x;
-        //}
 
-        //public static void checkDictionary(string line)
-        //{
-        //    if (!priorityList.ContainsKey(line))
-        //    {
-        //        priorityList.Add(line, 1);
-        //    }
-        //    else
-        //    {
-        //        int value = priorityList[line];
-        //        value++;
-        //        priorityList[line] = value;
-        //    }
-        //    var count = line.Count(x => x == '/');
-        //    if (count >= 2)
-        //    {
-        //        line = GetSubString(line, "/", 2);
-        //        checkDictionary(line);
-        //    }
-        //}
+        public static void checkDictionary(URLObject obj)
+        {
+            List<string> urlProbables = obj.GetUrlProbabilities();
+            foreach (var url in urlProbables)
+            {
+                if (!priorityList.ContainsKey(url))
+                {
+                    priorityList.Add(url, 1);
+                }
+                else
+                {
+                    int value = priorityList[url];
+                    value++;
+                    priorityList[url] = value;
+                }
+            }
+        }
 
         static void buildCSV(List<string> list, string filePath)
         {
