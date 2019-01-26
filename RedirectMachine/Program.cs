@@ -18,7 +18,7 @@ namespace RedirectMachine
         static List<string> nsUrls = new List<string>();
 
         public static Dictionary<string, int> priorityList = new Dictionary<string, int>();
-
+        
 
         public static string[,] osParams =  { 
             { "/bakersfield/pages/ehealth/kramescontent/", "/bakersfield/" }, 
@@ -107,8 +107,13 @@ namespace RedirectMachine
         // list out number of found urls
         static int foundMatch = 0;
         static int lostMatch = 0;
+
+
         static void Main(string[] args)
         {
+            var wat = new SortedDictionary<string, int>();
+            wat.or
+            priorityList.or
 
             //initialize paths to files
             string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
