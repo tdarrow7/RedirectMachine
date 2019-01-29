@@ -17,7 +17,7 @@ namespace RedirectMachine
         static List<URLObject> osUrls = new List<URLObject>();
         static List<string> nsUrls = new List<string>();
 
-        public static Dictionary<string, int> priorityList = new Dictionary<string, int>();
+        public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
         
 
         public static string[,] osParams =  { 
@@ -111,10 +111,6 @@ namespace RedirectMachine
 
         static void Main(string[] args)
         {
-            var wat = new SortedDictionary<string, int>();
-            wat.or
-            priorityList.or
-
             //initialize paths to files
             string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
@@ -122,7 +118,7 @@ namespace RedirectMachine
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
             ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
             ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldBlogUrls.csv";
@@ -146,10 +142,15 @@ namespace RedirectMachine
             // search url lists for new items
             findUrl(osUrls, nsUrls);
             ScanUrlObjects(osUrls);
+            List < KeyValuePair<string, int> > catchAllList = catchAllDictionary.ToList();
+            catchAllList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+            catchAllList.Reverse();
+
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
-            buildCSV(priorityList, probabilityDictionary);
+            buildCatchAllCSV(catchAllList);
+            //buildCSV(catchAllDictionary, probabilityDictionary);
 
             // stop stopwatch and record elapsed time
             stopwatch.Stop();
@@ -184,37 +185,6 @@ namespace RedirectMachine
                 list.Sort();
             }
         }
-
-        //static void ReadCSV(List<string> list, string filePath, string[,] keyVals)
-        //{
-        //    // Purpose: Overload original ReadCSV method to search for catchAlls.
-        //    int counter = 0;
-        //    using (var reader = new StreamReader(@"" + filePath))
-        //    {
-        //        while (!reader.EndOfStream)
-        //        {
-        //            bool catchAll = false;
-        //            var line = reader.ReadLine();
-        //            // When new line is read, reset catchAll property. Trim qoutes from line var temporarily
-        //            var temp = line.ToLower().Trim('"');
-        //            for (int i = 0; i < keyVals.GetLength(0); i++)
-        //            {
-        //                // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-        //                if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-        //                {
-        //                    catchAll = true;
-        //                    counter++;
-        //                    break;
-        //                }
-        //            }
-        //            if (catchAll == false)
-        //                list.Add(line);
-        //        }
-        //        list.Sort();
-        //        // using counter variable, let console know how many lines were skipped
-        //        Console.WriteLine($"Counter: {counter}");
-        //    }
-        //}
 
         static void ReadCSV(List<URLObject> list, string filePath, bool x)
         {
@@ -282,7 +252,10 @@ namespace RedirectMachine
                     foundMatch++;
                 // couldn't find a match. add to lost list
                 else
+                {
+                    CheckDictionary(obj.CheckVars(obj.GetOriginalUrl()));
                     lostMatch++;
+                }
             }
         }
 
@@ -323,22 +296,33 @@ namespace RedirectMachine
         }
 
 
-        public static void checkDictionary(URLObject obj)
+        public static void CheckDictionary(string url)
         {
-            List<string> urlProbables = obj.GetUrlProbabilities();
-            foreach (var url in urlProbables)
+            if (!url.EndsWith("/"))
+                url = url + "/";
+            if (!catchAllDictionary.ContainsKey(url))
             {
-                if (!priorityList.ContainsKey(url))
-                {
-                    priorityList.Add(url, 1);
-                }
-                else
-                {
-                    int value = priorityList[url];
-                    value++;
-                    priorityList[url] = value;
-                }
+                catchAllDictionary.Add(url, 1);
             }
+            else
+            {
+                int value = catchAllDictionary[url];
+                value++;
+                catchAllDictionary[url] = value;
+            }
+            var count = url.Count(i => i == '/');
+            if (count > 2)
+            {
+                url = url.Substring(0, url.Length - 1);
+                int index = url.LastIndexOf("/");
+                url = url.Substring(0, index);
+                CheckDictionary(url);
+            }
+        }
+
+        public static void SortCatchAlls()
+        {
+            
         }
 
         static void buildCSV(List<string> list, string filePath)
@@ -349,6 +333,20 @@ namespace RedirectMachine
                 foreach (var item in list)
                 {
                     tw.WriteLine(item);
+                }
+            }
+        }
+
+        static void buildCatchAllCSV(List<KeyValuePair<string, int>> list)
+        {
+
+            int count = list.Count;
+            int i = 1;
+            using (TextWriter tw = new StreamWriter(@"C:\Users\timothy.darrow\Downloads\Probabilities.csv"))
+            {
+                foreach (var item in list)
+                {
+                    tw.WriteLine(item.Key + "," + item.Value);
                 }
             }
         }
