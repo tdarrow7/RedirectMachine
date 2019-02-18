@@ -21,87 +21,25 @@ namespace RedirectMachine
         
 
         public static string[,] osParams =  { 
-            { "/bakersfield/pages/ehealth/kramescontent/", "/bakersfield/" }, 
-            { "/castle/event/", "/castle/classes-and-events/" },
-            { "/castle/pages/ehealth/kramescontent/", "/castle/" },
-            { "/castle/pages/ehealth/adamcontent/", "/castle/" },
-            { "/castle/pages/oham/orgunitdetails.aspx", "/castle/" },
-            { "/castle/pages/pnrs/", "/doctors/" },
-            { "/castle/pages/search/searchresults.aspx", "/castle/" },
-            { "/central-valley/pages/ehealth/kramescontent/", "/blog/" },
-            { "/central-valley/pages/pnrs/", "/doctors/" },
-            { "/clear-lake/pages/ehealth/kramescontent/", "/clear-lake/" },
-            { "/feather-river/pages/ehealth/kramescontent/", "/feather-river/" },
-            { "/glendale/Pages/eHealth/KramesContent/", "/glendale/" },
-            { "/glendale/pages/pnrs/providerprofile.aspx/", "/doctors/" },
-            { "/howard-memorial/Pages/ehealth/kramescontent/", "/howard-memorial/" },
-            { "/howard-memorial/pages/news/newssearchresult.aspx", "/blog/" },
-            { "/lodimemorial/Pages/ehealth/kramescontent/", "/lodi-memorial/" },
-            { "/lodimemorial/pages/enrs/eventscartregistration.aspx", "/lodi-memorial/" },
-            { "/lodimemorial/pages/enrs/eventssearchresult.aspx", "/lodi-memorial/" },
-            { "/napa-valley/Pages/ehealth/kramescontent/", "/st-helena/" },
-            { "/napa-valley/Pages/OHAM/", "/st-helena/" },
-            { "/nw/Pages/ehealth/kramescontent/", "/portland/" },
-            { "/nw/pages/news/newssearchresult.aspx", "/blog/" },
-            { "/nw/Pages/PNRS/", "/portland" },
-            { "/Pages/eHealth/AdamContent/", "/blog/" },
-            { "/Pages/eHealth/kramesContent/", "/blog/" },
-            { "/Pages/ENRS/", "/" },
-            { "/Pages/pnrs/", "/doctors" },
-            { "/portland/event/", "/portland/" },
-            { "/Portland/Pages/ehealth/kramescontent/", "/portland/" },
-            { "/Portland/Pages/OHAM/", "/portland/" },
-            { "/Portland/pages/pnrs/", "/portland/" },
-            { "/Simi-Valley/event/", "/simi-valley/" },
-            { "/Simi-Valley/pages/ehealth/", "/simi-valley/" },
-            { "/Simi-Valley/pages/enrs/", "/simi-valley/" },
-            { "/Simi-Valley/Pages/OHAM/", "/simi-valley/" },
-            { "/sonora/Pages/ehealth/kramescontent/", "/sonora/" },
-            { "/sonora-regional/Pages/ehealth/kramescontent/", "/sonora/" },
-            { "/sthelena/Pages/OHAM/", "/st-helena/" },
-            { "/TehachapiValley/Pages/eHealth/KramesContent/", "/tehachapi-valley/" },
-            { "/TehachapiValley/Pages/OHAM/", "/tehachapi-valley/" },
-            { "/Tillamook/Pages/ehealth/kramescontent/", "/tillamook/" },
-            { "/Tillamook/pages/enrs/", "/tillamook/" },
-            { "/Tillamook/Pages/OHAM/", "/tillamook/" },
-            { "/Tillamook/pages/pnrs/", "/doctors/" },
-            { "/trmc/Pages/ehealth/kramescontent/", "/tillamook/" },
-            { "/trmc/pages/pnrs/", "/doctors/" },
-            { "/ukiah-valley/pages/clinicaltrials/", "/ukiah-valley/" },
-            { "/ukiah-valley/Pages/OHAM/", "/locations/" },
-            { "/vallejo/Pages/ehealth/kramescontent/", "/vallejo/" },
-            { "/walla-walla/", "/find-a-location/" },
-            { "/white-memorial/event/", "/white-memorial/" },
-            { "/white-memorial/Pages/ehealth/kramescontent/", "/white-memorial/" },
-            { "/white-memorial/pages/enrs/", "/white-memorial/" },
-            { "/white-memorial/Pages/OHAM/", "/white-memorial/" },
-            { "/white-memorial/pages/pnrs/providerprofile.aspx", "/doctors/" }
+            { "/events/details/", "/classes-events/" },
+            { "/events/event-results/", "/classes-events/" },
+            { "/events/search-results/", "/classes-events/" },
+            { "/events/smart-panel-overflow/", "/classes-events/" },
+            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events" },
+            { "/for-the-health-of-it/full-blog-listing/?searchId", "/for-th-heal-of-it/" },
+            { "/locations/location-clinics/clinic-profile/", "/locations/" },
+            { "/locations/results/", "/locations/" },
+            { "/location-tabs-test/", "/locations" },
+            { "/patients-visitors/cheer-cards/", "/ecards/" },
+            { "/about-us/news-publications/news/?searchId", "/for-the-health-of-it/" },
+            { "/for-the-health-of-it/search-results/?searchId", "/for-the-health-of-it/" },
+            { "/about-us/news-publications/news/?year", "/for-the-health-of-it/" },
+            { "/providers/results/?searchId=", "/our-doctors/" },
+            { "/providers/results/?termId=", "/our-doctors/" },
+            { "/search-for-pages/results/?searchId", "/site-search/" },
+            { "/services/?c=", "/our-services/" },
+            { "/app/files/", "/" }
         };
-        /*
-        public static string[,] subProjects =
-        {
-            { "/bakersfield/", "/bakersfield/" },
-            { "/castle/", "/castle/" },
-            { "/clear-lake/", "/clear-lake/" },
-            { "/lodimemorial/", "/lodi-memorial/" },
-            { "/tehachapivalley/", "tehachapi-valley" },
-            { "/sthelena/", "/st-helena/" },
-            { "/sonora/", "/sonora/" },
-            { "/simi-valley/", "/simi-valley/" },
-            { "/reedley/", "/reedley/" },
-            { "/selma/", "/selma/" },
-            { "/rideout/", "/rideout/" },
-            { "/portland/", "/portland/" },
-            { "/glendale/", "/glendale/" },
-            { "/howard-memorial/", "/howard-memorial/" },
-            { "/hanford/", "/hanford/" },
-            { "/feather-river/", "/feather-river/" },
-            { "/vallejo/", "/vallejo/" },
-            { "/tillamook/", "/tillamook/" },
-            { "/white-memorial/", "/white-memorial/" },
-            { "/ukiah-valley/", "/ukiah-valley/" }
-        };
-        */
         public static int subProjectCounter = 0;
 
         // list out number of found urls
@@ -111,22 +49,20 @@ namespace RedirectMachine
 
         static void Main(string[] args)
         {
-            //initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldBlogUrls.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            ////initialize paths to files
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            ////string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldBlogUrls.csv";
+            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
             //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -149,7 +85,7 @@ namespace RedirectMachine
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
-            buildCatchAllCSV(catchAllList);
+            buildCatchAllCSV(catchAllList, probabilityDictionary);
             //buildCSV(catchAllDictionary, probabilityDictionary);
 
             // stop stopwatch and record elapsed time
@@ -253,7 +189,7 @@ namespace RedirectMachine
                 // couldn't find a match. add to lost list
                 else
                 {
-                    CheckDictionary(obj.CheckVars(obj.GetOriginalUrl()));
+                    CheckDictionary(obj.CheckVars(obj.GetSanitizedUrl()));
                     lostMatch++;
                 }
             }
@@ -337,12 +273,11 @@ namespace RedirectMachine
             }
         }
 
-        static void buildCatchAllCSV(List<KeyValuePair<string, int>> list)
+        static void buildCatchAllCSV(List<KeyValuePair<string, int>> list, string filePath)
         {
 
             int count = list.Count;
-            int i = 1;
-            using (TextWriter tw = new StreamWriter(@"C:\Users\timothy.darrow\Downloads\Probabilities.csv"))
+            using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 foreach (var item in list)
                 {

@@ -8,7 +8,7 @@ namespace RedirectMachine
 {
     class URLObject
     {
-        private string originalUrl, head, tail, newUrl, redirect;
+        private string originalUrl, head, tail, newUrl;
         private int score, count;
         public List<string> matchedUrls;
         public string[] urlChunks;
@@ -21,7 +21,7 @@ namespace RedirectMachine
         public URLObject(string originalUrl)
         {
             // create working constructor
-            this.originalUrl = CheckUrlTail(originalUrl);
+            this.originalUrl = originalUrl;
             head = TruncateStringHead(originalUrl);
             tail = TruncateString(originalUrl, 48);
             score = 0;
@@ -33,6 +33,11 @@ namespace RedirectMachine
         {
             // Purpose: return private string originalUrl
             return originalUrl;
+        }
+
+        public string GetSanitizedUrl()
+        {
+            return CheckUrlTail(originalUrl);
         }
 
         public string GetNewUrl()
@@ -336,10 +341,10 @@ namespace RedirectMachine
             // Purpose: return a url that has a slash on the end for redirection purposes.
             // if url contains an ending extension already (eg .html), skip
             if (url.Contains("?"))
-                url = GetSubString("url", "?", false);
+                url = GetSubString(url, "?", false);
             if (url.Contains("."))
                 return url;
-            return url + "/";
+            return (!url.EndsWith("/") ? url + "/" : url);
 
         }
 
