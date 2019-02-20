@@ -26,14 +26,16 @@ namespace RedirectMachine
             { "/events/search-results/", "/classes-events/" },
             { "/events/smart-panel-overflow/", "/classes-events/" },
             { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events" },
-            { "/for-the-health-of-it/full-blog-listing/?searchId", "/for-th-heal-of-it/" },
+            { "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
             { "/locations/location-clinics/clinic-profile/", "/locations/" },
             { "/locations/results/", "/locations/" },
+            { "/locations/profile/?id=", "/locations/" },
+            { "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
             { "/location-tabs-test/", "/locations" },
             { "/patients-visitors/cheer-cards/", "/ecards/" },
-            { "/about-us/news-publications/news/?searchId", "/for-the-health-of-it/" },
-            { "/for-the-health-of-it/search-results/?searchId", "/for-the-health-of-it/" },
-            { "/about-us/news-publications/news/?year", "/for-the-health-of-it/" },
+            { "/about-us/news-publications/news/?searchId", "/blog/" },
+            { "/for-the-health-of-it/search-results/?searchId", "/blog/" },
+            { "/about-us/news-publications/news/?year", "/blog/" },
             { "/providers/results/?searchId=", "/our-doctors/" },
             { "/providers/results/?termId=", "/our-doctors/" },
             { "/search-for-pages/results/?searchId", "/site-search/" },
@@ -49,20 +51,20 @@ namespace RedirectMachine
 
         static void Main(string[] args)
         {
-            ////initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            ////string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            //initialize paths to files
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -171,7 +173,11 @@ namespace RedirectMachine
             // purpose of function: add catch-alls to List
             for (int i = 0; i < keyVals.GetLength(0); i++)
             {
-                foundList.Add($"{keyVals[i, 0].ToString()}*,{keyVals[i, 1].ToString()}");
+                string temp = keyVals[i, 0];
+                int j = temp.IndexOf("?");
+                if (j != -1)
+                    temp = temp.Substring(0, j);
+                foundList.Add($"{temp}*,{keyVals[i, 1].ToString()}");
             }
         }
 

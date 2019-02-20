@@ -97,7 +97,6 @@ namespace RedirectMachine
         public void CheckUrl(string url)
         {
             string temp = TruncateString(url, 48);
-            //Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
             if (temp.Contains(tail))
             {
                 AddMatchedUrl(url);
@@ -107,8 +106,6 @@ namespace RedirectMachine
         public void AdvCheckUrl(string url)
         {
             string temp = TruncateString(url, 48);
-            //string chunk = tail.Substring()
-            //Console.WriteLine($"oldUrl: {GetUrlSub()}, newUrl: {temp}");
             if (temp.Contains(urlChunks[0]))
             {
                 AddMatchedUrl(url);
@@ -240,7 +237,6 @@ namespace RedirectMachine
             int index = temp.Length;
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
-            if (string.IsNullOrEmpty(temp)) return temp;
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
         }
 
@@ -256,7 +252,8 @@ namespace RedirectMachine
             int index = temp.IndexOf("/");
             if (index <= -1)
                 index = temp.Length;
-            return temp.Substring(0, index).ToLower();
+            temp = temp.Substring(0, index).ToLower();
+            return temp;
         }
 
         public string CheckVars(string value)
@@ -273,6 +270,8 @@ namespace RedirectMachine
             if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
+            value = Regex.Replace(value, "dont", "don-t");
+            value = Regex.Replace(value, "cant", "can-t");
             return value;
         }
 
