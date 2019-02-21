@@ -270,6 +270,7 @@ namespace RedirectMachine
             if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
+            value = Regex.Replace(value, "---", "-");
             value = Regex.Replace(value, "dont", "don-t");
             value = Regex.Replace(value, "cant", "can-t");
             return value;
