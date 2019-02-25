@@ -9,11 +9,12 @@ namespace RedirectMachine
     class Program
     {
         // lost and found lists
-        static List<URLObject> lostList = new List<URLObject>();
+        static List<string> lostList = new List<string>();
         public static List<string> foundList = new List<string>();
 
         // site url lists
         //static List<string> osUrls = new List<string>();
+        //static List<URLObject> osUrls = new List<URLObject>();
         static List<URLObject> osUrls = new List<URLObject>();
         static List<string> nsUrls = new List<string>();
 
@@ -85,7 +86,7 @@ namespace RedirectMachine
             catchAllList.Reverse();
 
 
-            buildLostCSV(lostList, lostUrlFile);
+            buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
             buildCatchAllCSV(catchAllList, probabilityDictionary);
             //buildCSV(catchAllDictionary, probabilityDictionary);
@@ -231,7 +232,8 @@ namespace RedirectMachine
             {
                 // if score is positive, url is found and add redirect to foundList. If negative, add old url to lostList
                 if (obj.GetScore() < 1)
-                    lostList.Add(obj);
+                    //lostList.Add(obj);
+                    lostList.Add($"{obj.GetOriginalUrl()}");
                 else
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
             }
@@ -287,7 +289,6 @@ namespace RedirectMachine
                 foreach (var item in list)
                 {
                     string[] urlMatches = item.matchedUrls.ToArray();
-                    int i = 0;
                     tw.WriteLine(item);
                     if (urlMatches.Length == 0)
                     {
@@ -295,17 +296,13 @@ namespace RedirectMachine
                     }
                     else
                     {
-                        do
+                        for (int i = 0; i < urlMatches.Length; i++)
                         {
                             if (i == 0)
-                            {
                                 tw.WriteLine($"{item.GetOriginalUrl()},{urlMatches[i]}");
-                            }
                             else
-                            {
                                 tw.WriteLine($" ,{urlMatches[i]}");
-                            }
-                        } while (i < urlMatches.Length);
+                        }
                     }
                     
                 }

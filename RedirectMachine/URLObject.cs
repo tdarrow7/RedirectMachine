@@ -175,8 +175,8 @@ namespace RedirectMachine
                     {
                         passiveList.Remove(url);
                         // if index is greater than two, keep it in the matchedUrls list in case we want to spit out potential redirects to user
-                        if (i < 2)
-                            matchedUrls.Remove(url);
+                        //if (i < 2)
+                        matchedUrls.Remove(url);
                         // subtract count. used to determine if a match has not been found.
                         count--;
                     }
