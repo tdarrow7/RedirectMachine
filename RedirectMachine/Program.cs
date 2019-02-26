@@ -44,8 +44,7 @@ namespace RedirectMachine
             { "/app/files/", "/" }
         };
 
-        public static string[,] urlHeaderMaps =
-        {
+        public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
         };
 
@@ -58,26 +57,23 @@ namespace RedirectMachine
         {
             //initialize paths to files
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            //ReadCSV(osUrls, osUrlFile, osParams);
             ReadCSV(osUrls, osUrlFile, osParams);
-            //AddUrls(foundList, osParams);
-            //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
 
             Console.WriteLine("begin search: ");
@@ -93,7 +89,6 @@ namespace RedirectMachine
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
             buildCatchAllCSV(catchAllList, probabilityDictionary);
-            //buildCSV(catchAllDictionary, probabilityDictionary);
 
             // stop stopwatch and record elapsed time
             stopwatch.Stop();
@@ -101,8 +96,6 @@ namespace RedirectMachine
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}{3:00}",
                 ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
 
-            Console.WriteLine($"lostMatch count: {lostMatch}");
-            Console.WriteLine($"foundMatch count: {foundMatch}");
             Console.WriteLine($"lostList count: {lostList.Count}");
             Console.WriteLine($"foundList count: {foundList.Count}");
             Console.WriteLine($"Run time: {elapsedTime}");
@@ -185,7 +178,8 @@ namespace RedirectMachine
             var temp = obj.GetOriginalUrl();
             if (temp.StartsWith("http"))
             {
-                for (int i = 0; i < urlHeaderMaps.Length; i++)
+
+                for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
                 {
                     if (temp.Contains(urlHeaderMaps[i, 0]))
                     {

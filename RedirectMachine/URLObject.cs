@@ -12,7 +12,9 @@ namespace RedirectMachine
         private int score, count;
         public List<string> matchedUrls;
         public string[] urlChunks;
-        public string[] urlHeaderMap;
+        public string[] urlHeaderMap = new string[2];
+        private bool isParentDir = false;
+        private bool hasUrlHeaderMap = false;
         
         public URLObject()
         {
@@ -23,8 +25,8 @@ namespace RedirectMachine
         {
             // create working constructor
             this.originalUrl = originalUrl;
-            head = TruncateStringHead(originalUrl);
             tail = TruncateString(originalUrl, 48);
+            head = TruncateStringHead(originalUrl);
             score = 0;
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
@@ -82,6 +84,7 @@ namespace RedirectMachine
             urlHeaderMap[0] = a;
             urlHeaderMap[1] = b;
             Console.WriteLine($"{urlHeaderMap[0]}, {urlHeaderMap[1]}");
+            hasUrlHeaderMap = true;
         }
 
         public void AddMatchedUrl(string link)
@@ -143,10 +146,21 @@ namespace RedirectMachine
                 foreach (var url in list1)
                 {
                     string temp = TruncateStringHead(url);
-                    if (!temp.Contains(head))
+                    if (hasUrlHeaderMap)
                     {
-                        matchedUrls.Remove(temp);
-                        count--;
+                        if (!UrlHeaderMatch(temp))
+                        {
+                            matchedUrls.Remove(temp);
+                            count--;
+                        }
+                    }
+                    else
+                    {
+                        if (!temp.Contains(head))
+                        {
+                            matchedUrls.Remove(temp);
+                            count--;
+                        }
                     }
                 }
                 if (count == 1)
@@ -157,6 +171,11 @@ namespace RedirectMachine
                 }
             }
             return false;
+        }
+
+        public bool UrlHeaderMatch(string temp)
+        {
+            return urlHeaderMap[1].Contains(temp);
         }
 
         public bool AdvScanUrls()
@@ -260,6 +279,11 @@ namespace RedirectMachine
             int index = temp.IndexOf("/");
             if (index <= -1)
                 index = temp.Length;
+            // check to see if the resource currently being looked at is the parent directory. If it is, set isParentDir to true
+            if (tail.Contains(temp))
+            {
+                isParentDir = true;
+            }
             temp = temp.Substring(0, index).ToLower();
             return temp;
         }
