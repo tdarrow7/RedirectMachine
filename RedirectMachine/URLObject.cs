@@ -81,6 +81,7 @@ namespace RedirectMachine
         {
             urlHeaderMap[0] = a;
             urlHeaderMap[1] = b;
+            Console.WriteLine($"{urlHeaderMap[0]}, {urlHeaderMap[1]}");
         }
 
         public void AddMatchedUrl(string link)

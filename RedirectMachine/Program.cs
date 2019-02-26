@@ -58,18 +58,18 @@ namespace RedirectMachine
         {
             //initialize paths to files
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
             //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -152,28 +152,7 @@ namespace RedirectMachine
                     }
                     if (catchAll == false)
                         list.Add(new URLObject(line));
-                    if (line.StartsWith("http"))
-                    {
-                        int index = 0,
-                            count = 0;
-                        for (int i = 0; i < line.Length; i++)
-                        {
-                            if (line[i] == '/')
-                                count++;
-                            if (count == 3)
-                            {
-                                index = i;
-                            }
-                        }
-                    }
-                        
-                    {
-                        for (int i = 0; i < urlHeaderMaps.Length; i++)
-                        {
-
-                        }
-                        
-                    }
+                    
                 }
                 // using counter variable, let console know how many lines were skipped
                 Console.WriteLine($"Counter: {counter}");
@@ -185,6 +164,7 @@ namespace RedirectMachine
             // Purpose: check every item in List<> oldList and compare with items in List<> newList.
             foreach (var obj in oldList)
             {
+                CheckUrlHeaderMaps(obj);
                 // Pass URLObject into CheckList method. If result is true, match has been found
                 if (CheckList(obj, newList))
                     foundMatch++;
@@ -196,6 +176,22 @@ namespace RedirectMachine
                 {
                     CheckDictionary(obj.CheckVars(obj.GetSanitizedUrl()));
                     lostMatch++;
+                }
+            }
+        }
+
+        public static void CheckUrlHeaderMaps(URLObject obj)
+        {
+            var temp = obj.GetOriginalUrl();
+            if (temp.StartsWith("http"))
+            {
+                for (int i = 0; i < urlHeaderMaps.Length; i++)
+                {
+                    if (temp.Contains(urlHeaderMaps[i, 0]))
+                    {
+                        obj.AddUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
+                    }
+
                 }
             }
         }
