@@ -12,6 +12,7 @@ namespace RedirectMachine
         private int score, count;
         public List<string> matchedUrls;
         public string[] urlChunks;
+        public string[] urlHeaderMap;
         
         public URLObject()
         {
@@ -74,6 +75,12 @@ namespace RedirectMachine
         {
             // Purpose of method: subtract score
             score--;
+        }
+
+        public void AddUrlHeaderMap(string a, string b)
+        {
+            urlHeaderMap[0] = a;
+            urlHeaderMap[1] = b;
         }
 
         public void AddMatchedUrl(string link)

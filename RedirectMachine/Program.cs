@@ -43,7 +43,11 @@ namespace RedirectMachine
             { "/services/?c=", "/our-services/" },
             { "/app/files/", "/" }
         };
-        public static int subProjectCounter = 0;
+
+        public static string[,] urlHeaderMaps =
+        {
+            { "https://www.google.com", "/googleness/" }
+        };
 
         // list out number of found urls
         static int foundMatch = 0;
@@ -53,8 +57,8 @@ namespace RedirectMachine
         static void Main(string[] args)
         {
             //initialize paths to files
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
             string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -71,7 +75,7 @@ namespace RedirectMachine
             stopwatch.Start();
 
             //ReadCSV(osUrls, osUrlFile, osParams);
-            ReadCSV(osUrls, osUrlFile, osParams, true);
+            ReadCSV(osUrls, osUrlFile, osParams);
             //AddUrls(foundList, osParams);
             //ReadCSV(osUrls, osUrlFile, true);
             ReadCSV(nsUrls, nsUrlFile);
@@ -101,7 +105,6 @@ namespace RedirectMachine
             Console.WriteLine($"foundMatch count: {foundMatch}");
             Console.WriteLine($"lostList count: {lostList.Count}");
             Console.WriteLine($"foundList count: {foundList.Count}");
-            Console.WriteLine($"sub project counter: {subProjectCounter}");
             Console.WriteLine($"Run time: {elapsedTime}");
         }
 
@@ -125,21 +128,7 @@ namespace RedirectMachine
             }
         }
 
-        static void ReadCSV(List<URLObject> list, string filePath, bool x)
-        {
-            // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
-            using (var reader = new StreamReader(@"" + filePath))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine().ToLower();
-                    // Add new URLObject to list
-                    list.Add(new URLObject(line));
-                }
-            }
-        }
-
-        static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals, bool x)
+        static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals)
         {
             // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
             int counter = 0;
@@ -163,22 +152,31 @@ namespace RedirectMachine
                     }
                     if (catchAll == false)
                         list.Add(new URLObject(line));
+                    if (line.StartsWith("http"))
+                    {
+                        int index = 0,
+                            count = 0;
+                        for (int i = 0; i < line.Length; i++)
+                        {
+                            if (line[i] == '/')
+                                count++;
+                            if (count == 3)
+                            {
+                                index = i;
+                            }
+                        }
+                    }
+                        
+                    {
+                        for (int i = 0; i < urlHeaderMaps.Length; i++)
+                        {
+
+                        }
+                        
+                    }
                 }
                 // using counter variable, let console know how many lines were skipped
                 Console.WriteLine($"Counter: {counter}");
-            }
-        }
-
-        public static void AddUrls(List<string> list, string[,] keyVals)
-        {
-            // purpose of function: add catch-alls to List
-            for (int i = 0; i < keyVals.GetLength(0); i++)
-            {
-                string temp = keyVals[i, 0];
-                int j = temp.IndexOf("?");
-                if (j != -1)
-                    temp = temp.Substring(0, j);
-                foundList.Add($"{temp}*,{keyVals[i, 1].ToString()}");
             }
         }
 
