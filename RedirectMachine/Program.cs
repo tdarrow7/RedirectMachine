@@ -15,7 +15,7 @@ namespace RedirectMachine
         // site url lists
         //static List<string> osUrls = new List<string>();
         //static List<URLObject> osUrls = new List<URLObject>();
-        static List<URLObject> osUrls = new List<URLObject>();
+        static List<RedirectUrl> osUrls = new List<RedirectUrl>();
         static List<string> nsUrls = new List<string>();
 
         public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
@@ -128,7 +128,7 @@ namespace RedirectMachine
             }
         }
 
-        static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals)
+        static void ReadCSV(List<RedirectUrl> list, string filePath, string[,] keyVals)
         {
             // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
             int counter = 0;
@@ -151,7 +151,7 @@ namespace RedirectMachine
                         }
                     }
                     if (catchAll == false)
-                        list.Add(new URLObject(line));
+                        list.Add(new RedirectUrl(line));
                     
                 }
                 // using counter variable, let console know how many lines were skipped
@@ -159,7 +159,7 @@ namespace RedirectMachine
             }
         }
 
-        public static void findUrl(List<URLObject> oldList, List<string> newList)
+        public static void findUrl(List<RedirectUrl> oldList, List<string> newList)
         {
             // Purpose: check every item in List<> oldList and compare with items in List<> newList.
             foreach (var obj in oldList)
@@ -180,7 +180,7 @@ namespace RedirectMachine
             }
         }
 
-        public static void CheckUrlHeaderMaps(URLObject obj)
+        public static void CheckUrlHeaderMaps(RedirectUrl obj)
         {
             var temp = obj.GetOriginalUrl();
             if (temp.StartsWith("http"))
@@ -196,7 +196,7 @@ namespace RedirectMachine
             }
         }
 
-        public static bool CheckList(URLObject obj, List<string> urls)
+        public static bool CheckList(RedirectUrl obj, List<string> urls)
         {
             // get last piece of url in string
             foreach (var item in urls)
@@ -207,7 +207,7 @@ namespace RedirectMachine
             return obj.ScanMatchedUrls();
         }
 
-        public static bool AdvCheckList(URLObject obj, List<string> urls)
+        public static bool AdvCheckList(RedirectUrl obj, List<string> urls)
         {
             // reset matchedUrls for this current url and start over
             obj.ClearMatches();
@@ -220,7 +220,7 @@ namespace RedirectMachine
             return obj.AdvScanUrls();
         }
 
-        public static void ScanUrlObjects(List<URLObject> list)
+        public static void ScanUrlObjects(List<RedirectUrl> list)
         {
             foreach (var obj in list)
             {
@@ -275,7 +275,7 @@ namespace RedirectMachine
             }
         }
 
-        static void buildLostCSV(List<URLObject> list, string filePath)
+        static void buildLostCSV(List<RedirectUrl> list, string filePath)
         {
             // Purpose: builds a new CSV for the user to view at the specified file path
             using (TextWriter tw = new StreamWriter(@"" + filePath))

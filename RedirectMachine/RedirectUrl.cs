@@ -1,12 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
-    abstract class UrlObject
+    class RedirectUrl
     {
+        private string originalUrl, head, tail, newUrl;
+        private int score, count;
+        public List<string> matchedUrls;
+        public string[] urlChunks;
+        public string[] urlHeaderMap;
+        
+        public RedirectUrl()
+        {
+            // default constructor
+        }
+
+        public RedirectUrl(string originalUrl)
+        {
+            // create working constructor
+            this.originalUrl = originalUrl;
+            head = TruncateStringHead(originalUrl);
+            tail = TruncateString(originalUrl, 48);
+            score = 0;
+            matchedUrls = new List<string>();
+            urlChunks = tail.Split("-").ToArray();
+        }
+        
         public string GetOriginalUrl()
         {
             // Purpose: return private string originalUrl
@@ -61,6 +84,146 @@ namespace RedirectMachine
             Console.WriteLine($"{urlHeaderMap[0]}, {urlHeaderMap[1]}");
         }
 
+        public void AddMatchedUrl(string link)
+        {
+            // Purpose: add potential url match
+            matchedUrls.Add(link);
+            count++;
+        }
+
+        public void RemoveMatchedUrl(string link)
+        {
+            matchedUrls.Remove(link);
+            count--;
+        }
+
+        public void ClearMatches()
+        {
+            matchedUrls.Clear();
+        }
+
+        public void CheckUrl(string url)
+        {
+            string temp = TruncateString(url, 48);
+            if (temp.Contains(tail))
+            {
+                AddMatchedUrl(url);
+            }
+        }
+
+        public void AdvCheckUrl(string url)
+        {
+            string temp = TruncateString(url, 48);
+            if (temp.Contains(urlChunks[0]))
+            {
+                AddMatchedUrl(url);
+            }
+        }
+
+        public bool ScanMatchedUrls()
+        {
+            //Console.WriteLine($"count for {tail} is: {count}");
+            if (count == 0)
+                return false;
+                
+            else if (count == 1)
+            {
+                newUrl = matchedUrls.First();
+                AddScore();
+                return true;
+            }
+            else
+            {
+                count = 0;
+                List<string> list1 = new List<string>();
+                foreach (var url in matchedUrls)
+                {
+                    list1.Add(url);
+                }
+                foreach (var url in list1)
+                {
+                    string temp = TruncateStringHead(url);
+                    if (!temp.Contains(head))
+                    {
+                        matchedUrls.Remove(temp);
+                        count--;
+                    }
+                }
+                if (count == 1)
+                {
+                    newUrl = matchedUrls.First();
+                    AddScore();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool AdvScanUrls()
+        {
+            count = matchedUrls.Count;
+            List<string> activeList = new List<string>();
+            List<string> passiveList = new List<string>();
+
+            foreach (var item in matchedUrls)
+            {
+                passiveList.Add(item);
+            }
+            for (int i = 0; i < urlChunks.Length; i++)
+            {
+                activeList.Clear();
+                foreach (var item in passiveList)
+                {
+                    activeList.Add(item);
+                }
+                string temp = BuildChunk(i);
+                foreach (var url in activeList)
+                {
+                    if (!url.Contains(temp))
+                    {
+                        passiveList.Remove(url);
+                        // if index is greater than two, keep it in the matchedUrls list in case we want to spit out potential redirects to user
+                        //if (i < 2)
+                        matchedUrls.Remove(url);
+                        // subtract count. used to determine if a match has not been found.
+                        count--;
+                    }
+                }
+                if (count == 0)
+                {
+                    return false;
+                }
+                    
+                if (count == 1)
+                {
+                    // found a single url that matches paramaters. 
+                    // run one final check: 
+                    
+                    if (i < urlChunks.Length)
+                    {
+                        temp = BuildChunk(i + 1);
+                        if (!passiveList.First().Contains(temp))
+                            return false;
+                    }
+                    //Return this url as a redirect
+                    newUrl = passiveList.First();
+                    AddScore();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public string BuildChunk(int index)
+        {
+            string temp = urlChunks[0];
+            for (int i = 1; i < index; i++)
+            {
+                temp = temp + "-" + urlChunks[i];
+            }
+            return temp;
+        }
+
         public string TruncateString(string value)
         {
             // Purpose of method: retrieve usable/searchable end of url from variable value.
@@ -75,7 +238,7 @@ namespace RedirectMachine
         public string TruncateString(string value, int maxLength)
         {
             // Purpose of method: retrieve usable/searchable end of url from variable value.
-
+            
             // Get url text after last slash in url,
             // truncate temporary value to maxLength
             string temp = CheckVars(value);
@@ -91,7 +254,7 @@ namespace RedirectMachine
             // Check if url starts with http or https. If it does, grab entire domain of url
             // if that doesn't exist, return the first chunk of the url in between the first two '/'
             string temp = value;
-
+            
             if (temp.StartsWith("/"))
                 temp = temp.Substring(1);
             int index = temp.IndexOf("/");
@@ -192,5 +355,22 @@ namespace RedirectMachine
             return (!url.EndsWith("/") ? url + "/" : url);
 
         }
+
+        public List<string> GetUrlProbabilities()
+        {
+            List<string> returnList = new List<string>();
+            string[] passiveList = originalUrl.Split('/');
+            for (int i = 0; i < passiveList.Length; i++)
+            {
+                string temp = passiveList[0];
+                for (int j = 1; j <= i; j++)
+                {
+                    temp = temp + "/" + passiveList[j];
+                }
+                returnList.Add(temp);
+            }
+            return returnList;
+        }
     }
+
 }
