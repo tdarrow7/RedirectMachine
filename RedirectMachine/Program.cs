@@ -19,6 +19,8 @@ namespace RedirectMachine
         static List<string> nsUrls = new List<string>();
 
         public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
+
+        //public static List<DictionaryUrl> catchAllDictionary = new List<DictionaryUrl>();
         
 
         public static string[,] osParams =  { 
@@ -56,8 +58,8 @@ namespace RedirectMachine
 
         static void Main(string[] args)
         {
-            //initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            ////initialize paths to files
+            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
             //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
             //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
@@ -164,7 +166,7 @@ namespace RedirectMachine
             // Purpose: check every item in List<> oldList and compare with items in List<> newList.
             foreach (var obj in oldList)
             {
-                CheckUrlHeaderMaps(obj);
+                //CheckUrlHeaderMaps(obj);
                 // Pass URLObject into CheckList method. If result is true, match has been found
                 if (CheckList(obj, newList))
                     foundMatch++;
@@ -180,21 +182,21 @@ namespace RedirectMachine
             }
         }
 
-        public static void CheckUrlHeaderMaps(RedirectUrl obj)
-        {
-            var temp = obj.GetOriginalUrl();
-            if (temp.StartsWith("http"))
-            {
-                for (int i = 0; i < urlHeaderMaps.Length; i++)
-                {
-                    if (temp.Contains(urlHeaderMaps[i, 0]))
-                    {
-                        obj.AddUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
-                    }
+        //public static void CheckUrlHeaderMaps(RedirectUrl obj)
+        //{
+        //    var temp = obj.GetOriginalUrl();
+        //    if (temp.StartsWith("http"))
+        //    {
+        //        for (int i = 0; i < urlHeaderMaps.Length; i++)
+        //        {
+        //            if (temp.Contains(urlHeaderMaps[i, 0]))
+        //            {
+        //                obj.AddUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
+        //            }
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         public static bool CheckList(RedirectUrl obj, List<string> urls)
         {
@@ -256,11 +258,6 @@ namespace RedirectMachine
                 url = url.Substring(0, index);
                 CheckDictionary(url);
             }
-        }
-
-        public static void SortCatchAlls()
-        {
-            
         }
 
         static void buildCSV(List<string> list, string filePath)

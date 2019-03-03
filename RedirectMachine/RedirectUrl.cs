@@ -6,13 +6,14 @@ using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
-    class RedirectUrl
+    class RedirectUrl : UrlObject
     {
-        private string originalUrl, head, tail, newUrl;
-        private int score, count;
+        private string head, tail, newUrl;
+        private int score;
         public List<string> matchedUrls;
         public string[] urlChunks;
-        public string[] urlHeaderMap;
+        public string[] urlHeaderMap = new string[2];
+
         
         public RedirectUrl()
         {
@@ -22,23 +23,11 @@ namespace RedirectMachine
         public RedirectUrl(string originalUrl)
         {
             // create working constructor
-            this.originalUrl = originalUrl;
-            head = TruncateStringHead(originalUrl);
+            head = TruncateStringHead(GetOriginalUrl());
             tail = TruncateString(originalUrl, 48);
             score = 0;
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
-        }
-        
-        public string GetOriginalUrl()
-        {
-            // Purpose: return private string originalUrl
-            return originalUrl;
-        }
-
-        public string GetSanitizedUrl()
-        {
-            return CheckUrlTail(originalUrl);
         }
 
         public string GetNewUrl()
@@ -57,12 +46,6 @@ namespace RedirectMachine
         {
             // Purpose: return private int score
             return score;
-        }
-
-        public int GetCount()
-        {
-            // Purpose: return private int score
-            return count;
         }
 
         public void AddScore()
@@ -88,13 +71,13 @@ namespace RedirectMachine
         {
             // Purpose: add potential url match
             matchedUrls.Add(link);
-            count++;
+            AddCount();
         }
 
         public void RemoveMatchedUrl(string link)
         {
             matchedUrls.Remove(link);
-            count--;
+            SubtractCount();
         }
 
         public void ClearMatches()
@@ -122,11 +105,12 @@ namespace RedirectMachine
 
         public bool ScanMatchedUrls()
         {
+            int i = GetCount();
             //Console.WriteLine($"count for {tail} is: {count}");
-            if (count == 0)
+            if (i == 0)
                 return false;
                 
-            else if (count == 1)
+            else if (i == 1)
             {
                 newUrl = matchedUrls.First();
                 AddScore();
@@ -134,7 +118,7 @@ namespace RedirectMachine
             }
             else
             {
-                count = 0;
+                SetCount(0);
                 List<string> list1 = new List<string>();
                 foreach (var url in matchedUrls)
                 {
@@ -146,10 +130,10 @@ namespace RedirectMachine
                     if (!temp.Contains(head))
                     {
                         matchedUrls.Remove(temp);
-                        count--;
+                        SubtractCount();
                     }
                 }
-                if (count == 1)
+                if (GetCount() == 1)
                 {
                     newUrl = matchedUrls.First();
                     AddScore();
@@ -161,7 +145,7 @@ namespace RedirectMachine
 
         public bool AdvScanUrls()
         {
-            count = matchedUrls.Count;
+            int tempCount = matchedUrls.Count;
             List<string> activeList = new List<string>();
             List<string> passiveList = new List<string>();
 
@@ -186,15 +170,15 @@ namespace RedirectMachine
                         //if (i < 2)
                         matchedUrls.Remove(url);
                         // subtract count. used to determine if a match has not been found.
-                        count--;
+                        tempCount--;
                     }
                 }
-                if (count == 0)
+                if (tempCount == 0)
                 {
                     return false;
                 }
                     
-                if (count == 1)
+                if (tempCount == 1)
                 {
                     // found a single url that matches paramaters. 
                     // run one final check: 
@@ -264,76 +248,6 @@ namespace RedirectMachine
             return temp;
         }
 
-        public string CheckVars(string value)
-        {
-            // Purpose: remove unnecessary contents on end of url if found
-            if (value.Contains("?"))
-                value = GetSubString(value, "?", false);
-            if (value.Contains("."))
-                value = GetSubString(value, ".", false);
-            if (value.EndsWith("/"))
-                value = GetSubString(value, "/", false);
-            if (value.EndsWith("/*"))
-                value = GetSubString(value, "/*", false);
-            if (value.EndsWith("-"))
-                value = GetSubString(value, "-", false);
-            value = Regex.Replace(value, "--", "-");
-            value = Regex.Replace(value, "---", "-");
-            value = Regex.Replace(value, "dont", "don-t");
-            value = Regex.Replace(value, "cant", "can-t");
-            return value;
-        }
-
-        public static int GetFirstIndex(string i, string j)
-        {
-            // Purpose of method: return first position of j variable in string i.
-            if (i.Contains(j))
-                return i.IndexOf(j);
-            else
-                return i.Length;
-        }
-
-        public static int GetLastIndex(string i, string j)
-        {
-            // Purpose of method: return last position of j variable in string i.
-            if (i.Contains(j))
-                return i.LastIndexOf(j);
-            else
-                return i.Length;
-        }
-
-        public static string GetSubString(string i, string j, bool x)
-        {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
-            // 1) if true, includes the string j rather than excluding it, or
-            // 2) if false, returns a substring that excludes string j.
-            int index = GetLastIndex(i, j);
-            string temp;
-            if (x == true)
-            {
-                temp = i.Substring(0, index + j.Length);
-            }
-            else
-                temp = i.Substring(0, index);
-            return temp;
-        }
-
-        public static string GetSubString(string i, string j, int x)
-        {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
-            var pos = 0;
-            string temp = i;
-            while (pos <= x)
-            {
-                int index = GetLastIndex(i, j);
-                temp = temp.Substring(0, index);
-                pos++;
-            }
-            return temp;
-        }
-
         public string TrimFullUrl(string value)
         {
             int index = value.IndexOf("//");
@@ -342,34 +256,6 @@ namespace RedirectMachine
             string temp = value.Substring(value.IndexOf("//"), value.Length - value.IndexOf("//"));
             temp = temp.Substring(0, GetFirstIndex(temp, "/"));
             return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
-        }
-
-        public string CheckUrlTail(string url)
-        {
-            // Purpose: return a url that has a slash on the end for redirection purposes.
-            // if url contains an ending extension already (eg .html), skip
-            if (url.Contains("?"))
-                url = GetSubString(url, "?", false);
-            if (url.Contains("."))
-                return url;
-            return (!url.EndsWith("/") ? url + "/" : url);
-
-        }
-
-        public List<string> GetUrlProbabilities()
-        {
-            List<string> returnList = new List<string>();
-            string[] passiveList = originalUrl.Split('/');
-            for (int i = 0; i < passiveList.Length; i++)
-            {
-                string temp = passiveList[0];
-                for (int j = 1; j <= i; j++)
-                {
-                    temp = temp + "/" + passiveList[j];
-                }
-                returnList.Add(temp);
-            }
-            return returnList;
         }
     }
 
