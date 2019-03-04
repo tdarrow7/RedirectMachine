@@ -26,6 +26,7 @@ namespace RedirectMachine
             originalUrl = url;
             sanitizedUrl = CheckUrlTail(url);
             count = 1;
+            Console.WriteLine($"original url: {originalUrl}");
         }
 
         public bool ReturnTest()

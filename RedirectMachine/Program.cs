@@ -20,7 +20,7 @@ namespace RedirectMachine
 
         public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
 
-        //public static List<DictionaryUrl> catchAllDictionary = new List<DictionaryUrl>();
+        public static List<DictionaryUrl> probabilityList = new List<DictionaryUrl>();
         
 
         public static string[,] osParams =  { 
@@ -94,7 +94,8 @@ namespace RedirectMachine
 
             buildCSV(lostList, lostUrlFile);
             buildCSV(foundList, foundUrlFile);
-            buildCatchAllCSV(catchAllList, probabilityDictionary);
+            //buildCSV(probabilityList, probabilityDictionary);
+            buildCatchAllCSV(probabilityDictionary);
             //buildCSV(catchAllDictionary, probabilityDictionary);
 
             // stop stopwatch and record elapsed time
@@ -142,6 +143,26 @@ namespace RedirectMachine
                     var line = reader.ReadLine();
                     // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
                     var temp = line.ToLower().Trim('"');
+                    // if line contains question mark, skip and add to dictionary of catchAlls
+                    if (temp.Contains("?"))
+                    {
+                        bool isFound = false;
+                        foreach (var item in probabilityList)
+                        {
+                            if (temp.Contains(item.GetSanitizedUrl()))
+                            {
+                                item.AddCount();
+                                isFound = true;
+                                break;
+                            }
+                        }
+                        if (!isFound)
+                        {
+                            probabilityList.Add(new DictionaryUrl(line));
+                            continue;
+                        }
+                    }
+
                     for (int i = 0; i < keyVals.GetLength(0); i++)
                     {
                         // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
@@ -301,15 +322,27 @@ namespace RedirectMachine
             }
         }
 
-        static void buildCatchAllCSV(List<KeyValuePair<string, int>> list, string filePath)
+        //static void buildLostCSV(List<DictionaryUrl> list, string filePath)
+        //{
+        //    // Purpose: builds a new CSV for the user to view at the specified file path
+        //    using (TextWriter tw = new StreamWriter(@"" + filePath))
+        //    {
+        //        foreach (var item in list)
+        //        {
+        //            tw.WriteLine(item.GetProbableUrl());
+        //        }
+
+        //    }
+        //}
+
+        static void buildCatchAllCSV(string filePath)
         {
 
-            int count = list.Count;
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
-                foreach (var item in list)
+                foreach (var item in probabilityList)
                 {
-                    tw.WriteLine(item.Key + "," + item.Value);
+                    tw.WriteLine(item.GetProbableUrl());
                 }
             }
         }
