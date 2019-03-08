@@ -8,6 +8,7 @@ namespace RedirectMachine
 {
     class Program
     {
+        
         // lost and found lists
         static List<string> lostList = new List<string>();
         public static List<string> foundList = new List<string>();
@@ -15,8 +16,8 @@ namespace RedirectMachine
         // site url lists
         //static List<string> osUrls = new List<string>();
         //static List<URLObject> osUrls = new List<URLObject>();
-        static List<URLObject> osUrls = new List<URLObject>();
-        static List<string> nsUrls = new List<string>();
+        List<URLObject> osUrls = new List<URLObject>();
+        List<URLObject> nsUrls = new List<URLObject>();
 
         public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
         
@@ -26,7 +27,7 @@ namespace RedirectMachine
             { "/events/event-results/", "/classes-events/" },
             { "/events/search-results/", "/classes-events/" },
             { "/events/smart-panel-overflow/", "/classes-events/" },
-            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events" },
+            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
             { "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
             { "/locations/location-clinics/clinic-profile/", "/locations/" },
             { "/locations/results/", "/locations/" },
@@ -55,6 +56,9 @@ namespace RedirectMachine
 
         static void Main(string[] args)
         {
+            var finder = new RedirectFinder();
+            finder.Run();
+
             //initialize paths to files
             //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
             string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
@@ -121,6 +125,37 @@ namespace RedirectMachine
             }
         }
 
+        //static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals)
+        //{
+        //    // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
+        //    int counter = 0;
+        //    using (var reader = new StreamReader(@"" + filePath))
+        //    {
+        //        while (!reader.EndOfStream)
+        //        {
+        //            bool catchAll = false;
+        //            var line = reader.ReadLine();
+        //            // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
+        //            var temp = line.ToLower().Trim('"');
+        //            for (int i = 0; i < keyVals.GetLength(0); i++)
+        //            {
+        //                // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
+        //                if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
+        //                {
+        //                    catchAll = true;
+        //                    counter++;
+        //                    break;
+        //                }
+        //            }
+        //            if (catchAll == false)
+        //                list.Add(new URLObject(line));
+                    
+        //        }
+        //        // using counter variable, let console know how many lines were skipped
+        //        Console.WriteLine($"Counter: {counter}");
+        //    }
+        //}
+
         static void ReadCSV(List<URLObject> list, string filePath, string[,] keyVals)
         {
             // Purpose: while iterating through CSV, create list of potential candidates for catchall strings.
@@ -145,7 +180,7 @@ namespace RedirectMachine
                     }
                     if (catchAll == false)
                         list.Add(new URLObject(line));
-                    
+
                 }
                 // using counter variable, let console know how many lines were skipped
                 Console.WriteLine($"Counter: {counter}");
