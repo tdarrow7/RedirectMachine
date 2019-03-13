@@ -31,12 +31,12 @@ namespace RedirectMachine
             List<string> foundList = new List<string>();
 
             // Create new CSV Objects
-            var oldUrlCSV = new CSVObject();
-            var newUrlCSV = new CSVObject();
+            var newUrlCSV = new NewCSVObject();
+            var oldUrlCSV = new OldCSVObject();
 
             // read both old urls and new urls into CSV List
-            oldUrlCSV.ReadOldUrlsIntoList(osUrlFile);
-            oldUrlCSV.ReadNewUrlsIntoList(nsUrlFile);
+            newUrlCSV.ReadNewUrlsIntoList(nsUrlFile);
+            //oldUrlCSV.ReadOldUrlsIntoList(osUrlFile);
 
             // site url lists
             //static List<string> osUrls = new List<string>();
@@ -45,4 +45,6 @@ namespace RedirectMachine
             //List<string> nsUrls = new List<string>();
         }
     }
+
+    
 }

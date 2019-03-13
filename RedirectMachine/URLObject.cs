@@ -8,7 +8,7 @@ namespace RedirectMachine
 {
     class URLObject
     {
-        private string originalUrl, head, tail, newUrl;
+        private string originalUrl, head, tail, newUrl, sanitizedUrl;
         private int score, count;
         public List<string> matchedUrls;
         public string[] urlChunks;
@@ -24,9 +24,10 @@ namespace RedirectMachine
         public URLObject(string originalUrl)
         {
             // create working constructor
-            this.originalUrl = originalUrl;
+            this.originalUrl = originalUrl.ToLower().Trim('"');
             tail = TruncateString(originalUrl, 48);
             head = TruncateStringHead(originalUrl);
+            sanitizedUrl = CheckUrlTail(originalUrl);
             score = 0;
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
@@ -40,7 +41,7 @@ namespace RedirectMachine
 
         public string GetSanitizedUrl()
         {
-            return CheckUrlTail(originalUrl);
+            return sanitizedUrl;
         }
 
         public string GetNewUrl()

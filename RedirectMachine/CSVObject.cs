@@ -6,6 +6,7 @@ namespace RedirectMachine
 {
     internal class CSVObject
     {
+
         private string[,] osParams =  {
             { "/events/details/", "/classes-events/" },
             { "/events/event-results/", "/classes-events/" },
@@ -33,6 +34,8 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
+        //List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
+
         public CSVObject()
         {
         }
@@ -51,9 +54,9 @@ namespace RedirectMachine
                 {
                     var line = reader.ReadLine();
                     line = line.ToLower();
-                    list.Add(line);
+                    //list.Add(line);
                 }
-                list.Sort();
+                //list.Sort();
             }
         }
     }
