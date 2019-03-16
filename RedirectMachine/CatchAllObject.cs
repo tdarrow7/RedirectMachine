@@ -1,6 +1,22 @@
-﻿namespace RedirectMachine
+﻿using System;
+
+namespace RedirectMachine
 {
-    public class CatchAllObject
+    internal class CatchAllObject
     {
+        int count = 1;
+        string catchAllUrl;
+
+        public CatchAllObject(URLObject obj)
+        {
+            catchAllUrl = obj.GetSanitizedUrl();
+        }
+
+        internal void IncreaseCount()
+        {
+            count++;
+        }
     }
+
+    
 }

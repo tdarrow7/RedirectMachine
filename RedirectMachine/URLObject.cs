@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
-    class URLObject
+    public class URLObject
     {
         private string originalUrl, head, tail, newUrl, sanitizedUrl;
         private int score, count;
@@ -32,17 +32,43 @@ namespace RedirectMachine
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
         }
-        
+
+        /// <summary>
+        /// Return head variable
+        /// </summary>
+        internal string GetHead()
+        {
+            return head;
+        }
+
+
+        /// <summary>
+        /// return tail variable
+        /// </summary>
+        internal string GetTail()
+        {
+            return tail;
+        }
+
+
+        /// <summary>
+        /// return private string originalUrl
+        /// </summary>
+        /// <returns></returns>
         public string GetOriginalUrl()
         {
-            // Purpose: return private string originalUrl
             return originalUrl;
         }
 
+        /// <summary>
+        /// Return private string sanitizedUrl
+        /// </summary>
+        /// <returns></returns>
         public string GetSanitizedUrl()
         {
             return sanitizedUrl;
         }
+
 
         public string GetNewUrl()
         {
@@ -104,6 +130,15 @@ namespace RedirectMachine
         public void ClearMatches()
         {
             matchedUrls.Clear();
+        }
+
+        /// <summary>
+        /// Check to see if the original url contains query strings
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckForQueryStrings()
+        {
+            return originalUrl.Contains("?") ? true : false;
         }
 
         public void CheckUrl(string url)

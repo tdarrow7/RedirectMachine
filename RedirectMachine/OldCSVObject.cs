@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RedirectMachine
 {
     internal class OldCSVObject
     {
-        public List<CatchAllObject> catchAllList;
+        public Dictionary<string, CatchAllObject> catchAllList = new Dictionary<string, CatchAllObject>();
+        public int counter = 0;
         //public List<UrlUtils> urlUtils;
+        public List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
 
         private string[,] osParams =  {
             { "/events/details/", "/classes-events/" },
@@ -40,6 +43,11 @@ namespace RedirectMachine
 
         }
 
+
+        /// <summary>
+        /// For Every line in CSV, read line and check if line belongs in a catchAll. If not, create new RedirectUrl Object.
+        /// </summary>
+        /// <param name="osUrlFile"></param>
         internal void ReadOldUrlsIntoList(string osUrlFile)
         {
             // Purpose: add CSV file contents to list
@@ -47,31 +55,13 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    bool catchAll = false;
-                    var urlObj = new URLObject(reader.ReadLine());
+                    var obj = new URLObject(reader.ReadLine());
 
-
-                    var line = reader.ReadLine();
-                    // When new line is read, reset catchAll property. Trim qoutes from var line temporarily
-
-
-                    var temp = line.ToLower().Trim('"');
-                    for (int i = 0; i < keyVals.GetLength(0); i++)
-                    {
-                        // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-                        if (temp.StartsWith(keyVals[i, 0].ToString().ToLower()))
-                        {
-                            catchAll = true;
-                            counter++;
-                            break;
-                        }
-                    }
-                    if (catchAll == false)
-                        list.Add(new URLObject(line));
+                    
+                    if (!CheckCatchAllParams(obj))
+                        redirectUrls.Add(new RedirectUrl(obj));
                 }
             }
-
-
         }
         
         /// <summary>
@@ -79,7 +69,7 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        internal bool CheckCatchAll(URLObject obj)
+        internal bool CheckCatchAllParams(URLObject obj)
         {
             /// 
             var temp = obj.GetOriginalUrl();
@@ -89,18 +79,26 @@ namespace RedirectMachine
                 // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
                 if (temp.StartsWith(osParams[i, 0].ToString().ToLower()))
                 {
-                    //catchAll = true;
-                    //counter++;
-                    break;
+                    counter++;
+                    return true;
                 }
             }
+            if (obj.CheckForQueryStrings())
+                CheckNewCatchAlls(obj);
+            return false;
+        }
 
-            if (true)
-            {
-                return true;
-            }
-            else return false;
-            
+        /// <summary>
+        /// Try to find new catchAll entry in existing catchall entries. If found, increase count for catchall by 1. If not, create new Catchall entry.
+        /// </summary>
+        /// <param name="obj"></param>
+        private void CheckNewCatchAlls(URLObject obj)
+        {
+            string url = obj.GetSanitizedUrl();
+            if (catchAllList.ContainsKey(url))
+                catchAllList[url].IncreaseCount();
+            else
+                catchAllList.Add(url, new CatchAllObject(obj));
         }
     }
 }

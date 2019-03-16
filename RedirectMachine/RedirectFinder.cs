@@ -5,6 +5,8 @@ namespace RedirectMachine
 {
     internal class RedirectFinder
     {
+        public List<CatchAllObject> catchalls = new List<CatchAllObject>();
+
         public RedirectFinder()
         {
         }
