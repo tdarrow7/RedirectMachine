@@ -20,7 +20,7 @@ namespace RedirectMachine
             // default contstructor
         }
 
-        public RedirectUrl(URLObject obj)
+        public RedirectUrl(URLObject obj, string[,] urlHeaderMaps)
         {
             // create working constructor
             originalUrl = obj.GetOriginalUrl();
@@ -30,12 +30,26 @@ namespace RedirectMachine
             score = 0;
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
-            CheckUrlHeaderMaps(obj);
+            CheckUrlHeaderMaps(urlHeaderMaps);
         }
 
-        private void CheckUrlHeaderMaps(URLObject obj)
+        /// <summary>
+        /// check to see if the url from obj contains one of the urlHeaderMap entries.
+        /// e.g. www.google.com redirecting to /google/ on the new site
+        /// </summary>
+        /// <param name="obj"></param>
+        private void CheckUrlHeaderMaps(string[,] urlHeaderMaps)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < urlHeaderMaps.Length; i++)
+            {
+                
+                if (sanitizedUrl.Contains(urlHeaderMaps[i, 0]))
+                {
+                    hasUrlHeaderMap = true;
+                    urlHeaderMap[0] = urlHeaderMaps[i, 0];
+                    urlHeaderMap[1] = urlHeaderMaps[i, 1];
+                }
+            }
         }
 
         public void CheckUrl(string url)
@@ -188,6 +202,11 @@ namespace RedirectMachine
             value = Regex.Replace(value, "dont", "don-t");
             value = Regex.Replace(value, "cant", "can-t");
             return value;
+        }
+
+        internal string GetSanitizedUrl()
+        {
+            throw new NotImplementedException();
         }
 
         public static string GetSubString(string i, string j, bool x)

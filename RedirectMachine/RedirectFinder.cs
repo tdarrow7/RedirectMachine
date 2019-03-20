@@ -9,8 +9,8 @@ namespace RedirectMachine
     {
         // declare all universally needed variables
         public List<CatchAllObject> catchalls = new List<CatchAllObject>();
-        public List<string> newUrlSiteMap = new List<string>();
-        public List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
+        public static List<string> newUrlSiteMap = new List<string>();
+        public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
         public static Dictionary<string, CatchAllObject> catchAllList = new Dictionary<string, CatchAllObject>();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
@@ -38,7 +38,7 @@ namespace RedirectMachine
             { "/app/files/", "/" }
         };
 
-        string[,] urlHeaderMaps = {
+        public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
         };
 
@@ -100,7 +100,7 @@ namespace RedirectMachine
                     var obj = new URLObject(reader.ReadLine());
 
                     if (!CheckCatchallParams(obj))
-                        redirectUrls.Add(new RedirectUrl(obj));
+                        redirectUrls.Add(new RedirectUrl(obj, urlHeaderMaps));
                 }
             }
         }
@@ -142,29 +142,26 @@ namespace RedirectMachine
 
 
         /// <summary>
-        /// 
+        /// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
         /// </summary>
         /// <param name="oldList"></param>
         /// <param name="newList"></param>
-        public static void findUrl(List<URLObject> oldList, List<string> newList)
+        public void findUrl()
         {
-            // Purpose: check every item in List<> oldList and compare with items in List<> newList.
-            foreach (var obj in oldList)
+            // Purpose: 
+            foreach (var obj in redirectUrls)
             {
-                CheckUrlHeaderMaps(obj);
-                // Pass URLObject into CheckList method. If result is true, match has been found
-                if (CheckList(obj, newList))
-                    foundMatch++;
-                // Pass URLObject into AdvCheckList method. If result is true, match has been found
-                else if (AdvCheckList(obj, newList))
-                    foundMatch++;
-                // couldn't find a match. add to lost list
+                if (obj.BasicScan(newUrlSiteMap) || obj.AdvancedScan(newUrlSiteMap);
                 else
                 {
-                    CheckDictionary(obj.CheckVars(obj.GetSanitizedUrl()));
-                    lostMatch++;
+                    AddPossibleCatchAll();
                 }
             }
+        }
+
+        private void AddPossibleCatchAll()
+        {
+            throw new NotImplementedException();
         }
     }
 
