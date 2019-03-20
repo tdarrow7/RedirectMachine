@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -29,6 +30,12 @@ namespace RedirectMachine
             score = 0;
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
+            CheckUrlHeaderMaps(obj);
+        }
+
+        private void CheckUrlHeaderMaps(URLObject obj)
+        {
+            throw new NotImplementedException();
         }
 
         public void CheckUrl(string url)

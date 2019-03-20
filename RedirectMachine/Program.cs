@@ -8,101 +8,55 @@ namespace RedirectMachine
 {
     class Program
     {
-        
-        // lost and found lists
-        static List<string> lostList = new List<string>();
-        public static List<string> foundList = new List<string>();
-
-        // site url lists
-        //static List<string> osUrls = new List<string>();
-        //static List<URLObject> osUrls = new List<URLObject>();
-        List<URLObject> osUrls = new List<URLObject>();
-        List<URLObject> nsUrls = new List<URLObject>();
-
-        public static Dictionary<string, int> catchAllDictionary = new Dictionary<string, int>();
-        
-
-        public static string[,] osParams =  { 
-            { "/events/details/", "/classes-events/" },
-            { "/events/event-results/", "/classes-events/" },
-            { "/events/search-results/", "/classes-events/" },
-            { "/events/smart-panel-overflow/", "/classes-events/" },
-            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
-            { "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
-            { "/locations/location-clinics/clinic-profile/", "/locations/" },
-            { "/locations/results/", "/locations/" },
-            { "/locations/profile/?id=", "/locations/" },
-            { "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
-            { "/location-tabs-test/", "/locations" },
-            { "/patients-visitors/cheer-cards/", "/ecards/" },
-            { "/about-us/news-publications/news/?searchId", "/blog/" },
-            { "/for-the-health-of-it/search-results/?searchId", "/blog/" },
-            { "/about-us/news-publications/news/?year", "/blog/" },
-            { "/providers/results/?searchId=", "/our-doctors/" },
-            { "/providers/results/?termId=", "/our-doctors/" },
-            { "/search-for-pages/results/?searchId", "/site-search/" },
-            { "/services/?c=", "/our-services/" },
-            { "/app/files/", "/" }
-        };
-
-        public static string[,] urlHeaderMaps = {
-            { "https://www.google.com", "/googleness/" }
-        };
-
-        // list out number of found urls
-        static int foundMatch = 0;
-        static int lostMatch = 0;
-
-
         static void Main(string[] args)
         {
             var finder = new RedirectFinder();
             finder.Run();
 
-            //initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+            ////initialize paths to files
+            ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+            //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+            //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+            //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+            //string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-            //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-            //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-            //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-            //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-            //string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
+            //////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+            ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+            ////string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+            ////string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+            ////string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+            ////string probabilityDictionary = @"C:\Users\timot\Downloads\Probabilities.csv";
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
 
-            ReadCSV(osUrls, osUrlFile, osParams);
-            ReadCSV(nsUrls, nsUrlFile);
+            //ReadCSV(osUrls, osUrlFile, osParams);
+            //ReadCSV(nsUrls, nsUrlFile);
 
-            Console.WriteLine("begin search: ");
+            //Console.WriteLine("begin search: ");
 
-            // search url lists for new items
-            findUrl(osUrls, nsUrls);
-            ScanUrlObjects(osUrls);
-            List < KeyValuePair<string, int> > catchAllList = catchAllDictionary.ToList();
-            catchAllList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
-            catchAllList.Reverse();
+            //// search url lists for new items
+            //findUrl(osUrls, nsUrls);
+            //ScanUrlObjects(osUrls);
+            //List < KeyValuePair<string, int> > catchAllList = catchAllDictionary.ToList();
+            //catchAllList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+            //catchAllList.Reverse();
 
 
-            buildCSV(lostList, lostUrlFile);
-            buildCSV(foundList, foundUrlFile);
-            buildCatchAllCSV(catchAllList, probabilityDictionary);
+            //buildCSV(lostList, lostUrlFile);
+            //buildCSV(foundList, foundUrlFile);
+            //buildCatchAllCSV(catchAllList, probabilityDictionary);
 
-            // stop stopwatch and record elapsed time
-            stopwatch.Stop();
-            TimeSpan ts = stopwatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+            //// stop stopwatch and record elapsed time
+            //stopwatch.Stop();
+            //TimeSpan ts = stopwatch.Elapsed;
+            //string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}{3:00}",
+            //    ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
 
-            Console.WriteLine($"lostList count: {lostList.Count}");
-            Console.WriteLine($"foundList count: {foundList.Count}");
-            Console.WriteLine($"Run time: {elapsedTime}");
+            //Console.WriteLine($"lostList count: {lostList.Count}");
+            //Console.WriteLine($"foundList count: {foundList.Count}");
+            //Console.WriteLine($"Run time: {elapsedTime}");
         }
 
         /*---------------------------------------------------------------------------
