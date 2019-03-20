@@ -11,32 +11,9 @@ namespace RedirectMachine
         public List<CatchAllObject> catchalls = new List<CatchAllObject>();
         public static List<string> newUrlSiteMap = new List<string>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
-        public static Dictionary<string, CatchAllObject> catchAllList = new Dictionary<string, CatchAllObject>();
+        public static CatchAllObject catchAllCSV = new CatchAllObject();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
-
-        private string[,] catchAllParams =  {
-            { "/events/details/", "/classes-events/" },
-            { "/events/event-results/", "/classes-events/" },
-            { "/events/search-results/", "/classes-events/" },
-            { "/events/smart-panel-overflow/", "/classes-events/" },
-            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
-            { "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
-            { "/locations/location-clinics/clinic-profile/", "/locations/" },
-            { "/locations/results/", "/locations/" },
-            { "/locations/profile/?id=", "/locations/" },
-            { "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
-            { "/location-tabs-test/", "/locations" },
-            { "/patients-visitors/cheer-cards/", "/ecards/" },
-            { "/about-us/news-publications/news/?searchId", "/blog/" },
-            { "/for-the-health-of-it/search-results/?searchId", "/blog/" },
-            { "/about-us/news-publications/news/?year", "/blog/" },
-            { "/providers/results/?searchId=", "/our-doctors/" },
-            { "/providers/results/?termId=", "/our-doctors/" },
-            { "/search-for-pages/results/?searchId", "/site-search/" },
-            { "/services/?c=", "/our-services/" },
-            { "/app/files/", "/" }
-        };
 
         public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
@@ -47,6 +24,9 @@ namespace RedirectMachine
         {
         }
 
+        /// <summary>
+        /// Start the finder program
+        /// </summary>
         internal void Run()
         {
             //initialize paths to files
@@ -63,12 +43,6 @@ namespace RedirectMachine
 
             // call method to find url Matches
             FindUrlMatches();
-        }
-
-        private void FindUrlMatches()
-        {
-
-            throw new NotImplementedException();
         }
 
         private void ReadNewUrlsIntoList(string urlFile)
@@ -99,69 +73,30 @@ namespace RedirectMachine
                 {
                     var obj = new URLObject(reader.ReadLine());
 
-                    if (!CheckCatchallParams(obj))
+                    if (!catchAllCSV.CheckCatchallParams(obj))
                         redirectUrls.Add(new RedirectUrl(obj, urlHeaderMaps));
                 }
             }
         }
 
         /// <summary>
-        /// checks to see if the url belongs to one of the existing osParam catchAlls. If it does, don't do anything further with it. Essentially ignore that object
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        private bool CheckCatchallParams(URLObject obj)
-        {
-            var temp = obj.GetOriginalUrl();
-
-            for (int i = 0; i < catchAllParams.GetLength(0); i++)
-            {
-                // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
-                if (temp.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
-                {
-                    return true;
-                }
-            }
-            if (obj.CheckForQueryStrings())
-                CheckNewCatchAlls(obj);
-            return false;
-        }
-
-        /// <summary>
-        /// Try to find new catchAll entry in existing catchall entries. If found, increase count for catchall by 1. If not, create new Catchall entry.
-        /// </summary>
-        /// <param name="obj"></param>
-        private void CheckNewCatchAlls(URLObject obj)
-        {
-            string url = obj.GetSanitizedUrl();
-            if (catchAllList.ContainsKey(url))
-                catchAllList[url].IncreaseCount();
-            else
-                catchAllList.Add(url, new CatchAllObject(obj));
-        }
-
-
-        /// <summary>
         /// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
         /// </summary>
         /// <param name="oldList"></param>
         /// <param name="newList"></param>
-        public void findUrl()
+        public void FindUrlMatches()
         {
             // Purpose: 
             foreach (var obj in redirectUrls)
             {
-                if (obj.BasicScan(newUrlSiteMap) || obj.AdvancedScan(newUrlSiteMap);
+                if (obj.BasicUrlFinder(newUrlSiteMap) || obj.AdvancedUrlFinder(newUrlSiteMap)) {
+
+                }
                 else
                 {
-                    AddPossibleCatchAll();
+                    catchAllCSV.CheckNewCatchAlls(obj.GetSanitizedUrl());
                 }
             }
-        }
-
-        private void AddPossibleCatchAll()
-        {
-            throw new NotImplementedException();
         }
     }
 

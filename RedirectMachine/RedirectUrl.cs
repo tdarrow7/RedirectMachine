@@ -14,6 +14,7 @@ namespace RedirectMachine
         public string[] urlHeaderMap = new string[2];
         private bool isParentDir = false;
         private bool hasUrlHeaderMap = false;
+        
 
         public RedirectUrl()
         {
@@ -31,6 +32,7 @@ namespace RedirectMachine
             matchedUrls = new List<string>();
             urlChunks = tail.Split("-").ToArray();
             CheckUrlHeaderMaps(urlHeaderMaps);
+            var urlObject = obj;
         }
 
         /// <summary>
@@ -76,10 +78,79 @@ namespace RedirectMachine
         /// <returns></returns>
         public bool ScanMatchedUrls()
         {
-            //Console.WriteLine($"count for {tail} is: {count}");
             if (count == 0)
                 return false;
 
+            else if (count == 1)
+            {
+                newUrl = matchedUrls.First();
+                AddScore();
+                return true;
+            }
+            else
+            {
+                count = 0;
+                List<string> list1 = matchedUrls.ToList();
+                foreach (var url in list1)
+                {
+                    string temp = TruncateStringHead(url);
+                    if (hasUrlHeaderMap)
+                    {
+                        if (!urlHeaderMap[1].Contains(temp))
+                        {
+                            matchedUrls.Remove(temp);
+                            count--;
+                        }
+                    }
+                    else
+                    {
+                        if (!temp.Contains(head))
+                        {
+                            matchedUrls.Remove(temp);
+                            count--;
+                        }
+                    }
+                }
+                if (count == 1)
+                {
+                    newUrl = matchedUrls.First();
+                    AddScore();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool BasicUrlFinder(List<string> newUrlSiteMap)
+        {
+            foreach (var url in newUrlSiteMap)
+            {
+                string temp = TruncateString(url, 48);
+                if (temp.Contains(tail))
+                {
+                    AddMatchedUrl(url);
+                    count++;
+                }
+            }
+            return BasicScan();
+        }
+
+        /// <summary>
+        /// basic scan of matched urls
+        /// </summary>
+        /// <returns></returns>
+        private bool BasicScan()
+        {
+            // if no urls were found, return false to report none were found
+            if (count == 0)
+                return false;
+
+            // if exactly one match is found, return true to report a match was found
             else if (count == 1)
             {
                 newUrl = matchedUrls.First();
