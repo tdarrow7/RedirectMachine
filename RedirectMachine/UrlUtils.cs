@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
-    public class URLObject
+    public class UrlUtils
     {
         private string originalUrl, head, tail, newUrl, sanitizedUrl;
         private int score, count;
@@ -19,7 +19,7 @@ namespace RedirectMachine
         /// <summary>
         /// default constructor
         /// </summary>
-        public URLObject()
+        public UrlUtils()
         {
             
         }
@@ -28,7 +28,7 @@ namespace RedirectMachine
         /// actual working constructor
         /// </summary>
         /// <param name="originalUrl"></param>
-        public URLObject(string originalUrl)
+        public UrlUtils(string originalUrl)
         {
             this.originalUrl = originalUrl.ToLower().Trim('"');
             tail = TruncateString(originalUrl, 48);
