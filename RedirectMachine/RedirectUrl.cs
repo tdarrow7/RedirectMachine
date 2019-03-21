@@ -13,7 +13,7 @@ namespace RedirectMachine
         public string[] urlChunks;
         public string[] urlHeaderMap = new string[2];
         private bool isParentDir = false;
-        private bool hasUrlHeaderMap = false;
+        internal bool hasUrlHeaderMap = false;
         
 
         public RedirectUrl()
@@ -145,49 +145,103 @@ namespace RedirectMachine
         /// if no urls were found, return false to report none were found
         /// if exactly one match is found, return true to report a match was found
         /// </summary>
-        /// <returns></returns>
         private bool BasicScan()
         {
             if (count == 0)
                 return false;
             else if (count == 1)
             {
-                newUrl = matchedUrls.First();
-                AddScore();
+                SetNewUrl();
                 return true;
             }
             else
             {
                 count = 0;
-                List<string> list1 = new List<string>();
-                foreach (var url in matchedUrls)
-                {
-                    list1.Add(url);
-                }
+                List<string> list1 = matchedUrls.ToList();
                 foreach (var url in list1)
                 {
                     string temp = TruncateStringHead(url);
-                    if (hasUrlHeaderMap)
-                    {
-                        if (!UrlHeaderMatch(temp))
-                        {
-                            matchedUrls.Remove(temp);
-                            count--;
-                        }
-                    }
-                    else
-                    {
-                        if (!temp.Contains(head))
-                        {
-                            matchedUrls.Remove(temp);
-                            count--;
-                        }
-                    }
+                    if (!BasicCheckUrlParentDir(temp))
+                        RemoveFromMatchedUrls(url);
                 }
                 if (count == 1)
                 {
-                    newUrl = matchedUrls.First();
-                    AddScore();
+                    SetNewUrl();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// set the new url to the only matched url left in matchedUrls list
+        /// </summary>
+        private void SetNewUrl()
+        {
+            newUrl = matchedUrls.First();
+            score++;
+        }
+
+        /// <summary>
+        /// remove a matched url from matchedUrls list that corresponds with the value of url string
+        /// </summary>
+        /// <param name="url"></param>
+        private void RemoveFromMatchedUrls(string url)
+        {
+            matchedUrls.Remove(url);
+            count--;
+        }
+
+        /// <summary>
+        /// if the hasUrlHeaderMap bool is set to true, check to see if the old url's parent directory matches string temp. if not, return false
+        /// if the hasUrlHeaderMap bool is set to false, check if string temp contains parent directory of old url. if not, return false
+        /// return true by default
+        /// </summary>
+        /// <param name="temp"></param>
+        private bool BasicCheckUrlParentDir(string temp)
+        {
+            if (hasUrlHeaderMap)
+            {
+                if (!UrlHeaderMatch(temp))
+                    return false;
+            }
+            else
+            {
+                if (!temp.Contains(head))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool AdvancedScan()
+        {
+            count = matchedUrls.Count;
+            List<string> activeList = new List<string>();
+            List<string> passiveList = new List<string>();
+
+            passiveList = matchedUrls.ToList();
+            for (int i = 0; i < urlChunks.Length; i++)
+            {
+                activeList.Clear();
+                activeList = passiveList.ToList();
+                string temp = BuildChunk(i);
+                foreach (var url in activeList)
+                {
+                    if (!url.Contains(temp))
+                    {
+                        passiveList.Remove(url);
+                        RemoveFromMatchedUrls(url);
+                    }
+                }
+                if (count == 0)
+                    return false;
+
+                if (count == 1)
+                {
+                    SetNewUrl();
                     return true;
                 }
             }
