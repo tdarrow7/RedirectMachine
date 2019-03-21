@@ -142,15 +142,14 @@ namespace RedirectMachine
 
         /// <summary>
         /// basic scan of matched urls
+        /// if no urls were found, return false to report none were found
+        /// if exactly one match is found, return true to report a match was found
         /// </summary>
         /// <returns></returns>
         private bool BasicScan()
         {
-            // if no urls were found, return false to report none were found
             if (count == 0)
                 return false;
-
-            // if exactly one match is found, return true to report a match was found
             else if (count == 1)
             {
                 newUrl = matchedUrls.First();
@@ -275,32 +274,57 @@ namespace RedirectMachine
             return value;
         }
 
+        /// <summary>
+        /// return private string sanitizedUrl
+        /// </summary>
         internal string GetSanitizedUrl()
         {
-            throw new NotImplementedException();
+            return sanitizedUrl;
         }
 
-        public static string GetSubString(string i, string j, bool x)
+        /// <summary>
+        /// return private string originalUrl
+        /// </summary>
+        /// <returns></returns>
+        internal string GetOriginalUrl()
         {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
-            // 1) if true, includes the string j rather than excluding it, or
-            // 2) if false, returns a substring that excludes string j.
+            return originalUrl;
+        }
+
+        /// <summary>
+        /// return private string newUrl
+        /// </summary>
+        /// <returns></returns>
+        internal string GetNewUrl()
+        {
+            return newUrl;
+        }
+
+        /// <summary>
+        /// return the substring of the string that is passed into this function.
+        /// This method is overloaded with a bool. The bool indicates to the function that it must return a substring
+        /// 1) if true, includes the string j rather than excluding it, or
+        /// 2) if false, returns a substring that excludes string j.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="x"></param>
+        internal string GetSubString(string i, string j, bool x)
+        {
             int index = GetLastIndex(i, j);
-            string temp;
-            if (x == true)
-            {
-                temp = i.Substring(0, index + j.Length);
-            }
-            else
-                temp = i.Substring(0, index);
-            return temp;
+            return (x == true) ? i.Substring(0, index + j.Length) : i.Substring(0, index);
         }
 
-        public static string GetSubString(string i, string j, int x)
+        /// <summary>
+        /// return the substring of the string that is passed into this function.
+        /// This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        internal string GetSubString(string i, string j, int x)
         {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
             var pos = 0;
             string temp = i;
             while (pos <= x)
@@ -339,8 +363,16 @@ namespace RedirectMachine
         /// </summary>
         public void AddScore()
         {
-            // Purpose of method: add score
             score++;
+        }
+
+        /// <summary>
+        /// return private int score
+        /// </summary>
+        /// <returns></returns>
+        public int GetScore()
+        {
+            return score;
         }
 
         /// <summary>

@@ -19,7 +19,17 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        // default contstructor
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+        string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+        string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+
+
+        /// <summary>
+        /// default working constructor
+        /// </summary>
         public RedirectFinder()
         {
         }
@@ -29,25 +39,18 @@ namespace RedirectMachine
         /// </summary>
         internal void Run()
         {
-            //initialize paths to files
-            //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-            string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-            string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-            string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-            string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-            string probabilityDictionary = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
-            
-            // read both old urls and new urls into CSV List
-            ReadNewUrlsIntoList(nsUrlFile);
-            ReadOldUrlsIntoList(osUrlFile);
-
-            // call method to find url Matches
+            ImportNewUrlsIntoList(nsUrlFile);
+            ImportOldUrlsIntoList(osUrlFile);
             FindUrlMatches();
+            catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
         }
 
-        private void ReadNewUrlsIntoList(string urlFile)
+        /// <summary>
+        /// Add CSV file contents to list
+        /// </summary>
+        /// <param name="urlFile"></param>
+        private void ImportNewUrlsIntoList(string urlFile)
         {
-            // Purpose: add CSV file contents to list
             using (var reader = new StreamReader(@"" + urlFile))
             {
                 while (!reader.EndOfStream)
@@ -64,9 +67,8 @@ namespace RedirectMachine
         /// For Every line in CSV, read line and check if line belongs in a catchAll. If not, create new RedirectUrl Object.
         /// </summary>
         /// <param name="urlFile"></param>
-        internal void ReadOldUrlsIntoList(string urlFile)
+        internal void ImportOldUrlsIntoList(string urlFile)
         {
-            // Purpose: add CSV file contents to list
             using (var reader = new StreamReader(@"" + urlFile))
             {
                 while (!reader.EndOfStream)
@@ -86,15 +88,44 @@ namespace RedirectMachine
         /// <param name="newList"></param>
         public void FindUrlMatches()
         {
-            // Purpose: 
             foreach (var obj in redirectUrls)
             {
-                if (obj.BasicUrlFinder(newUrlSiteMap) || obj.AdvancedUrlFinder(newUrlSiteMap)) {
-
-                }
-                else
-                {
+                if (!obj.BasicUrlFinder(newUrlSiteMap) || !obj.AdvancedUrlFinder(newUrlSiteMap))
                     catchAllCSV.CheckNewCatchAlls(obj.GetSanitizedUrl());
+            }
+        }
+
+        /// <summary>
+        /// Scan all objects in redirectUrls list and put them in either the foundList or lostList, depending on their score
+        /// Send both temporary lists to buildCSV method to print both found and lost lists
+        /// </summary>
+        internal void CreateNewCSVs()
+        {
+            List<string> foundList = new List<string>();
+            List<string> lostList = new List<string>();
+            foreach (var obj in redirectUrls)
+            {
+                if (obj.GetScore() > 0)
+                    foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
+                else
+                    lostList.Add($"{obj.GetOriginalUrl()}");
+            }
+            ExportToCSV(foundList, foundUrlFile);
+            ExportToCSV(lostList, lostUrlFile);
+        }
+
+        /// <summary>
+        /// build CSV from specified list of strings
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="filePath"></param>
+        internal void ExportToCSV(List<string> list, string filePath)
+        {
+            using (TextWriter tw = new StreamWriter(@"" + filePath))
+            {
+                foreach (var item in list)
+                {
+                    tw.WriteLine(item);
                 }
             }
         }

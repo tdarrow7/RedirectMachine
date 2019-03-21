@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace RedirectMachine
 {
-    
-
-
     internal class CatchAllObject
     {
         private string[,] catchAllParams =  {
@@ -33,7 +32,9 @@ namespace RedirectMachine
 
         Dictionary<string, int> catchAllList;
 
-
+        /// <summary>
+        /// default working constructor
+        /// </summary>
         public CatchAllObject()
         {
             catchAllList = new Dictionary<string, int>();
@@ -50,13 +51,11 @@ namespace RedirectMachine
 
             for (int i = 0; i < catchAllParams.GetLength(0); i++)
             {
-                // Check if temp variable starts with any of the keyVal parameters. If found, do not add line to list
                 if (temp.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
                 {
                     return true;
                 }
             }
-            // if url has any query parameters, automatically set up as catchall and flag as a url to skip
             if (obj.CheckForQueryStrings())
             {
                 CheckNewCatchAlls(obj.GetSanitizedUrl());
@@ -66,7 +65,7 @@ namespace RedirectMachine
         }
 
         /// <summary>
-        /// 
+        /// check to see if we already have the catchall
         /// </summary>
         /// <param name="url"></param>
         internal void CheckNewCatchAlls(string url)
@@ -84,7 +83,24 @@ namespace RedirectMachine
                 catchAllList[url] = value;
             }
         }
-    }
 
-    
+        /// <summary>
+        /// Sort catchAllList and then export catchAllList to CSV to specified filepath
+        /// </summary>
+        /// <param name="filePath"></param>
+        internal void ExportCatchAllsToCSV(string filePath)
+        {
+            List<KeyValuePair<string, int>> tempList = catchAllList.ToList();
+            tempList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+
+            using (TextWriter tw = new StreamWriter(@"" + filePath))
+            {
+                foreach (var item in tempList)
+                {
+                    string line = $"{item.Key},{item.Value}";
+                    tw.WriteLine(line);
+                }
+            }
+        }
+    }
 }

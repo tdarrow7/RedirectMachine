@@ -16,14 +16,20 @@ namespace RedirectMachine
         private bool isParentDir = false;
         private bool hasUrlHeaderMap = false;
         
+        /// <summary>
+        /// default constructor
+        /// </summary>
         public URLObject()
         {
-            // default constructor
+            
         }
 
+        /// <summary>
+        /// actual working constructor
+        /// </summary>
+        /// <param name="originalUrl"></param>
         public URLObject(string originalUrl)
         {
-            // create working constructor
             this.originalUrl = originalUrl.ToLower().Trim('"');
             tail = TruncateString(originalUrl, 48);
             head = TruncateStringHead(originalUrl);
@@ -41,7 +47,6 @@ namespace RedirectMachine
             return head;
         }
 
-
         /// <summary>
         /// return tail variable
         /// </summary>
@@ -49,12 +54,10 @@ namespace RedirectMachine
         {
             return tail;
         }
-
-
+        
         /// <summary>
         /// return private string originalUrl
         /// </summary>
-        /// <returns></returns>
         public string GetOriginalUrl()
         {
             return originalUrl;
@@ -63,116 +66,50 @@ namespace RedirectMachine
         /// <summary>
         /// Return private string sanitizedUrl
         /// </summary>
-        /// <returns></returns>
         public string GetSanitizedUrl()
         {
             return sanitizedUrl;
         }
 
-
+        /// <summary>
+        /// return private string newUrl
+        /// </summary>
         public string GetNewUrl()
         {
-            // Purpose: return private string newUrl
             return newUrl;
         }
 
+        /// <summary>
+        /// return private string tail
+        /// </summary>
         public string GetUrlSub()
         {
-            // Purpose: return private stirng urlSub
             return tail;
         }
 
-        public int GetScore()
-        {
-            // Purpose: return private int score
-            return score;
-        }
-
+        /// <summary>
+        /// return private int count
+        /// </summary>
         public int GetCount()
         {
-            // Purpose: return private int score
             return count;
-        }
-
-        public void AddScore()
-        {
-            // Purpose of method: add score
-            score++;
-        }
-
-        public void SubtractScore()
-        {
-            // Purpose of method: subtract score
-            score--;
-        }
-
-        public void AddUrlHeaderMap(string a, string b)
-        {
-            urlHeaderMap[0] = a;
-            urlHeaderMap[1] = b;
-            Console.WriteLine($"{urlHeaderMap[0]}, {urlHeaderMap[1]}");
-            hasUrlHeaderMap = true;
-        }
-
-        public void AddMatchedUrl(string link)
-        {
-            // Purpose: add potential url match
-            matchedUrls.Add(link);
-            count++;
-        }
-
-        public void RemoveMatchedUrl(string link)
-        {
-            matchedUrls.Remove(link);
-            count--;
-        }
-
-        public void ClearMatches()
-        {
-            matchedUrls.Clear();
         }
 
         /// <summary>
         /// Check to see if the original url contains query strings
         /// </summary>
-        /// <returns></returns>
         public bool CheckForQueryStrings()
         {
             return originalUrl.Contains("?") ? true : false;
         }
 
-        public void CheckUrl(string url)
-        {
-            string temp = TruncateString(url, 48);
-            if (temp.Contains(tail))
-            {
-                AddMatchedUrl(url);
-            }
-        }
-
-        public void AdvCheckUrl(string url)
-        {
-            string temp = TruncateString(url, 48);
-            if (temp.Contains(urlChunks[0]))
-            {
-                AddMatchedUrl(url);
-            }
-        }
-
-        public string BuildChunk(int index)
-        {
-            string temp = urlChunks[0];
-            for (int i = 1; i < index; i++)
-            {
-                temp = temp + "-" + urlChunks[i];
-            }
-            return temp;
-        }
-
+        /// <summary>
+        /// Purpose of method: retrieve usable/searchable end of url from variable value.
+        /// Get url text after last slash in url
+        /// </summary>
+        /// <param name="value"></param>
         public string TruncateString(string value)
         {
-            // Purpose of method: retrieve usable/searchable end of url from variable value.
-            // Get url text after last slash in url
             string temp = CheckVars(value);
             int index = value.Length;
             int pos = temp.LastIndexOf("/") + 1;
@@ -180,12 +117,16 @@ namespace RedirectMachine
             return temp;
         }
 
+        /// <summary>
+        /// Purpose of method: retrieve usable/searchable end of url from variable value.
+        /// Get url text after last slash in url,
+        /// truncate temporary value to maxLength
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
         public string TruncateString(string value, int maxLength)
         {
-            // Purpose of method: retrieve usable/searchable end of url from variable value.
-            
-            // Get url text after last slash in url,
-            // truncate temporary value to maxLength
             string temp = CheckVars(value);
             int index = temp.Length;
             int pos = temp.LastIndexOf("/") + 1;
@@ -193,19 +134,20 @@ namespace RedirectMachine
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
         }
 
+        /// <summary>
+        /// Purpose: return first chunk of url. 
+        /// Check if url starts with http or https. If it does, grab entire domain of url
+        /// if that doesn't exist, return the first chunk of the url in between the first two '/'
+        /// </summary>
+        /// <param name="value"></param>
         public string TruncateStringHead(string value)
         {
-            // Purpose: return first chunk of url. 
-            // Check if url starts with http or https. If it does, grab entire domain of url
-            // if that doesn't exist, return the first chunk of the url in between the first two '/'
             string temp = value;
-            
             if (temp.StartsWith("/"))
                 temp = temp.Substring(1);
             int index = temp.IndexOf("/");
             if (index <= -1)
                 index = temp.Length;
-            // check to see if the resource currently being looked at is the parent directory. If it is, set isParentDir to true
             if (tail.Contains(temp))
             {
                 isParentDir = true;
@@ -214,9 +156,13 @@ namespace RedirectMachine
             return temp;
         }
 
+        /// <summary>
+        /// remove unnecessary contents on end of url if found
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public string CheckVars(string value)
         {
-            // Purpose: remove unnecessary contents on end of url if found
             if (value.Contains("?"))
                 value = GetSubString(value, "?", false);
             if (value.Contains("."))
@@ -234,45 +180,54 @@ namespace RedirectMachine
             return value;
         }
 
+        /// <summary>
+        /// return first position of j variable in string i.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <returns></returns>
         public static int GetFirstIndex(string i, string j)
         {
-            // Purpose of method: return first position of j variable in string i.
-            if (i.Contains(j))
-                return i.IndexOf(j);
-            else
-                return i.Length;
+            return (i.Contains(j)) ? i.IndexOf(j) : i.Length;
         }
 
+        /// <summary>
+        /// return last position of j variable in string i.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <returns></returns>
         public static int GetLastIndex(string i, string j)
         {
-            // Purpose of method: return last position of j variable in string i.
-            if (i.Contains(j))
-                return i.LastIndexOf(j);
-            else
-                return i.Length;
+            return (i.Contains(j)) ? i.LastIndexOf(j) : i.Length;
         }
 
+        /// <summary>
+        /// return the substring of the string that is passed into this function.
+        /// This method is overloaded with a bool. The bool indicates to the function that it must return a substring
+        /// 1) if true, includes the string j rather than excluding it, or
+        /// 2) if false, returns a substring that excludes string j.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
         public static string GetSubString(string i, string j, bool x)
         {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with a bool. The bool indicates to the function that it must return a substring
-            // 1) if true, includes the string j rather than excluding it, or
-            // 2) if false, returns a substring that excludes string j.
             int index = GetLastIndex(i, j);
-            string temp;
-            if (x == true)
-            {
-                temp = i.Substring(0, index + j.Length);
-            }
-            else
-                temp = i.Substring(0, index);
-            return temp;
+            return (x == true) ? i.Substring(0, index + j.Length) : i.Substring(0, index);
         }
 
+        /// <summary>
+        /// return the substring of the string that is passed into this function.
+        /// This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="j"></param>
+        /// <param name="x"></param>
+        /// <returns></returns>
         public static string GetSubString(string i, string j, int x)
         {
-            // Purpose of method: return the substring of the string that is passed into this function.
-            // This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
             var pos = 0;
             string temp = i;
             while (pos <= x)
@@ -284,6 +239,11 @@ namespace RedirectMachine
             return temp;
         }
 
+        /// <summary>
+        /// return something
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public string TrimFullUrl(string value)
         {
             int index = value.IndexOf("//");
@@ -294,10 +254,14 @@ namespace RedirectMachine
             return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
         }
 
+        /// <summary>
+        /// return a url that has a slash on the end for redirection purposes.
+        /// if url contains an ending extension already (eg .html), skip
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public string CheckUrlTail(string url)
         {
-            // Purpose: return a url that has a slash on the end for redirection purposes.
-            // if url contains an ending extension already (eg .html), skip
             if (url.Contains("?"))
                 url = GetSubString(url, "?", false);
             if (url.Contains("."))
@@ -305,22 +269,5 @@ namespace RedirectMachine
             return (!url.EndsWith("/") ? url + "/" : url);
 
         }
-
-        public List<string> GetUrlProbabilities()
-        {
-            List<string> returnList = new List<string>();
-            string[] passiveList = originalUrl.Split('/');
-            for (int i = 0; i < passiveList.Length; i++)
-            {
-                string temp = passiveList[0];
-                for (int j = 1; j <= i; j++)
-                {
-                    temp = temp + "/" + passiveList[j];
-                }
-                returnList.Add(temp);
-            }
-            return returnList;
-        }
     }
-
 }
