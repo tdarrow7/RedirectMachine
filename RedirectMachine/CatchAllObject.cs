@@ -45,7 +45,7 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        internal bool CheckCatchallParams(URLObject obj)
+        internal bool CheckCatchallParams(UrlUtils obj)
         {
             var temp = obj.GetOriginalUrl();
 

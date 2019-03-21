@@ -73,7 +73,7 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    var obj = new URLObject(reader.ReadLine());
+                    var obj = new UrlUtils(reader.ReadLine());
 
                     if (!catchAllCSV.CheckCatchallParams(obj))
                         redirectUrls.Add(new RedirectUrl(obj, urlHeaderMaps));

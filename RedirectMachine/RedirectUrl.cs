@@ -21,7 +21,7 @@ namespace RedirectMachine
             // default contstructor
         }
 
-        public RedirectUrl(URLObject obj, string[,] urlHeaderMaps)
+        public RedirectUrl(UrlUtils obj, string[,] urlHeaderMaps)
         {
             // create working constructor
             originalUrl = obj.GetOriginalUrl();
@@ -447,6 +447,20 @@ namespace RedirectMachine
         {
             matchedUrls.Add(link);
             count++;
+        }
+
+        /// <summary>
+        /// return a string build from a series of chunks from the working url
+        /// </summary>
+        /// <param name="index"></param>
+        public string BuildChunk(int index)
+        {
+            string temp = urlChunks[0];
+            for (int i = 1; i < index; i++)
+            {
+                temp = temp + "-" + urlChunks[i];
+            }
+            return temp;
         }
     }
 }
