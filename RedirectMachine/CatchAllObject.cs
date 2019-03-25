@@ -47,18 +47,17 @@ namespace RedirectMachine
         /// <returns></returns>
         internal bool CheckCatchallParams(string url)
         {
-            var obj = new UrlUtils(url);
-            var temp = obj.OriginalUrl;
+            //var obj = new UrlUtils(url);
+            //var temp = obj.OriginalUrl;
 
             for (int i = 0; i < catchAllParams.GetLength(0); i++)
             {
-                if (temp.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
-                {
+                if (url.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
                     return true;
-                }
             }
-            if (obj.CheckForQueryStrings())
+            if (url.Contains("?"))
             {
+                var obj = new UrlUtils(url);
                 CheckNewCatchAlls(obj.SanitizedUrl);
                 return true;
             }

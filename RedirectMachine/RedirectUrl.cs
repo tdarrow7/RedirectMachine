@@ -11,7 +11,7 @@ namespace RedirectMachine
         private int count;
         private bool score;
         public List<string> matchedUrls;
-        public string[] urlChunks;
+        private string[] urlChunks;
         internal UrlUtils obj;
 
         public bool Score { get; set; } = false;
@@ -22,20 +22,17 @@ namespace RedirectMachine
             // default contstructor
         }
 
+
+        /// <summary>
+        /// Working constructor. Nearlky all properties are housed in teh UrlUtils obj.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="urlHeaderMaps"></param>
         public RedirectUrl(string url, string[,] urlHeaderMaps)
         {
             obj = new UrlUtils(url);
-
-            // create working constructor
-            //originalUrl = obj.GetOriginalUrl();
-            //tail = obj.GetTail();
-            //head = obj.GetHead();
-            //sanitizedUrl = obj.GetSanitizedUrl();
-            //score = 0;
-            //matchedUrls = new List<string>();
-            //urlChunks = tail.Split("-").ToArray();
-            CheckUrlHeaderMaps(urlHeaderMaps);
-            //var urlObject = obj;
+            matchedUrls = new List<string>();
+            CheckUrlHeaderMaps(obj, urlHeaderMaps);
         }
 
         /// <summary>
@@ -43,9 +40,10 @@ namespace RedirectMachine
         /// e.g. www.google.com redirecting to /google/ on the new site
         /// </summary>
         /// <param name="obj"></param>
-        private void CheckUrlHeaderMaps(string[,] urlHeaderMaps)
+        private void CheckUrlHeaderMaps(UrlUtils obj, string[,] urlHeaderMaps)
         {
-            for (int i = 0; i < urlHeaderMaps.Length; i++)
+            Console.WriteLine(urlHeaderMaps.GetLength(0));
+            for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
             {
                 
                 if (obj.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
@@ -259,8 +257,6 @@ namespace RedirectMachine
         /// <returns></returns>
         public string TruncateString(string value)
         {
-            // Purpose of method: retrieve usable/searchable end of url from variable value.
-            // Get url text after last slash in url
             string temp = CheckVars(value);
             int index = value.Length;
             int pos = temp.LastIndexOf("/") + 1;
@@ -431,7 +427,8 @@ namespace RedirectMachine
         public void AddMatchedUrl(string link)
         {
             matchedUrls.Add(link);
-            count++;
+            int i = Count + 1;
+            Count = i;
         }
 
         /// <summary>
