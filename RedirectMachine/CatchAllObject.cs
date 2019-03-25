@@ -45,9 +45,10 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        internal bool CheckCatchallParams(UrlUtils obj)
+        internal bool CheckCatchallParams(string url)
         {
-            var temp = obj.GetOriginalUrl();
+            var obj = new UrlUtils(url);
+            var temp = obj.OriginalUrl;
 
             for (int i = 0; i < catchAllParams.GetLength(0); i++)
             {
@@ -58,7 +59,7 @@ namespace RedirectMachine
             }
             if (obj.CheckForQueryStrings())
             {
-                CheckNewCatchAlls(obj.GetSanitizedUrl());
+                CheckNewCatchAlls(obj.SanitizedUrl);
                 return true;
             }
             return false;
@@ -102,5 +103,7 @@ namespace RedirectMachine
                 }
             }
         }
+
+
     }
 }

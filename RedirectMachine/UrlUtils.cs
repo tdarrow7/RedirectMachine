@@ -8,14 +8,53 @@ namespace RedirectMachine
 {
     public class UrlUtils
     {
-        private string originalUrl, head, tail, newUrl, sanitizedUrl;
-        private int score, count;
-        public List<string> matchedUrls;
-        public string[] urlChunks;
+        private string _originalUrl, urlHead, urlTail, newUrl, sanitizedUrl;
         public string[] urlHeaderMap = new string[2];
         private bool isParentDir = false;
         private bool hasUrlHeaderMap = false;
-        
+
+        public string OriginalUrl { get; set; }
+        public string UrlHead
+        {
+            get {
+                return urlHead;
+            }
+            set
+            {
+                urlHead = TruncateStringHead(OriginalUrl);
+            }
+        }
+
+        public string UrlTail
+        {
+            get
+            {
+                return urlTail;
+            }
+            set
+            {
+                urlTail = TruncateString(value, 48);
+            }
+        }
+
+        public string SanitizedUrl {
+            get
+            {
+                return sanitizedUrl;
+            }
+            set
+            {
+                sanitizedUrl = CheckUrlTail(value);
+            }
+        }
+
+
+
+        public string NewUrl { get; set; }
+
+        public bool HasHeaderMap { get; set; } = false;
+        public bool IsParentDir { get; set; } = false;
+
         /// <summary>
         /// default constructor
         /// </summary>
@@ -30,69 +69,10 @@ namespace RedirectMachine
         /// <param name="originalUrl"></param>
         public UrlUtils(string originalUrl)
         {
-            this.originalUrl = originalUrl.ToLower().Trim('"');
-            tail = TruncateString(originalUrl, 48);
-            head = TruncateStringHead(originalUrl);
-            sanitizedUrl = CheckUrlTail(originalUrl);
-            score = 0;
-            matchedUrls = new List<string>();
-            urlChunks = tail.Split("-").ToArray();
-        }
-
-        /// <summary>
-        /// Return head variable
-        /// </summary>
-        internal string GetHead()
-        {
-            return head;
-        }
-
-        /// <summary>
-        /// return tail variable
-        /// </summary>
-        internal string GetTail()
-        {
-            return tail;
-        }
-        
-        /// <summary>
-        /// return private string originalUrl
-        /// </summary>
-        public string GetOriginalUrl()
-        {
-            return originalUrl;
-        }
-
-        /// <summary>
-        /// Return private string sanitizedUrl
-        /// </summary>
-        public string GetSanitizedUrl()
-        {
-            return sanitizedUrl;
-        }
-
-        /// <summary>
-        /// return private string newUrl
-        /// </summary>
-        public string GetNewUrl()
-        {
-            return newUrl;
-        }
-
-        /// <summary>
-        /// return private string tail
-        /// </summary>
-        public string GetUrlSub()
-        {
-            return tail;
-        }
-
-        /// <summary>
-        /// return private int count
-        /// </summary>
-        public int GetCount()
-        {
-            return count;
+            OriginalUrl = originalUrl.ToLower().Trim('"');
+            UrlTail = OriginalUrl;
+            UrlHead = OriginalUrl;
+            SanitizedUrl = OriginalUrl;
         }
 
         /// <summary>
@@ -100,7 +80,7 @@ namespace RedirectMachine
         /// </summary>
         public bool CheckForQueryStrings()
         {
-            return originalUrl.Contains("?") ? true : false;
+            return _originalUrl.Contains("?") ? true : false;
         }
 
         /// <summary>
@@ -148,7 +128,7 @@ namespace RedirectMachine
             int index = temp.IndexOf("/");
             if (index <= -1)
                 index = temp.Length;
-            if (tail.Contains(temp))
+            if (urlTail.Contains(temp))
             {
                 isParentDir = true;
             }

@@ -73,10 +73,11 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    var obj = new UrlUtils(reader.ReadLine());
+                    //var obj = new UrlUtils(reader.ReadLine());
+                    string url = reader.ReadLine();
 
-                    if (!catchAllCSV.CheckCatchallParams(obj))
-                        redirectUrls.Add(new RedirectUrl(obj, urlHeaderMaps));
+                    if (!catchAllCSV.CheckCatchallParams(url))
+                        redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
                 }
             }
         }
@@ -105,7 +106,7 @@ namespace RedirectMachine
             List<string> lostList = new List<string>();
             foreach (var obj in redirectUrls)
             {
-                if (obj.GetScore() > 0)
+                if (obj.Score)
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
                 else
                     lostList.Add($"{obj.GetOriginalUrl()}");

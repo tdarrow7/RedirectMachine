@@ -7,32 +7,35 @@ namespace RedirectMachine
 {
     public class RedirectUrl
     {
-        private string originalUrl, head, tail, newUrl, sanitizedUrl;
-        private int score, count;
+        //private string originalUrl, head, tail, newUrl, sanitizedUrl;
+        private int count;
+        private bool score;
         public List<string> matchedUrls;
         public string[] urlChunks;
-        public string[] urlHeaderMap = new string[2];
-        private bool isParentDir = false;
-        internal bool hasUrlHeaderMap = false;
-        
+        internal UrlUtils obj;
+
+        public bool Score { get; set; } = false;
+        public int Count { get; set; }
 
         public RedirectUrl()
         {
             // default contstructor
         }
 
-        public RedirectUrl(UrlUtils obj, string[,] urlHeaderMaps)
+        public RedirectUrl(string url, string[,] urlHeaderMaps)
         {
+            obj = new UrlUtils(url);
+
             // create working constructor
-            originalUrl = obj.GetOriginalUrl();
-            tail = obj.GetTail();
-            head = obj.GetHead();
-            sanitizedUrl = obj.GetSanitizedUrl();
-            score = 0;
-            matchedUrls = new List<string>();
-            urlChunks = tail.Split("-").ToArray();
+            //originalUrl = obj.GetOriginalUrl();
+            //tail = obj.GetTail();
+            //head = obj.GetHead();
+            //sanitizedUrl = obj.GetSanitizedUrl();
+            //score = 0;
+            //matchedUrls = new List<string>();
+            //urlChunks = tail.Split("-").ToArray();
             CheckUrlHeaderMaps(urlHeaderMaps);
-            var urlObject = obj;
+            //var urlObject = obj;
         }
 
         /// <summary>
@@ -45,11 +48,11 @@ namespace RedirectMachine
             for (int i = 0; i < urlHeaderMaps.Length; i++)
             {
                 
-                if (sanitizedUrl.Contains(urlHeaderMaps[i, 0]))
+                if (obj.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
                 {
-                    hasUrlHeaderMap = true;
-                    urlHeaderMap[0] = urlHeaderMaps[i, 0];
-                    urlHeaderMap[1] = urlHeaderMaps[i, 1];
+                    obj.HasHeaderMap = true;
+                    obj.urlHeaderMap[0] = urlHeaderMaps[i, 0];
+                    obj.urlHeaderMap[1] = urlHeaderMaps[i, 1];
                 }
             }
         }
@@ -57,7 +60,7 @@ namespace RedirectMachine
         public void CheckUrl(string url)
         {
             string temp = TruncateString(url, 48);
-            if (temp.Contains(tail))
+            if (temp.Contains(obj.UrlTail))
             {
                 AddMatchedUrl(url);
             }
@@ -83,8 +86,8 @@ namespace RedirectMachine
 
             else if (count == 1)
             {
-                newUrl = matchedUrls.First();
-                AddScore();
+                obj.NewUrl = matchedUrls.First();
+                Score = true;
                 return true;
             }
             else
@@ -94,9 +97,9 @@ namespace RedirectMachine
                 foreach (var url in list1)
                 {
                     string temp = TruncateStringHead(url);
-                    if (hasUrlHeaderMap)
+                    if (obj.HasHeaderMap)
                     {
-                        if (!urlHeaderMap[1].Contains(temp))
+                        if (!obj.urlHeaderMap[1].Contains(temp))
                         {
                             matchedUrls.Remove(temp);
                             count--;
@@ -104,7 +107,7 @@ namespace RedirectMachine
                     }
                     else
                     {
-                        if (!temp.Contains(head))
+                        if (!temp.Contains(obj.UrlHead))
                         {
                             matchedUrls.Remove(temp);
                             count--;
@@ -113,8 +116,8 @@ namespace RedirectMachine
                 }
                 if (count == 1)
                 {
-                    newUrl = matchedUrls.First();
-                    AddScore();
+                    obj.NewUrl = matchedUrls.First();
+                    Score = true;
                     return true;
                 }
             }
@@ -131,7 +134,7 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string temp = TruncateString(url, 48);
-                if (temp.Contains(tail))
+                if (temp.Contains(obj.UrlTail))
                 {
                     AddMatchedUrl(url);
                     count++;
@@ -178,8 +181,8 @@ namespace RedirectMachine
         /// </summary>
         private void SetNewUrl()
         {
-            newUrl = matchedUrls.First();
-            score++;
+            obj.NewUrl = matchedUrls.First();
+            Score = true;
         }
 
         /// <summary>
@@ -189,7 +192,8 @@ namespace RedirectMachine
         private void RemoveFromMatchedUrls(string url)
         {
             matchedUrls.Remove(url);
-            count--;
+            int c = --Count;
+            Count = c;
         }
 
         /// <summary>
@@ -200,14 +204,14 @@ namespace RedirectMachine
         /// <param name="temp"></param>
         private bool BasicCheckUrlParentDir(string temp)
         {
-            if (hasUrlHeaderMap)
+            if (obj.HasHeaderMap)
             {
                 if (!UrlHeaderMatch(temp))
                     return false;
             }
             else
             {
-                if (!temp.Contains(head))
+                if (!temp.Contains(obj.UrlHead))
                     return false;
             }
             return true;
@@ -285,6 +289,7 @@ namespace RedirectMachine
         /// Purpose: return first chunk of url.
         /// Check if url starts with http or https.If it does, grab entire domain of url
         /// if that doesn't exist, return the first chunk of the url in between the first two ' / '
+        /// check to see if the resource currently being looked at is the parent directory. If it is, set isParentDir to true
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -296,11 +301,8 @@ namespace RedirectMachine
             int index = temp.IndexOf("/");
             if (index <= -1)
                 index = temp.Length;
-            // check to see if the resource currently being looked at is the parent directory. If it is, set isParentDir to true
-            if (tail.Contains(temp))
-            {
-                isParentDir = true;
-            }
+            if (obj.UrlTail.Contains(temp))
+                obj.IsParentDir = true;
             temp = temp.Substring(0, index).ToLower();
             return temp;
         }
@@ -333,7 +335,7 @@ namespace RedirectMachine
         /// </summary>
         internal string GetSanitizedUrl()
         {
-            return sanitizedUrl;
+            return obj.SanitizedUrl;
         }
 
         /// <summary>
@@ -342,7 +344,7 @@ namespace RedirectMachine
         /// <returns></returns>
         internal string GetOriginalUrl()
         {
-            return originalUrl;
+            return obj.OriginalUrl;
         }
 
         /// <summary>
@@ -351,7 +353,7 @@ namespace RedirectMachine
         /// <returns></returns>
         internal string GetNewUrl()
         {
-            return newUrl;
+            return obj.NewUrl;
         }
 
         /// <summary>
@@ -413,30 +415,13 @@ namespace RedirectMachine
         }
 
         /// <summary>
-        /// Increase score 
-        /// </summary>
-        public void AddScore()
-        {
-            score++;
-        }
-
-        /// <summary>
-        /// return private int score
-        /// </summary>
-        /// <returns></returns>
-        public int GetScore()
-        {
-            return score;
-        }
-
-        /// <summary>
         /// returns either true or false depending on whether or not the HeaderMap[1] contains the string temp
         /// </summary>
         /// <param name="temp"></param>
         /// <returns></returns>
         public bool UrlHeaderMatch(string temp)
         {
-            return urlHeaderMap[1].Contains(temp);
+            return obj.urlHeaderMap[1].Contains(temp);
         }
 
         /// <summary>
