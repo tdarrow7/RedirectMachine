@@ -112,7 +112,7 @@ namespace RedirectMachine
             List<string> lostList = new List<string>();
             foreach (var obj in redirectUrls)
             {
-                if (obj.Score)
+                if (obj.Score == true)
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
                 else
                     lostList.Add($"{obj.GetOriginalUrl()}");

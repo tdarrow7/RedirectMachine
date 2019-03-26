@@ -12,6 +12,7 @@ namespace RedirectMachine
         public string[] urlHeaderMap = new string[2];
         private bool isParentDir = false;
         private bool hasUrlHeaderMap = false;
+        private string[] urlChunks;
 
         public string OriginalUrl { get; set; }
         public string UrlHead
@@ -73,6 +74,7 @@ namespace RedirectMachine
             UrlTail = OriginalUrl;
             UrlHead = OriginalUrl;
             SanitizedUrl = OriginalUrl;
+            urlChunks = SanitizedUrl.Split('-');
         }
 
         /// <summary>
@@ -256,7 +258,49 @@ namespace RedirectMachine
             if (url.Contains("."))
                 return url;
             return (!url.EndsWith("/") ? url + "/" : url);
+        }
 
+        /// <summary>
+        /// return a string build from a series of chunks from the working url
+        /// </summary>
+        /// <param name="index"></param>
+        public string BuildChunk(int index)
+        {
+            string temp = urlChunks[0];
+            for (int i = 1; i < index; i++)
+            {
+                temp = temp + "-" + urlChunks[i];
+            }
+            return temp;
+        }
+
+        /// <summary>
+        /// return a string build from a series of chunks from the working url
+        /// </summary>
+        /// <param name="index"></param>
+        public string GetChunk(int index)
+        {
+            return urlChunks[index];
+        }
+
+        /// <summary>
+        /// return a string build from a series of chunks from the working url
+        /// </summary>
+        /// <param name="index"></param>
+        public int GetChunkLength()
+        {
+            return urlChunks.Length;
+        }
+
+        /// <summary>
+        /// set urHeaderMap array to string a/b values
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        public void SetUrlHeaderMap(string a, string b)
+        {
+            urlHeaderMap[0] = a;
+            urlHeaderMap[1] = b;
         }
     }
 }

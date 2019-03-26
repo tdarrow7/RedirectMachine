@@ -7,15 +7,13 @@ namespace RedirectMachine
 {
     public class RedirectUrl
     {
-        //private string originalUrl, head, tail, newUrl, sanitizedUrl;
         private int count;
         private bool score;
         public List<string> matchedUrls;
-        private string[] urlChunks;
         internal UrlUtils obj;
 
         public bool Score { get; set; } = false;
-        public int Count { get; set; }
+        public int Count { get; set; } = 0;
 
         public RedirectUrl()
         {
@@ -42,79 +40,22 @@ namespace RedirectMachine
         /// <param name="obj"></param>
         private void CheckUrlHeaderMaps(UrlUtils obj, string[,] urlHeaderMaps)
         {
-            Console.WriteLine(urlHeaderMaps.GetLength(0));
             for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
             {
-                
                 if (obj.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
                 {
                     obj.HasHeaderMap = true;
-                    obj.urlHeaderMap[0] = urlHeaderMaps[i, 0];
-                    obj.urlHeaderMap[1] = urlHeaderMaps[i, 1];
+                    obj.SetUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
                 }
             }
         }
 
         /// <summary>
-        /// Basic scan of urls
+        /// scan every url in newUrlSiteMap list. if the resource directory of the url contains the object's UrlTail, add it to matched urls
+        /// return the results of BasicScanMatchedUrls()
         /// </summary>
+        /// <param name="newUrlSiteMap"></param>
         /// <returns></returns>
-        public bool ScanMatchedUrls()
-        {
-            if (count == 0)
-                return false;
-
-            else if (count == 1)
-            {
-                obj.NewUrl = matchedUrls.First();
-                Score = true;
-                return true;
-            }
-            else
-            {
-                count = 0;
-                List<string> list1 = matchedUrls.ToList();
-                foreach (var url in list1)
-                {
-                    string temp = TruncateStringHead(url);
-                    if (obj.HasHeaderMap)
-                    {
-                        if (!obj.urlHeaderMap[1].Contains(temp))
-                        {
-                            matchedUrls.Remove(temp);
-                            count--;
-                        }
-                    }
-                    else
-                    {
-                        if (!temp.Contains(obj.UrlHead))
-                        {
-                            matchedUrls.Remove(temp);
-                            count--;
-                        }
-                    }
-                }
-                if (count == 1)
-                {
-                    obj.NewUrl = matchedUrls.First();
-                    Score = true;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
-        {
-            foreach (var url in newUrlSiteMap)
-            {
-                string temp = obj.BasicTruncateString(url);
-                if (temp.Contains(urlChunks[0]))
-                    matchedUrls.Add(url);
-            }
-            return AdvancedScanMatchedUrls();
-        }
-
         internal bool BasicUrlFinder(List<string> newUrlSiteMap)
         {
             foreach (var url in newUrlSiteMap)
@@ -133,24 +74,79 @@ namespace RedirectMachine
         /// </summary>
         private bool BasicScanMatchedUrls()
         {
-            if (count == 0)
+            if (Count == 0)
                 return false;
-            else if (count == 1)
+            else if (Count == 1)
             {
                 SetNewUrl();
                 return true;
             }
             else
             {
-                count = 0;
+                Count = 0;
                 List<string> list1 = matchedUrls.ToList();
                 foreach (var url in list1)
                 {
-                    string temp = TruncateStringHead(url);
+                    string temp = obj.TruncateStringHead(url);
                     if (!BasicCheckUrlParentDir(temp))
                         RemoveFromMatchedUrls(url);
                 }
-                if (count == 1)
+                if (Count == 1)
+                {
+                    SetNewUrl();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// scan every url in newUrlSiteMap. If the url's resource directory contains the first chunk from obj.urlChunks[], add it to a list of potential matches
+        /// return whatever AdvancedScanMatchedUrls finds
+        /// </summary>
+        /// <param name="newUrlSiteMap"></param>
+        /// <returns></returns>
+        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
+        {
+            foreach (var url in newUrlSiteMap)
+            {
+                string temp = obj.BasicTruncateString(url);
+                if (temp.Contains(obj.GetChunk(0)))
+                    matchedUrls.Add(url);
+            }
+            Count = matchedUrls.Count;
+            return AdvancedScanMatchedUrls();
+        }
+
+        /// <summary>
+        /// Create two temporary lists.
+        /// build string temp out of chunks from original url. for every iteration of the for loop, add a new chunk to the end of the url
+        /// check if chunk is contained in each of the new urls. If it is, keep. If not, remove from passive list and run RemoveFromMatchedUrls method
+        /// if Count == 0, obviously no matching url wasn't found. Return false
+        /// if Count == 1, a single match has been found. Return true
+        /// if Count > 1, run the for loop again to build a new substring of originalUrl
+        /// </summary>
+        public bool AdvancedScanMatchedUrls()
+        {
+            List<string> activeList = new List<string>();
+            List<string> passiveList = matchedUrls.ToList();
+
+            for (int i = 0; i < obj.GetChunkLength(); i++)
+            {
+                activeList.Clear();
+                activeList = passiveList.ToList();
+                string temp = obj.BuildChunk(i);
+                foreach (var url in activeList)
+                {
+                    if (!url.Contains(temp))
+                    {
+                        passiveList.Remove(url);
+                        RemoveFromMatchedUrls(url);
+                    }
+                }
+                if (Count == 0)
+                    return false;
+                if (Count == 1)
                 {
                     SetNewUrl();
                     return true;
@@ -175,7 +171,7 @@ namespace RedirectMachine
         private void RemoveFromMatchedUrls(string url)
         {
             matchedUrls.Remove(url);
-            int c = --Count;
+            int c = Count - 1;
             Count = c;
         }
 
@@ -198,116 +194,6 @@ namespace RedirectMachine
                     return false;
             }
             return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool AdvancedScanMatchedUrls()
-        {
-            count = matchedUrls.Count;
-            List<string> activeList = new List<string>();
-            List<string> passiveList = matchedUrls.ToList();
-
-            for (int i = 0; i < urlChunks.Length; i++)
-            {
-                activeList.Clear();
-                activeList = passiveList.ToList();
-                string temp = BuildChunk(i);
-                foreach (var url in activeList)
-                {
-                    if (!url.Contains(temp))
-                    {
-                        passiveList.Remove(url);
-                        RemoveFromMatchedUrls(url);
-                    }
-                }
-                if (count == 0)
-                    return false;
-
-                if (count == 1)
-                {
-                    SetNewUrl();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Return truncated string
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public string TruncateString(string value)
-        {
-            string temp = CheckVars(value);
-            int index = value.Length;
-            int pos = temp.LastIndexOf("/") + 1;
-            temp = temp.Substring(pos, temp.Length - pos);
-            return temp;
-        }
-
-        /// <summary>
-        /// retrieve usable/searchable end of url from variable value.
-        /// Get url text after last slash in url,
-        /// truncate temporary value to maxLength
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="maxLength"></param>
-        /// <returns></returns>
-        public string TruncateString(string value, int maxLength)
-        {
-            string temp = CheckVars(value);
-            int index = temp.Length;
-            int pos = temp.LastIndexOf("/") + 1;
-            temp = temp.Substring(pos, temp.Length - pos);
-            return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
-        }
-
-        /// <summary>
-        /// Purpose: return first chunk of url.
-        /// Check if url starts with http or https.If it does, grab entire domain of url
-        /// if that doesn't exist, return the first chunk of the url in between the first two ' / '
-        /// check to see if the resource currently being looked at is the parent directory. If it is, set isParentDir to true
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public string TruncateStringHead(string value)
-        {
-            string temp = value;
-            if (temp.StartsWith("/"))
-                temp = temp.Substring(1);
-            int index = temp.IndexOf("/");
-            if (index <= -1)
-                index = temp.Length;
-            if (obj.UrlTail.Contains(temp))
-                obj.IsParentDir = true;
-            temp = temp.Substring(0, index).ToLower();
-            return temp;
-        }
-
-        /// <summary>
-        /// remove unnecessary contents on end of url if found
-        /// </summary>
-        /// <param name="value"></param>
-        public string CheckVars(string value)
-        {
-            if (value.Contains("?"))
-                value = GetSubString(value, "?", false);
-            if (value.Contains("."))
-                value = GetSubString(value, ".", false);
-            if (value.EndsWith("/"))
-                value = GetSubString(value, "/", false);
-            if (value.EndsWith("/*"))
-                value = GetSubString(value, "/*", false);
-            if (value.EndsWith("-"))
-                value = GetSubString(value, "-", false);
-            value = Regex.Replace(value, "--", "-");
-            value = Regex.Replace(value, "---", "-");
-            value = Regex.Replace(value, "dont", "don-t");
-            value = Regex.Replace(value, "cant", "can-t");
-            return value;
         }
 
         /// <summary>
@@ -415,18 +301,6 @@ namespace RedirectMachine
             Count = i;
         }
 
-        /// <summary>
-        /// return a string build from a series of chunks from the working url
-        /// </summary>
-        /// <param name="index"></param>
-        public string BuildChunk(int index)
-        {
-            string temp = urlChunks[0];
-            for (int i = 1; i < index; i++)
-            {
-                temp = temp + "-" + urlChunks[i];
-            }
-            return temp;
-        }
+        
     }
 }
