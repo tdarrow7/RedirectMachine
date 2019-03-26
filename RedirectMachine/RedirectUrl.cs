@@ -55,24 +55,6 @@ namespace RedirectMachine
             }
         }
 
-        public void CheckUrl(string url)
-        {
-            string temp = TruncateString(url, 48);
-            if (temp.Contains(obj.UrlTail))
-            {
-                AddMatchedUrl(url);
-            }
-        }
-
-        public void AdvCheckUrl(string url)
-        {
-            string temp = TruncateString(url, 48);
-            if (temp.Contains(urlChunks[0]))
-            {
-                AddMatchedUrl(url);
-            }
-        }
-
         /// <summary>
         /// Basic scan of urls
         /// </summary>
@@ -124,21 +106,24 @@ namespace RedirectMachine
 
         internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
         {
-            throw new NotImplementedException();
+            foreach (var url in newUrlSiteMap)
+            {
+                string temp = obj.BasicTruncateString(url);
+                if (temp.Contains(urlChunks[0]))
+                    matchedUrls.Add(url);
+            }
+            return AdvancedScanMatchedUrls();
         }
 
         internal bool BasicUrlFinder(List<string> newUrlSiteMap)
         {
             foreach (var url in newUrlSiteMap)
             {
-                string temp = TruncateString(url, 48);
+                string temp = obj.BasicTruncateString(url);
                 if (temp.Contains(obj.UrlTail))
-                {
                     AddMatchedUrl(url);
-                    count++;
-                }
             }
-            return BasicScan();
+            return BasicScanMatchedUrls();
         }
 
         /// <summary>
@@ -146,7 +131,7 @@ namespace RedirectMachine
         /// if no urls were found, return false to report none were found
         /// if exactly one match is found, return true to report a match was found
         /// </summary>
-        private bool BasicScan()
+        private bool BasicScanMatchedUrls()
         {
             if (count == 0)
                 return false;
@@ -218,13 +203,12 @@ namespace RedirectMachine
         /// <summary>
         /// 
         /// </summary>
-        public bool AdvancedScan()
+        public bool AdvancedScanMatchedUrls()
         {
             count = matchedUrls.Count;
             List<string> activeList = new List<string>();
-            List<string> passiveList = new List<string>();
+            List<string> passiveList = matchedUrls.ToList();
 
-            passiveList = matchedUrls.ToList();
             for (int i = 0; i < urlChunks.Length; i++)
             {
                 activeList.Clear();

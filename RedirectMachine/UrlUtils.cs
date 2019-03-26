@@ -93,8 +93,19 @@ namespace RedirectMachine
             string temp = CheckVars(value);
             int index = value.Length;
             int pos = temp.LastIndexOf("/") + 1;
-            temp = temp.Substring(pos, temp.Length - pos);
-            return temp;
+            return temp.Substring(pos, temp.Length - pos);
+        }
+
+        /// <summary>
+        /// Purpose of method: retrieve usable/searchable end of url from variable value.
+        /// Get url text after last slash in url
+        /// </summary>
+        /// <param name="value"></param>
+        public string BasicTruncateString(string value)
+        {
+            int index = value.Length;
+            int pos = value.LastIndexOf("/") + 1;
+            return value.Substring(pos, value.Length - pos);
         }
 
         /// <summary>
@@ -129,9 +140,7 @@ namespace RedirectMachine
             if (index <= -1)
                 index = temp.Length;
             if (urlTail.Contains(temp))
-            {
                 isParentDir = true;
-            }
             temp = temp.Substring(0, index).ToLower();
             return temp;
         }
