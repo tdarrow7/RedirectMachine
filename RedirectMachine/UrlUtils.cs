@@ -8,51 +8,26 @@ namespace RedirectMachine
 {
     public class UrlUtils
     {
-        private string _originalUrl, urlHead, urlTail, newUrl, sanitizedUrl;
+        private string urlHead, urlTail, sanitizedUrl;
         public string[] urlHeaderMap = new string[2];
-        private bool isParentDir = false;
-        private bool hasUrlHeaderMap = false;
         private string[] urlChunks;
 
         public string OriginalUrl { get; set; }
         public string UrlHead
         {
-            get {
-                return urlHead;
-            }
-            set
-            {
-                urlHead = TruncateStringHead(OriginalUrl);
-            }
+            get { return urlHead; }
+            set { urlHead = TruncateStringHead(OriginalUrl); }
         }
-
         public string UrlTail
         {
-            get
-            {
-                return urlTail;
-            }
-            set
-            {
-                urlTail = TruncateString(value, 48);
-            }
+            get { return urlTail; }
+            set { urlTail = TruncateString(value, 48); }
         }
-
         public string SanitizedUrl {
-            get
-            {
-                return sanitizedUrl;
-            }
-            set
-            {
-                sanitizedUrl = CheckUrlTail(value);
-            }
+            get { return sanitizedUrl; }
+            set { sanitizedUrl = CheckUrlTail(value); }
         }
-
-
-
         public string NewUrl { get; set; }
-
         public bool HasHeaderMap { get; set; } = false;
         public bool IsParentDir { get; set; } = false;
 
@@ -61,7 +36,6 @@ namespace RedirectMachine
         /// </summary>
         public UrlUtils()
         {
-            
         }
 
         /// <summary>
@@ -82,7 +56,7 @@ namespace RedirectMachine
         /// </summary>
         public bool CheckForQueryStrings()
         {
-            return _originalUrl.Contains("?") ? true : false;
+            return OriginalUrl.Contains("?") ? true : false;
         }
 
         /// <summary>
@@ -121,7 +95,6 @@ namespace RedirectMachine
         public string TruncateString(string value, int maxLength)
         {
             string temp = CheckVars(value);
-            int index = temp.Length;
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
@@ -135,16 +108,14 @@ namespace RedirectMachine
         /// <param name="value"></param>
         public string TruncateStringHead(string value)
         {
-            string temp = value;
-            if (temp.StartsWith("/"))
-                temp = temp.Substring(1);
-            int index = temp.IndexOf("/");
+            if (value.StartsWith("/"))
+                value = value.Substring(1);
+            int index = value.IndexOf("/");
             if (index <= -1)
-                index = temp.Length;
-            if (urlTail.Contains(temp))
-                isParentDir = true;
-            temp = temp.Substring(0, index).ToLower();
-            return temp;
+                index = value.Length;
+            if (urlTail.Contains(value))
+                IsParentDir = true;
+            return value.Substring(0, index).ToLower();
         }
 
         /// <summary>
@@ -183,7 +154,7 @@ namespace RedirectMachine
         }
 
         /// <summary>
-        /// return last position of j variable in string i.
+        /// return last position of j variable in string i. If not found, return all of string i
         /// </summary>
         /// <param name="i"></param>
         /// <param name="j"></param>
@@ -228,21 +199,6 @@ namespace RedirectMachine
                 pos++;
             }
             return temp;
-        }
-
-        /// <summary>
-        /// return something
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public string TrimFullUrl(string value)
-        {
-            int index = value.IndexOf("//");
-            Console.WriteLine($"Length of value: {value.Length}");
-            Console.WriteLine($"index of slashes: {index}");
-            string temp = value.Substring(value.IndexOf("//"), value.Length - value.IndexOf("//"));
-            temp = temp.Substring(0, GetFirstIndex(temp, "/"));
-            return temp.Substring(GetFirstIndex(temp, "."), GetLastIndex(temp, "."));
         }
 
         /// <summary>

@@ -47,9 +47,6 @@ namespace RedirectMachine
         /// <returns></returns>
         internal bool CheckCatchallParams(string url)
         {
-            //var obj = new UrlUtils(url);
-            //var temp = obj.OriginalUrl;
-
             for (int i = 0; i < catchAllParams.GetLength(0); i++)
             {
                 if (url.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
@@ -73,15 +70,9 @@ namespace RedirectMachine
             if (!url.EndsWith("/"))
                 url = url + "/";
             if (!catchAllList.ContainsKey(url))
-            {
                 catchAllList.Add(url, 1);
-            }
             else
-            {
-                int value = catchAllList[url];
-                value++;
-                catchAllList[url] = value;
-            }
+                catchAllList[url] = catchAllList[url] + 1;
         }
 
         /// <summary>
@@ -97,12 +88,9 @@ namespace RedirectMachine
             {
                 foreach (var item in tempList)
                 {
-                    string line = $"{item.Key},{item.Value}";
-                    tw.WriteLine(line);
+                    tw.WriteLine($"{item.Key},{item.Value}");
                 }
             }
         }
-
-
     }
 }

@@ -19,19 +19,19 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-        string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-        string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-        string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+        ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+        //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+        //string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-        ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-        //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-        //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-        //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-        //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-        //string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
+        //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+        string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+        string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+        string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+        string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+        string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
 
 
         /// <summary>
@@ -50,10 +50,12 @@ namespace RedirectMachine
             ImportOldUrlsIntoList(osUrlFile);
             FindUrlMatches();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
+            CreateNewCSVs();
         }
 
         /// <summary>
         /// Add CSV file contents to list
+        /// Sort results of list alphabetically
         /// </summary>
         /// <param name="urlFile"></param>
         private void ImportNewUrlsIntoList(string urlFile)
@@ -62,9 +64,7 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    var line = reader.ReadLine();
-                    line = line.ToLower();
-                    newUrlSiteMap.Add(line);
+                    newUrlSiteMap.Add(reader.ReadLine().ToLower());
                 }
                 newUrlSiteMap.Sort();
             }
@@ -122,7 +122,7 @@ namespace RedirectMachine
         }
 
         /// <summary>
-        /// build CSV from specified list of strings
+        /// build CSV from specified list of strings and export to specified filePath
         /// </summary>
         /// <param name="list"></param>
         /// <param name="filePath"></param>

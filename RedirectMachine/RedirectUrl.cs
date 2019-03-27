@@ -87,8 +87,7 @@ namespace RedirectMachine
                 List<string> list1 = matchedUrls.ToList();
                 foreach (var url in list1)
                 {
-                    string temp = obj.TruncateStringHead(url);
-                    if (!BasicCheckUrlParentDir(temp))
+                    if (!BasicCheckUrlParentDir(obj.TruncateStringHead(url)))
                         RemoveFromMatchedUrls(url);
                 }
                 if (Count == 1)
@@ -184,16 +183,9 @@ namespace RedirectMachine
         private bool BasicCheckUrlParentDir(string temp)
         {
             if (obj.HasHeaderMap)
-            {
-                if (!UrlHeaderMatch(temp))
-                    return false;
-            }
+                return (UrlHeaderMatch(temp));
             else
-            {
-                if (!temp.Contains(obj.UrlHead))
-                    return false;
-            }
-            return true;
+                return (temp.Contains(obj.UrlHead));
         }
 
         /// <summary>
