@@ -86,6 +86,7 @@ namespace RedirectMachine
 
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
+                tw.WriteLine("Potential Probability,Number of times seen");
                 foreach (var item in tempList)
                 {
                     tw.WriteLine($"{item.Key},{item.Value}");

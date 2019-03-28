@@ -60,13 +60,31 @@ namespace RedirectMachine
         {
             foreach (var url in newUrlSiteMap)
             {
-                if (url.Contains("/googleness/"))
+                if (url.Contains("/about-us/"))
                     Console.WriteLine("found the url");
                 string temp = obj.BasicTruncateString(url);
-                if (temp.Contains(obj.UrlTail))
+                if (temp.Contains(obj.UrlTail) && MatchDirectoryHeaderMaps(obj, url))
                     AddMatchedUrl(url);
             }
             return BasicScanMatchedUrls();
+        }
+
+        /// <summary>
+        /// this method simply catches all urls that can immediately be removed from being evaluated.
+        /// If there is a header map, does the url start with that header map? if yes, return true. If no, return false
+        /// Else, if there's no header map, does the url's parent directory match the old url's parent directory? return either true or false
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private bool MatchDirectoryHeaderMaps(UrlUtils obj, string url)
+        {
+            if (obj.HasHeaderMap)
+                return url.StartsWith(obj.urlHeaderMap[1]);
+            else if (obj.IsParentDir)
+                return url.StartsWith(obj.UrlHead);
+            else
+                return url.StartsWith(obj.UrlHead);
         }
 
         /// <summary>
@@ -112,7 +130,7 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string temp = obj.BasicTruncateString(url);
-                if (temp.Contains(obj.GetChunk(0)))
+                if (temp.Contains(obj.GetChunk(0)) && MatchDirectoryHeaderMaps(obj, url))
                     matchedUrls.Add(url);
             }
             Count = matchedUrls.Count;

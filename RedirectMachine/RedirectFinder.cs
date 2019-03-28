@@ -19,10 +19,10 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
         string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
         string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
         string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
@@ -81,7 +81,7 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    string url = reader.ReadLine();
+                    string url = reader.ReadLine().ToLower();
                     if (!catchAllCSV.CheckCatchallParams(url))
                         redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
                 }
@@ -98,8 +98,11 @@ namespace RedirectMachine
         {
             foreach (var obj in redirectUrls)
             {
-                if (!obj.BasicUrlFinder(newUrlSiteMap) || !obj.AdvancedUrlFinder(newUrlSiteMap))
-                    catchAllCSV.CheckNewCatchAlls(obj.GetSanitizedUrl());
+                if (!obj.BasicUrlFinder(newUrlSiteMap))
+                {
+                    if (!obj.AdvancedUrlFinder(newUrlSiteMap))
+                        catchAllCSV.CheckNewCatchAlls(obj.GetSanitizedUrl());
+                }
             }
         }
 

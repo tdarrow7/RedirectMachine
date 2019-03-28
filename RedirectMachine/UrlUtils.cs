@@ -46,7 +46,7 @@ namespace RedirectMachine
         /// <param name="originalUrl"></param>
         public UrlUtils(string originalUrl)
         {
-            OriginalUrl = originalUrl.ToLower().Trim('"');
+            OriginalUrl = originalUrl.Trim('"');
             UrlTail = OriginalUrl;
             UrlHead = OriginalUrl;
             SanitizedUrl = OriginalUrl;
@@ -115,6 +115,7 @@ namespace RedirectMachine
         /// <param name="value"></param>
         public string TruncateStringHead(string value)
         {
+            IsParentDir = (urlTail.Contains(value));
             if (value.StartsWith("/"))
             {
                 startsWithSlash = true;
@@ -123,12 +124,31 @@ namespace RedirectMachine
             int index = value.IndexOf("/");
             if (index <= -1)
                 index = value.Length;
-            if (urlTail.Contains(value))
-                IsParentDir = true;
-            value = value.Substring(0, index).ToLower();
+            
+            value = value.Substring(0, index);
             if (startsWithSlash)
+            {
                 value = "/" + value;
-            return value;
+                index++;
+            }
+                
+            return (!value.EndsWith("/")) ? value.Substring(0, index) + "/" : value.Substring(0, index);
+        }
+
+        /// <summary>
+        /// Purpose: return first chunk of url. 
+        /// Check if url starts with http or https. If it does, grab entire domain of url
+        /// if that doesn't exist, return the first chunk of the url in between the first two '/'
+        /// </summary>
+        /// <param name="value"></param>
+        public string BasicTruncateStringHead(string value)
+        {
+            if (value.StartsWith("/"))
+                value = value.Substring(1);
+            int index = value.IndexOf("/");
+            if (index <= -1)
+                index = value.Length;
+            return (!value.EndsWith("/")) ? "/" + value.Substring(0, index) + "/" : "/" + value.Substring(0, index);
         }
 
         /// <summary>
