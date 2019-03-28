@@ -60,6 +60,8 @@ namespace RedirectMachine
         {
             foreach (var url in newUrlSiteMap)
             {
+                if (url.Contains("/googleness/"))
+                    Console.WriteLine("found the url");
                 string temp = obj.BasicTruncateString(url);
                 if (temp.Contains(obj.UrlTail))
                     AddMatchedUrl(url);

@@ -9,6 +9,8 @@ namespace RedirectMachine
     public class UrlUtils
     {
         private string urlHead, urlTail, sanitizedUrl;
+        private bool endsWithSlash = false;
+        private bool startsWithSlash = false;
         public string[] urlHeaderMap = new string[2];
         private string[] urlChunks;
 
@@ -79,9 +81,10 @@ namespace RedirectMachine
         /// <param name="value"></param>
         public string BasicTruncateString(string value)
         {
-            int index = value.Length;
-            int pos = value.LastIndexOf("/") + 1;
-            return value.Substring(pos, value.Length - pos);
+            string temp = value.Substring(0, value.Length - 1);
+            int pos = temp.LastIndexOf("/") + 1;
+            int i = temp.LastIndexOf("/");
+            return "/" + value.Substring(pos, value.Length - pos);
         }
 
         /// <summary>
@@ -97,6 +100,10 @@ namespace RedirectMachine
             string temp = CheckVars(value);
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
+            if (endsWithSlash)
+                temp = temp + "/";
+            if (!temp.StartsWith("/"))
+                temp = "/" + temp;
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
         }
 
@@ -109,13 +116,19 @@ namespace RedirectMachine
         public string TruncateStringHead(string value)
         {
             if (value.StartsWith("/"))
+            {
+                startsWithSlash = true;
                 value = value.Substring(1);
+            }
             int index = value.IndexOf("/");
             if (index <= -1)
                 index = value.Length;
             if (urlTail.Contains(value))
                 IsParentDir = true;
-            return value.Substring(0, index).ToLower();
+            value = value.Substring(0, index).ToLower();
+            if (startsWithSlash)
+                value = "/" + value;
+            return value;
         }
 
         /// <summary>
@@ -125,14 +138,17 @@ namespace RedirectMachine
         /// <returns></returns>
         public string CheckVars(string value)
         {
-            if (value.Contains("?"))
-                value = GetSubString(value, "?", false);
-            if (value.Contains("."))
-                value = GetSubString(value, ".", false);
+            //if (value.Contains("?"))
+            //    value = GetSubString(value, "?", false);
+            //if (value.Contains("."))
+            //    value = GetSubString(value, ".", false);
             if (value.EndsWith("/"))
+            {
+                endsWithSlash = true;
                 value = GetSubString(value, "/", false);
-            if (value.EndsWith("/*"))
-                value = GetSubString(value, "/*", false);
+            }
+            //if (value.EndsWith("/*"))
+            //    value = GetSubString(value, "/*", false);
             if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
@@ -257,6 +273,7 @@ namespace RedirectMachine
         {
             urlHeaderMap[0] = a;
             urlHeaderMap[1] = b;
+            UrlHead = urlHeaderMap[1];
         }
     }
 }
