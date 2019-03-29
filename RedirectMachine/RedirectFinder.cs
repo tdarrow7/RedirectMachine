@@ -16,8 +16,6 @@ namespace RedirectMachine
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
 
-        public int LostCounter = 0;
-
         public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
         };
@@ -59,7 +57,6 @@ namespace RedirectMachine
             FindUrlMatches();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
             ExportNewCSVs();
-            Console.WriteLine($"Lost Counter: {LostCounter}");
 
             // stop stopwatch and record elapsed time
             stopwatch.Stop();
@@ -150,12 +147,7 @@ namespace RedirectMachine
                     }
                     else
                         lostList.Add($"{obj.GetOriginalUrl()}");
-                    if (obj.matchedUrls.Count > 0)
-                    {
-                        LostCounter++;
-                    }
                 }
-                    
             }
             ExportToCSV(foundList, foundUrlFile);
             ExportToCSV(lostList, lostUrlFile);
