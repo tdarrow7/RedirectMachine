@@ -50,7 +50,7 @@ namespace RedirectMachine
             UrlTail = OriginalUrl;
             UrlHead = OriginalUrl;
             SanitizedUrl = OriginalUrl;
-            urlChunks = SanitizedUrl.Split('-');
+            urlChunks = UrlTail.Split('-');
         }
 
         /// <summary>

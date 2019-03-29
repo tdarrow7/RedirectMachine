@@ -8,26 +8,26 @@ namespace RedirectMachine
     internal class CatchAllObject
     {
         private string[,] catchAllParams =  {
-            { "/events/details/", "/classes-events/" },
-            { "/events/event-results/", "/classes-events/" },
-            { "/events/search-results/", "/classes-events/" },
-            { "/events/smart-panel-overflow/", "/classes-events/" },
-            { "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
-            { "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
-            { "/locations/location-clinics/clinic-profile/", "/locations/" },
-            { "/locations/results/", "/locations/" },
-            { "/locations/profile/?id=", "/locations/" },
-            { "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
-            { "/location-tabs-test/", "/locations" },
-            { "/patients-visitors/cheer-cards/", "/ecards/" },
-            { "/about-us/news-publications/news/?searchId", "/blog/" },
-            { "/for-the-health-of-it/search-results/?searchId", "/blog/" },
-            { "/about-us/news-publications/news/?year", "/blog/" },
-            { "/providers/results/?searchId=", "/our-doctors/" },
-            { "/providers/results/?termId=", "/our-doctors/" },
-            { "/search-for-pages/results/?searchId", "/site-search/" },
-            { "/services/?c=", "/our-services/" },
-            { "/app/files/", "/" }
+            { "/events/details/", "/classes-events/" }
+            //{ "/events/event-results/", "/classes-events/" },
+            //{ "/events/search-results/", "/classes-events/" },
+            //{ "/events/smart-panel-overflow/", "/classes-events/" },
+            //{ "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
+            //{ "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
+            //{ "/locations/location-clinics/clinic-profile/", "/locations/" },
+            //{ "/locations/results/", "/locations/" },
+            //{ "/locations/profile/?id=", "/locations/" },
+            //{ "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
+            //{ "/location-tabs-test/", "/locations" },
+            //{ "/patients-visitors/cheer-cards/", "/ecards/" },
+            //{ "/about-us/news-publications/news/?searchId", "/blog/" },
+            //{ "/for-the-health-of-it/search-results/?searchId", "/blog/" },
+            //{ "/about-us/news-publications/news/?year", "/blog/" },
+            //{ "/providers/results/?searchId=", "/our-doctors/" },
+            //{ "/providers/results/?termId=", "/our-doctors/" },
+            //{ "/search-for-pages/results/?searchId", "/site-search/" },
+            //{ "/services/?c=", "/our-services/" },
+            //{ "/app/files/", "/" }
         };
 
         Dictionary<string, int> catchAllList;
@@ -81,15 +81,13 @@ namespace RedirectMachine
         /// <param name="filePath"></param>
         internal void ExportCatchAllsToCSV(string filePath)
         {
-            List<KeyValuePair<string, int>> tempList = catchAllList.ToList();
-            tempList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
-
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 tw.WriteLine("Potential Probability,Number of times seen");
-                foreach (var item in tempList)
+                foreach (var item in catchAllList)
                 {
-                    tw.WriteLine($"{item.Key},{item.Value}");
+                    if (item.Value > 1)
+                        tw.WriteLine($"{item.Key},{item.Value}");
                 }
             }
         }

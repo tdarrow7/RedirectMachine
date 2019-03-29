@@ -7,11 +7,8 @@ namespace RedirectMachine
 {
     public class RedirectUrl
     {
-        private int count;
-        private bool score;
         public List<string> matchedUrls;
         internal UrlUtils obj;
-
         public bool Score { get; set; } = false;
         public int Count { get; set; } = 0;
 
@@ -55,13 +52,10 @@ namespace RedirectMachine
         /// return the results of BasicScanMatchedUrls()
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        /// <returns></returns>
-        internal bool BasicUrlFinder(List<string> newUrlSiteMap)
+        internal bool BasicUrlFinder(HashSet<string> newUrlSiteMap)
         {
             foreach (var url in newUrlSiteMap)
             {
-                if (url.Contains("/about-us/"))
-                    Console.WriteLine("found the url");
                 string temp = obj.BasicTruncateString(url);
                 if (temp.Contains(obj.UrlTail) && MatchDirectoryHeaderMaps(obj, url))
                     AddMatchedUrl(url);
@@ -76,7 +70,6 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="url"></param>
-        /// <returns></returns>
         private bool MatchDirectoryHeaderMaps(UrlUtils obj, string url)
         {
             if (obj.HasHeaderMap)
@@ -84,7 +77,7 @@ namespace RedirectMachine
             else if (obj.IsParentDir)
                 return url.StartsWith(obj.UrlHead);
             else
-                return url.StartsWith(obj.UrlHead);
+                return true;
         }
 
         /// <summary>
@@ -94,29 +87,13 @@ namespace RedirectMachine
         /// </summary>
         private bool BasicScanMatchedUrls()
         {
-            if (Count == 0)
-                return false;
-            else if (Count == 1)
+            if (Count == 1)
             {
                 SetNewUrl();
                 return true;
             }
-            else
-            {
-                Count = 0;
-                List<string> list1 = matchedUrls.ToList();
-                foreach (var url in list1)
-                {
-                    if (!BasicCheckUrlParentDir(obj.TruncateStringHead(url)))
-                        RemoveFromMatchedUrls(url);
-                }
-                if (Count == 1)
-                {
-                    SetNewUrl();
-                    return true;
-                }
-            }
-            return false;
+            else 
+                return false;
         }
 
         /// <summary>
@@ -124,8 +101,7 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        /// <returns></returns>
-        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
+        internal bool AdvancedUrlFinder(HashSet<string> newUrlSiteMap)
         {
             foreach (var url in newUrlSiteMap)
             {
@@ -145,7 +121,7 @@ namespace RedirectMachine
         /// if Count == 1, a single match has been found. Return true
         /// if Count > 1, run the for loop again to build a new substring of originalUrl
         /// </summary>
-        public bool AdvancedScanMatchedUrls()
+        private bool AdvancedScanMatchedUrls()
         {
             List<string> activeList = new List<string>();
             List<string> passiveList = matchedUrls.ToList();
@@ -166,12 +142,24 @@ namespace RedirectMachine
                 if (Count == 0)
                     return false;
                 if (Count == 1)
+                    return FinalAdvancedScanCheck(i);
+            }
+            return false;
+        }
+
+        private bool FinalAdvancedScanCheck(int i)
+        {
+            if (i < obj.GetChunkLength())
+            {
+                string temp = obj.BuildChunk(i + 1);
+                if (matchedUrls.First().Contains(temp))
                 {
                     SetNewUrl();
                     return true;
                 }
+                else return false;
             }
-            return false;
+            else return true;
         }
 
         /// <summary>
@@ -256,7 +244,6 @@ namespace RedirectMachine
         /// <param name="i"></param>
         /// <param name="j"></param>
         /// <param name="x"></param>
-        /// <returns></returns>
         internal string GetSubString(string i, string j, int x)
         {
             var pos = 0;
@@ -296,7 +283,6 @@ namespace RedirectMachine
         /// returns either true or false depending on whether or not the HeaderMap[1] contains the string temp
         /// </summary>
         /// <param name="temp"></param>
-        /// <returns></returns>
         public bool UrlHeaderMatch(string temp)
         {
             return obj.urlHeaderMap[1].Contains(temp);
@@ -312,7 +298,5 @@ namespace RedirectMachine
             int i = Count + 1;
             Count = i;
         }
-
-        
     }
 }

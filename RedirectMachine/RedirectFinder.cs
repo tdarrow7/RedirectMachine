@@ -9,11 +9,14 @@ namespace RedirectMachine
     {
         // declare all universally needed variables
         public List<CatchAllObject> catchalls = new List<CatchAllObject>();
-        public static List<string> newUrlSiteMap = new List<string>();
+        //public static List<string> newUrlSiteMap = new List<string>();
+        public static HashSet<string> newUrlSiteMap = new HashSet<string>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
         public static CatchAllObject catchAllCSV = new CatchAllObject();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
+
+        public int LostCounter = 0;
 
         public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
@@ -47,11 +50,23 @@ namespace RedirectMachine
         /// </summary>
         internal void Run()
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine("begin search: ");
+
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
             FindUrlMatches();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
-            CreateNewCSVs();
+            ExportNewCSVs();
+            Console.WriteLine($"Lost Counter: {LostCounter}");
+
+            // stop stopwatch and record elapsed time
+            stopwatch.Stop();
+            TimeSpan ts = stopwatch.Elapsed;
+            string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+            Console.WriteLine($"Run time: {elapsedTime}");
         }
 
         /// <summary>
@@ -67,7 +82,6 @@ namespace RedirectMachine
                 {
                     newUrlSiteMap.Add(reader.ReadLine().ToLower());
                 }
-                newUrlSiteMap.Sort();
             }
         }
 
@@ -110,16 +124,38 @@ namespace RedirectMachine
         /// Scan all objects in redirectUrls list and put them in either the foundList or lostList, depending on their score
         /// Send both temporary lists to buildCSV method to print both found and lost lists
         /// </summary>
-        internal void CreateNewCSVs()
+        internal void ExportNewCSVs()
         {
             List<string> foundList = new List<string>();
             List<string> lostList = new List<string>();
+
+            foundList.Add("Old Site Url,Redirected Url");
+            lostList.Add("Old Site Url, Potential Redirected Url");
             foreach (var obj in redirectUrls)
             {
                 if (obj.Score == true)
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}");
                 else
-                    lostList.Add($"{obj.GetOriginalUrl()}");
+                {
+                    if (obj.matchedUrls.Count > 0)
+                    {
+                        string[] arrayOfMatches = obj.matchedUrls.ToArray();
+                        for (int i = 0; i < arrayOfMatches.Length; i++)
+                        {
+                            if (i == 0)
+                                lostList.Add($"{obj.GetOriginalUrl()},{arrayOfMatches[i]}");
+                            else
+                                lostList.Add($",{arrayOfMatches[i]}");
+                        }
+                    }
+                    else
+                        lostList.Add($"{obj.GetOriginalUrl()}");
+                    if (obj.matchedUrls.Count > 0)
+                    {
+                        LostCounter++;
+                    }
+                }
+                    
             }
             ExportToCSV(foundList, foundUrlFile);
             ExportToCSV(lostList, lostUrlFile);
@@ -141,6 +177,4 @@ namespace RedirectMachine
             }
         }
     }
-
-    
 }
