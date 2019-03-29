@@ -151,6 +151,8 @@ namespace RedirectMachine
             }
             ExportToCSV(foundList, foundUrlFile);
             ExportToCSV(lostList, lostUrlFile);
+            Console.WriteLine($"foundList: {foundList.Count}");
+            Console.WriteLine($"lostList: {lostList.Count}");
         }
 
         /// <summary>
