@@ -87,13 +87,7 @@ namespace RedirectMachine
         /// </summary>
         private bool BasicScanMatchedUrls()
         {
-            if (Count == 1)
-            {
-                SetNewUrl();
-                return true;
-            }
-            else 
-                return false;
+            return (Count == 1) ? SetNewUrl() : false;
         }
 
         /// <summary>
@@ -110,8 +104,43 @@ namespace RedirectMachine
                     matchedUrls.Add(url);
             }
             Count = matchedUrls.Count;
-            return AdvancedScanMatchedUrls();
+            //return AdvancedScanMatchedUrls();
+            return AdvancedScanMatchedUrlsV2();
         }
+
+        ///// <summary>
+        ///// Create two temporary lists.
+        ///// build string temp out of chunks from original url. for every iteration of the for loop, add a new chunk to the end of the url
+        ///// check if chunk is contained in each of the new urls. If it is, keep. If not, remove from passive list and run RemoveFromMatchedUrls method
+        ///// if Count == 0, obviously no matching url wasn't found. Return false
+        ///// if Count == 1, a single match has been found. Return true
+        ///// if Count > 1, run the for loop again to build a new substring of originalUrl
+        ///// </summary>
+        //private bool AdvancedScanMatchedUrls()
+        //{
+        //    List<string> activeList = new List<string>();
+        //    List<string> passiveList = matchedUrls.ToList();
+
+        //    for (int i = 0; i < obj.GetChunkLength(); i++)
+        //    {
+        //        activeList.Clear();
+        //        activeList = passiveList.ToList();
+        //        string temp = obj.BuildChunk(i);
+        //        foreach (var url in activeList)
+        //        {
+        //            if (!url.Contains(temp))
+        //            {
+        //                passiveList.Remove(url);
+        //                RemoveFromMatchedUrls(url);
+        //            }
+        //        }
+        //        if (Count == 0)
+        //            return false;
+        //        if (Count == 1)
+        //            return FinalAdvancedScanCheck(i);
+        //    }
+        //    return false;
+        //}
 
         /// <summary>
         /// Create two temporary lists.
@@ -121,54 +150,56 @@ namespace RedirectMachine
         /// if Count == 1, a single match has been found. Return true
         /// if Count > 1, run the for loop again to build a new substring of originalUrl
         /// </summary>
-        private bool AdvancedScanMatchedUrls()
+        private bool AdvancedScanMatchedUrlsV2()
         {
-            List<string> activeList = new List<string>();
-            List<string> passiveList = matchedUrls.ToList();
-
-            for (int i = 0; i < obj.GetChunkLength(); i++)
+            Dictionary<string, int> activeList = new Dictionary<string, int>();
+            int x = 1;
+            var temp = "";
+            foreach (var url in matchedUrls)
             {
-                activeList.Clear();
-                activeList = passiveList.ToList();
-                string temp = obj.BuildChunk(i);
-                foreach (var url in activeList)
+                int y = 0;
+                string[] tempArray = url.Split(new Char[] { '-', '/' });
+                for (int i = 0; i < tempArray.Length; i++)
                 {
-                    if (!url.Contains(temp))
-                    {
-                        passiveList.Remove(url);
-                        RemoveFromMatchedUrls(url);
-                    }
+                    if (obj.urlChunksV2.Contains(tempArray[i]))
+                        y++;
                 }
-                if (Count == 0)
-                    return false;
-                if (Count == 1)
-                    return FinalAdvancedScanCheck(i);
+                if (!activeList.ContainsKey(url))
+                    activeList.Add(url, y);
             }
-            return false;
+
+            foreach (var keyValuePair in activeList)
+            {
+                if (keyValuePair.Value < x)
+                    RemoveFromMatchedUrls(keyValuePair.Key);
+                else
+                {
+                    RemoveFromMatchedUrls(temp);
+                    temp = keyValuePair.Key;
+                    x = keyValuePair.Value;
+                }
+            }
+            return (matchedUrls.Count == 1) ? SetNewUrl() : false;
         }
 
-        private bool FinalAdvancedScanCheck(int i)
-        {
-            if (i < obj.GetChunkLength())
-            {
-                string temp = obj.BuildChunk(i + 1);
-                if (matchedUrls.First().Contains(temp))
-                {
-                    SetNewUrl();
-                    return true;
-                }
-                else return false;
-            }
-            else return true;
-        }
+        //private bool FinalAdvancedScanCheck(int i)
+        //{
+        //    if (i < obj.GetChunkLength())
+        //    {
+        //        string temp = obj.BuildChunk(i + 1);
+        //        return (matchedUrls.First().Contains(temp)) ? SetNewUrl() : false;
+        //    }
+        //    else return true;
+        //}
 
         /// <summary>
         /// set the new url to the only matched url left in matchedUrls list
         /// </summary>
-        private void SetNewUrl()
+        private bool SetNewUrl()
         {
             obj.NewUrl = matchedUrls.First();
             Score = true;
+            return true;
         }
 
         /// <summary>
@@ -220,63 +251,6 @@ namespace RedirectMachine
         internal string GetNewUrl()
         {
             return obj.NewUrl;
-        }
-
-        /// <summary>
-        /// return the substring of the string that is passed into this function.
-        /// This method is overloaded with a bool. The bool indicates to the function that it must return a substring
-        /// 1) if true, includes the string j rather than excluding it, or
-        /// 2) if false, returns a substring that excludes string j.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        /// <param name="x"></param>
-        internal string GetSubString(string i, string j, bool x)
-        {
-            int index = GetLastIndex(i, j);
-            return (x == true) ? i.Substring(0, index + j.Length) : i.Substring(0, index);
-        }
-
-        /// <summary>
-        /// return the substring of the string that is passed into this function.
-        /// This method is overloaded with an int. The int indicates to the function that it must rerun that many times.
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        /// <param name="x"></param>
-        internal string GetSubString(string i, string j, int x)
-        {
-            var pos = 0;
-            string temp = i;
-            while (pos <= x)
-            {
-                int index = GetLastIndex(i, j);
-                temp = temp.Substring(0, index);
-                pos++;
-            }
-            return temp;
-        }
-
-        /// <summary>
-        /// return FIRST position of j variable in string i.
-        /// If j is not found in i, return i.Length
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        public static int GetFirstIndex(string i, string j)
-        {
-            return i.Contains(j) ? i.IndexOf(j) : i.Length;
-        }
-
-        /// <summary>
-        /// return LAST position of j variable in string i.
-        /// If j is not found in i, return i.Length
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
-        public static int GetLastIndex(string i, string j)
-        {
-            return i.Contains(j) ? i.LastIndexOf(j) : i.Length;
         }
 
         /// <summary>

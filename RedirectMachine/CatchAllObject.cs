@@ -84,10 +84,10 @@ namespace RedirectMachine
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 tw.WriteLine("Potential Probability,Number of times seen");
-                foreach (var item in catchAllList)
+                foreach (var keyValuePair in catchAllList)
                 {
-                    if (item.Value > 1)
-                        tw.WriteLine($"{item.Key},{item.Value}");
+                    if (keyValuePair.Value > 1)
+                        tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value}");
                 }
             }
         }

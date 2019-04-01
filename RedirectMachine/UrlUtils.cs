@@ -13,6 +13,7 @@ namespace RedirectMachine
         private bool startsWithSlash = false;
         public string[] urlHeaderMap = new string[2];
         private string[] urlChunks;
+        internal HashSet<string> urlChunksV2 = new HashSet<string>();
 
         public string OriginalUrl { get; set; }
         public string UrlHead
@@ -51,7 +52,10 @@ namespace RedirectMachine
             UrlHead = OriginalUrl;
             SanitizedUrl = OriginalUrl;
             urlChunks = UrlTail.Split('-');
+            CreateUrlChunksV2();
         }
+
+        
 
         /// <summary>
         /// Check to see if the original url contains query strings
@@ -81,7 +85,7 @@ namespace RedirectMachine
         /// <param name="value"></param>
         public string BasicTruncateString(string value)
         {
-            string temp = value.Substring(0, value.Length - 1);
+            string temp = CheckVars(value.Substring(0, value.Length - 1));
             int pos = temp.LastIndexOf("/") + 1;
             int i = temp.LastIndexOf("/");
             return "/" + value.Substring(pos, value.Length - pos);
@@ -158,17 +162,13 @@ namespace RedirectMachine
         /// <returns></returns>
         public string CheckVars(string value)
         {
-            //if (value.Contains("?"))
-            //    value = GetSubString(value, "?", false);
-            //if (value.Contains("."))
-            //    value = GetSubString(value, ".", false);
             if (value.EndsWith("/"))
             {
                 endsWithSlash = true;
                 value = GetSubString(value, "/", false);
             }
-            //if (value.EndsWith("/*"))
-            //    value = GetSubString(value, "/*", false);
+            if (value.EndsWith("-/"))
+                value = GetSubString(value, "-/", false);
             if (value.EndsWith("-"))
                 value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
@@ -294,6 +294,11 @@ namespace RedirectMachine
             urlHeaderMap[0] = a;
             urlHeaderMap[1] = b;
             UrlHead = urlHeaderMap[1];
+        }
+
+        private void CreateUrlChunksV2()
+        {
+            urlChunksV2 = SanitizedUrl.Split(new Char[] { '-', '/' }).ToHashSet();
         }
     }
 }

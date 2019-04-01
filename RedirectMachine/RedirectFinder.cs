@@ -20,20 +20,21 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
-        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-        string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-        string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteUrls.csv";
+        ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        ////string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+        //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+        //string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-        ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+        string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
         //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-        //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-        //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-        //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-        //string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
+        string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+        //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+        string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+        string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
 
 
         /// <summary>
