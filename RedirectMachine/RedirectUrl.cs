@@ -57,7 +57,7 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string temp = obj.BasicTruncateString(url);
-                if (temp.Contains(obj.UrlTail) && MatchDirectoryHeaderMaps(obj, url))
+                if (temp.Contains(obj.UrlTail) && CheckParentAndResourceDirs(obj, url))
                     AddMatchedUrl(url);
             }
             return BasicScanMatchedUrls();
@@ -70,14 +70,31 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="url"></param>
-        private bool MatchDirectoryHeaderMaps(UrlUtils obj, string url)
+        private bool CheckParentAndResourceDirs(UrlUtils obj, string url)
         {
+            if (!CheckResourceDirs(obj, url))
+                return false;
             if (obj.HasHeaderMap)
                 return url.StartsWith(obj.urlHeaderMap[1]);
             else if (obj.IsParentDir)
                 return url.StartsWith(obj.UrlHead);
             else
                 return true;
+        }
+
+        private bool CheckResourceDirs(UrlUtils obj, string url)
+        {
+            if (obj.UrlTail.Contains("."))
+            {
+                if (url.Contains("."))
+                {
+                    string x = obj.UrlTail.Split(".")[1];
+                    string y = url.Split(".")[1];
+                    return (x == y) ? true : false;
+                }
+                else return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -100,7 +117,7 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string temp = obj.BasicTruncateString(url);
-                if (temp.Contains(obj.GetChunk(0)) && MatchDirectoryHeaderMaps(obj, url))
+                if (temp.Contains(obj.GetChunk(0)) && CheckParentAndResourceDirs(obj, url))
                     matchedUrls.Add(url);
             }
             Count = matchedUrls.Count;

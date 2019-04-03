@@ -33,6 +33,7 @@ namespace RedirectMachine
         public string NewUrl { get; set; }
         public bool HasHeaderMap { get; set; } = false;
         public bool IsParentDir { get; set; } = false;
+        public bool IsResourceFile { get; set; } = false;
 
         /// <summary>
         /// default constructor
@@ -175,6 +176,8 @@ namespace RedirectMachine
             value = Regex.Replace(value, "---", "-");
             value = Regex.Replace(value, "dont", "don-t");
             value = Regex.Replace(value, "cant", "can-t");
+            if (value.Contains("."))
+                IsResourceFile = true;
             return value;
         }
 
