@@ -284,6 +284,11 @@ namespace RedirectMachine
             return urlChunks.Length;
         }
 
+        internal bool IsChunkFoundInResource(string chunk)
+        {
+            return urlChunksV2.Contains(chunk);
+        }
+
         /// <summary>
         /// set urHeaderMap array to string a/b values
         /// </summary>
@@ -299,6 +304,13 @@ namespace RedirectMachine
         private void CreateUrlChunksV2()
         {
             urlChunksV2 = SanitizedUrl.Split(new Char[] { '-', '/' }).ToHashSet();
+        }
+
+        internal string[] ReturnResourceDirChunks(string url)
+        {
+            string temp = BasicTruncateString(url);
+            string[] chunks = temp.Split(new Char[] { '-', '/' }).ToArray();
+            return chunks;
         }
     }
 }

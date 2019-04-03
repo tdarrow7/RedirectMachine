@@ -153,8 +153,9 @@ namespace RedirectMachine
         private bool AdvancedScanMatchedUrlsV2()
         {
             Dictionary<string, int> activeList = new Dictionary<string, int>();
+            var tupleList = new List<Tuple<string, int, int>>();
             int x = 1;
-            var temp = "";
+            string temp = "";
             foreach (var url in matchedUrls)
             {
                 int y = 0;
@@ -168,6 +169,9 @@ namespace RedirectMachine
                     activeList.Add(url, y);
             }
 
+            matchedUrls.Clear();
+            matchedUrls = activeList.Keys.ToList();
+
             foreach (var keyValuePair in activeList)
             {
                 if (keyValuePair.Value < x)
@@ -180,6 +184,60 @@ namespace RedirectMachine
                 }
             }
             return (matchedUrls.Count == 1) ? SetNewUrl() : false;
+        }
+
+
+        private bool AdvancedScanMatchedUrlsV3()
+        {
+            var tupleList = new List<Tuple<string, int, int>>();
+            int x = 1,
+                y = 1;
+            string temp = "";
+            foreach (var url in matchedUrls)
+            {
+                int z = 0;
+                string[] tempArray = url.Split(new Char[] { '-', '/' });
+                for (int i = 0; i < tempArray.Length; i++)
+                {
+                    if (obj.urlChunksV2.Contains(tempArray[i]))
+                        z++;
+                }
+                if (!tupleList.Exists(i => i.Item1 == url))
+                    tupleList.Add(new Tuple<string, int, int>(url, z, AdvancedScanUrlResourceDirV2(url)));
+            }
+
+            matchedUrls.Clear();
+            foreach (var item in tupleList)
+            {
+                matchedUrls.Add(item.Item1);
+            }
+            Count = matchedUrls.Count;
+
+            foreach (var item in tupleList)
+            {
+                if (item.Item2 < x && item.Item3 < y)
+                    RemoveFromMatchedUrls(item.Item1);
+                else
+                {
+                    RemoveFromMatchedUrls(temp);
+                    temp = item.Item1;
+                    x = item.Item2;
+                    y = item.Item3;
+                }
+            }
+            return (matchedUrls.Count == 1) ? SetNewUrl() : false;
+        }
+
+        private int AdvancedScanUrlResourceDirV2(string url)
+        {
+            int j = 0;
+            string[] chunks = obj.ReturnResourceDirChunks(url);
+            for (int i = 0; i < chunks.Length; i++)
+            {
+                if (obj.IsChunkFoundInResource(chunks[i]))
+                    j++;
+            }
+            return j;
         }
 
         //private bool FinalAdvancedScanCheck(int i)
