@@ -11,6 +11,9 @@ namespace RedirectMachine
         internal UrlUtils obj;
         public bool Score { get; set; } = false;
         public int Count { get; set; } = 0;
+        private int totalResourceChunkMatches;
+        private int totalUrlChunkMatches;
+
 
         public RedirectUrl()
         {
@@ -26,6 +29,8 @@ namespace RedirectMachine
         public RedirectUrl(string url, string[,] urlHeaderMaps)
         {
             obj = new UrlUtils(url);
+            totalResourceChunkMatches = (obj.IsResourceFile) ? 2 : 1;
+            totalUrlChunkMatches = (obj.IsResourceFile) ? 2 : 1;
             matchedUrls = new List<string>();
             CheckUrlHeaderMaps(obj, urlHeaderMaps);
         }
@@ -58,7 +63,9 @@ namespace RedirectMachine
             {
                 string temp = obj.BasicTruncateString(url);
                 if (temp.Contains(obj.UrlTail) && CheckParentAndResourceDirs(obj, url))
+                {
                     AddMatchedUrl(url);
+                }
             }
             return BasicScanMatchedUrls();
         }
@@ -117,12 +124,73 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string temp = obj.BasicTruncateString(url);
+
                 if (temp.Contains(obj.GetChunk(0)) && CheckParentAndResourceDirs(obj, url))
                     matchedUrls.Add(url);
             }
             Count = matchedUrls.Count;
             //return AdvancedScanMatchedUrls();
-            return AdvancedScanMatchedUrlsV2();
+            return AdvancedScanMatchedUrlsV3();
+        }
+
+        ///// <summary>
+        ///// scan every url in newUrlSiteMap. If the url's resource directory contains the first chunk from obj.urlChunks[], add it to a list of potential matches
+        ///// return whatever AdvancedScanMatchedUrls finds
+        ///// </summary>
+        ///// <param name="newUrlSiteMap"></param>
+        //internal bool AdvancedUrlFinderV2(HashSet<string> newUrlSiteMap)
+        //{
+        //    var tupleList = new List<Tuple<string, int, int>>();
+        //    foreach (var url in newUrlSiteMap)
+        //    {
+        //        string temp = obj.BasicTruncateString(url);
+
+        //        string[] resourceChunks = obj.ReturnResourceDirChunks(obj.BasicTruncateString(url));
+        //        string[] totalChunks = obj.ReturnAllChunksInUrl(url);
+        //        int i = CheckTotalUrlChunks(totalChunks);
+        //        int j = CheckResourceChunks(resourceChunks);
+
+        //        if (i >= totalUrlChunkMatches && j >= totalResourceChunkMatches && CheckParentAndResourceDirs(obj, url))
+        //        {
+        //            tupleList.Add(new Tuple<string, int, int>(url, i, j));
+        //        }
+
+
+
+
+
+        //            //matchedUrls.Add(url);
+        //    }
+        //    return AdvancedScanOfTuples(tupleList);
+
+        //    //Count = matchedUrls.Count;
+        //    ////return AdvancedScanMatchedUrls();
+        //    //return AdvancedScanMatchedUrlsV3();
+        //}
+
+        internal bool AdvancedScanOfTuples(List<Tuple<string, int, int>> tupleList) {
+            List<string> tempList = new List<string>();
+            foreach (var tuple in tupleList)
+            {
+                if (tuple.Item2 > totalUrlChunkMatches && tuple.Item3 > totalResourceChunkMatches)
+                {
+                    tempList.Clear();
+                    tempList.Add(tuple.Item1);
+                    totalUrlChunkMatches = tuple.Item2;
+                    totalResourceChunkMatches = tuple.Item3;
+                }
+                else if (tuple.Item2 == totalUrlChunkMatches && tuple.Item3 == totalResourceChunkMatches)
+                    tempList.Add(tuple.Item1);
+            }
+            matchedUrls.Clear();
+            matchedUrls = tempList.ToList();
+            Count = matchedUrls.Count;
+            if (Count == 1)
+            {
+                SetNewUrl();
+                return true;
+            }
+            else return false;
         }
 
         ///// <summary>
@@ -159,49 +227,49 @@ namespace RedirectMachine
         //    return false;
         //}
 
-        /// <summary>
-        /// Create two temporary lists.
-        /// build string temp out of chunks from original url. for every iteration of the for loop, add a new chunk to the end of the url
-        /// check if chunk is contained in each of the new urls. If it is, keep. If not, remove from passive list and run RemoveFromMatchedUrls method
-        /// if Count == 0, obviously no matching url wasn't found. Return false
-        /// if Count == 1, a single match has been found. Return true
-        /// if Count > 1, run the for loop again to build a new substring of originalUrl
-        /// </summary>
-        private bool AdvancedScanMatchedUrlsV2()
-        {
-            Dictionary<string, int> activeList = new Dictionary<string, int>();
-            var tupleList = new List<Tuple<string, int, int>>();
-            int x = 1;
-            string temp = "";
-            foreach (var url in matchedUrls)
-            {
-                int y = 0;
-                string[] tempArray = url.Split(new Char[] { '-', '/' });
-                for (int i = 0; i < tempArray.Length; i++)
-                {
-                    if (obj.urlChunksV2.Contains(tempArray[i]))
-                        y++;
-                }
-                if (!activeList.ContainsKey(url))
-                    activeList.Add(url, y);
-            }
+        ///// <summary>
+        ///// Create two temporary lists.
+        ///// build string temp out of chunks from original url. for every iteration of the for loop, add a new chunk to the end of the url
+        ///// check if chunk is contained in each of the new urls. If it is, keep. If not, remove from passive list and run RemoveFromMatchedUrls method
+        ///// if Count == 0, obviously no matching url wasn't found. Return false
+        ///// if Count == 1, a single match has been found. Return true
+        ///// if Count > 1, run the for loop again to build a new substring of originalUrl
+        ///// </summary>
+        //private bool AdvancedScanMatchedUrlsV2()
+        //{
+        //    Dictionary<string, int> activeList = new Dictionary<string, int>();
+        //    var tupleList = new List<Tuple<string, int, int>>();
+        //    int x = ((obj.IsResourceFile) ? 2 : 1);
+        //    string temp = "";
+        //    foreach (var url in matchedUrls)
+        //    {
+        //        int y = 0;
+        //        string[] tempArray = url.Split(new Char[] { '-', '/' });
+        //        for (int i = 0; i < tempArray.Length; i++)
+        //        {
+        //            if (obj.urlChunksV2.Contains(tempArray[i]))
+        //                y++;
+        //        }
+        //        if (!activeList.ContainsKey(url))
+        //            activeList.Add(url, y);
+        //    }
 
-            matchedUrls.Clear();
-            matchedUrls = activeList.Keys.ToList();
+        //    matchedUrls.Clear();
+        //    matchedUrls = activeList.Keys.ToList();
 
-            foreach (var keyValuePair in activeList)
-            {
-                if (keyValuePair.Value < x)
-                    RemoveFromMatchedUrls(keyValuePair.Key);
-                else
-                {
-                    RemoveFromMatchedUrls(temp);
-                    temp = keyValuePair.Key;
-                    x = keyValuePair.Value;
-                }
-            }
-            return (matchedUrls.Count == 1) ? SetNewUrl() : false;
-        }
+        //    foreach (var keyValuePair in activeList)
+        //    {
+        //        if (keyValuePair.Value < x)
+        //            RemoveFromMatchedUrls(keyValuePair.Key);
+        //        else
+        //        {
+        //            RemoveFromMatchedUrls(temp);
+        //            temp = keyValuePair.Key;
+        //            x = keyValuePair.Value;
+        //        }
+        //    }
+        //    return (matchedUrls.Count == 1) ? SetNewUrl() : false;
+        //}
 
 
         private bool AdvancedScanMatchedUrlsV3()
@@ -347,5 +415,32 @@ namespace RedirectMachine
             int i = Count + 1;
             Count = i;
         }
+
+        private int CheckResourceChunks(string[] chunks)
+        {
+            int x = 0;
+            for (int i = 0; i < chunks.Length; i++)
+            {
+                if (obj.UrlTail.Contains(chunks[i]))
+                {
+                    x++;
+                }
+            }
+            return x;
+        }
+
+        private int CheckTotalUrlChunks (string[] chunks)
+        {
+            int x = 0;
+            for (int i = 0; i < chunks.Length; i++)
+            {
+                if (obj.OriginalUrl.Contains(chunks[i]))
+                {
+                    x++;
+                }
+            }
+            return x;
+        }
+
     }
 }

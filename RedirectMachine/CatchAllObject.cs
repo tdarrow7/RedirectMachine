@@ -8,7 +8,7 @@ namespace RedirectMachine
     internal class CatchAllObject
     {
         private string[,] catchAllParams =  {
-            { "/events/details/", "/classes-events/" }
+            //{ "/events/details/", "/classes-events/" },
             //{ "/events/event-results/", "/classes-events/" },
             //{ "/events/search-results/", "/classes-events/" },
             //{ "/events/smart-panel-overflow/", "/classes-events/" },

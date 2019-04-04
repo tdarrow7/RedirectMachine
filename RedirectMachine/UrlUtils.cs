@@ -315,5 +315,11 @@ namespace RedirectMachine
             string[] chunks = temp.Split(new Char[] { '-', '/' }).ToArray();
             return chunks;
         }
+
+        internal string[] ReturnAllChunksInUrl(string url)
+        {
+            string[] chunks = url.Split(new Char[] { '-', '/' }).ToArray();
+            return chunks;
+        }
     }
 }
