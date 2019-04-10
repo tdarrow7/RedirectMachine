@@ -321,5 +321,29 @@ namespace RedirectMachine
             string[] chunks = url.Split(new Char[] { '-', '/' }).ToArray();
             return chunks;
         }
+
+        internal int ReturnResourceDirMatches(string url)
+        {
+            int j = 0;
+            List<string> chunks = ReturnResourceDirChunks(url).ToList();
+            foreach (var chunk in urlChunks)
+            {
+                if (chunks.Contains(chunk))
+                    j++;
+            }
+            return j;
+        }
+
+        internal int ReturnFullUrlMatches(string url)
+        {
+            int j = 0;
+            List<string> chunks = ReturnAllChunksInUrl(url).ToList();
+            foreach (var chunk in urlChunksV2)
+            {
+                if (chunks.Contains(chunk))
+                    j++;
+            }
+            return j;
+        }
     }
 }

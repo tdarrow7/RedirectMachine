@@ -121,16 +121,20 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool AdvancedUrlFinder(HashSet<string> newUrlSiteMap)
         {
+            var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
             {
                 string temp = obj.BasicTruncateString(url);
 
                 if (temp.Contains(obj.GetChunk(0)) && CheckParentAndResourceDirs(obj, url))
-                    matchedUrls.Add(url);
+                {
+                    if (!tupleList.Exists(i => i.Item1 == url))
+                        tupleList.Add(new Tuple<string, int, int>(url, obj.ReturnFullUrlMatches(url), obj.ReturnResourceDirMatches(url)));
+                }
             }
-            Count = matchedUrls.Count;
+            //Count = matchedUrls.Count;
             //return AdvancedScanMatchedUrls();
-            return AdvancedScanMatchedUrlsV3();
+            return AdvancedScanMatchedUrlsV3(tupleList);
         }
 
         ///// <summary>
@@ -168,30 +172,30 @@ namespace RedirectMachine
         //    //return AdvancedScanMatchedUrlsV3();
         //}
 
-        internal bool AdvancedScanOfTuples(List<Tuple<string, int, int>> tupleList) {
-            List<string> tempList = new List<string>();
-            foreach (var tuple in tupleList)
-            {
-                if (tuple.Item2 > totalUrlChunkMatches && tuple.Item3 > totalResourceChunkMatches)
-                {
-                    tempList.Clear();
-                    tempList.Add(tuple.Item1);
-                    totalUrlChunkMatches = tuple.Item2;
-                    totalResourceChunkMatches = tuple.Item3;
-                }
-                else if (tuple.Item2 == totalUrlChunkMatches && tuple.Item3 == totalResourceChunkMatches)
-                    tempList.Add(tuple.Item1);
-            }
-            matchedUrls.Clear();
-            matchedUrls = tempList.ToList();
-            Count = matchedUrls.Count;
-            if (Count == 1)
-            {
-                SetNewUrl();
-                return true;
-            }
-            else return false;
-        }
+        //internal bool AdvancedScanOfTuples(List<Tuple<string, int, int>> tupleList) {
+        //    List<string> tempList = new List<string>();
+        //    foreach (var tuple in tupleList)
+        //    {
+        //        if (tuple.Item2 > totalUrlChunkMatches && tuple.Item3 > totalResourceChunkMatches)
+        //        {
+        //            tempList.Clear();
+        //            tempList.Add(tuple.Item1);
+        //            totalUrlChunkMatches = tuple.Item2;
+        //            totalResourceChunkMatches = tuple.Item3;
+        //        }
+        //        else if (tuple.Item2 == totalUrlChunkMatches && tuple.Item3 == totalResourceChunkMatches)
+        //            tempList.Add(tuple.Item1);
+        //    }
+        //    matchedUrls.Clear();
+        //    matchedUrls = tempList.ToList();
+        //    Count = matchedUrls.Count;
+        //    if (Count == 1)
+        //    {
+        //        SetNewUrl();
+        //        return true;
+        //    }
+        //    else return false;
+        //}
 
         ///// <summary>
         ///// Create two temporary lists.
@@ -272,42 +276,34 @@ namespace RedirectMachine
         //}
 
 
-        private bool AdvancedScanMatchedUrlsV3()
+        private bool AdvancedScanMatchedUrlsV3(List<Tuple<string, int, int>> tupleList)
         {
-            var tupleList = new List<Tuple<string, int, int>>();
-            int x = 1,
-                y = 1;
+            //var tupleList = new List<Tuple<string, int, int>>();
+            int a = 1,
+                b = 1;
             string temp = "";
-            foreach (var url in matchedUrls)
-            {
-                int z = 0;
-                string[] tempArray = url.Split(new Char[] { '-', '/' });
-                for (int i = 0; i < tempArray.Length; i++)
-                {
-                    if (obj.urlChunksV2.Contains(tempArray[i]))
-                        z++;
-                }
-                if (!tupleList.Exists(i => i.Item1 == url))
-                    tupleList.Add(new Tuple<string, int, int>(url, z, AdvancedScanUrlResourceDirV2(url)));
-            }
+            //foreach (var url in matchedUrls)
+            //{
+            //    if (!tupleList.Exists(i => i.Item1 == url))
+            //        tupleList.Add(new Tuple<string, int, int>(url, obj.ReturnFullUrlMatches(url), obj.ReturnResourceDirMatches(url)));
+            //}
 
             matchedUrls.Clear();
             foreach (var item in tupleList)
             {
-                matchedUrls.Add(item.Item1);
+                AddMatchedUrl(item.Item1);
             }
-            Count = matchedUrls.Count;
 
             foreach (var item in tupleList)
             {
-                if (item.Item2 < x && item.Item3 < y)
+                if (item.Item2 < a && item.Item3 < b)
                     RemoveFromMatchedUrls(item.Item1);
                 else
                 {
                     RemoveFromMatchedUrls(temp);
                     temp = item.Item1;
-                    x = item.Item2;
-                    y = item.Item3;
+                    a = item.Item2;
+                    b = item.Item3;
                 }
             }
             return (matchedUrls.Count == 1) ? SetNewUrl() : false;
