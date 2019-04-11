@@ -289,6 +289,7 @@ namespace RedirectMachine
             //}
 
             matchedUrls.Clear();
+            Count = 0;
             foreach (var item in tupleList)
             {
                 AddMatchedUrl(item.Item1);

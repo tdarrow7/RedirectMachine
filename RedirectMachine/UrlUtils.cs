@@ -331,7 +331,7 @@ namespace RedirectMachine
                 if (chunks.Contains(chunk))
                     j++;
             }
-            return j;
+            return j * 2;
         }
 
         internal int ReturnFullUrlMatches(string url)
