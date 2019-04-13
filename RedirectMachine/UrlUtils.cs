@@ -12,8 +12,8 @@ namespace RedirectMachine
         private bool endsWithSlash = false;
         private bool startsWithSlash = false;
         public string[] urlHeaderMap = new string[2];
-        private string[] urlChunks;
-        internal HashSet<string> urlChunksV2 = new HashSet<string>();
+        private string[] urlResourceChunks;
+        internal string[] urlAllChunks;
 
         public string OriginalUrl { get; set; }
         public string UrlHead
@@ -52,11 +52,27 @@ namespace RedirectMachine
             UrlTail = OriginalUrl;
             UrlHead = OriginalUrl;
             SanitizedUrl = OriginalUrl;
-            urlChunks = UrlTail.Split('-');
-            CreateUrlChunksV2();
+            urlResourceChunks = SplitUrlChunks(UrlTail);
+            urlAllChunks = SplitUrlChunks(SanitizedUrl);
         }
 
-        
+        internal string[] SplitUrlChunks(string url)
+        {
+            List<string> tempList = url.Split(new Char[] { '-', '/' }).ToList();
+            tempList.RemoveAll(i => i == "");
+            return tempList.ToArray();
+        }
+
+        internal string[] ReturnUrlTailChunks()
+        {
+            return urlResourceChunks;
+        }
+
+        internal string[] ReturnAllUrlChunks()
+        {
+            return urlAllChunks;
+        }
+
 
         /// <summary>
         /// Check to see if the original url contains query strings
@@ -248,8 +264,10 @@ namespace RedirectMachine
         /// <returns></returns>
         public string CheckUrlTail(string url)
         {
-            if (url.Contains("?"))
-                url = GetSubString(url, "?", false);
+            //if (url.Contains("?"))
+                //url = GetSubString(url, "?", false);
+            if (url.EndsWith("-/"))
+                url = GetSubString(url, "-/", false);
             if (url.Contains("."))
                 return url;
             return (!url.EndsWith("/") ? url + "/" : url);
@@ -261,10 +279,10 @@ namespace RedirectMachine
         /// <param name="index"></param>
         public string BuildChunk(int index)
         {
-            string temp = urlChunks[0];
+            string temp = urlResourceChunks[0];
             for (int i = 1; i < index; i++)
             {
-                temp = temp + "-" + urlChunks[i];
+                temp = temp + "-" + urlResourceChunks[i];
             }
             return temp;
         }
@@ -275,7 +293,7 @@ namespace RedirectMachine
         /// <param name="index"></param>
         public string GetChunk(int index)
         {
-            return urlChunks[index];
+            return urlResourceChunks[index];
         }
 
         /// <summary>
@@ -284,12 +302,12 @@ namespace RedirectMachine
         /// <param name="index"></param>
         public int GetChunkLength()
         {
-            return urlChunks.Length;
+            return urlResourceChunks.Length;
         }
 
         internal bool IsChunkFoundInResource(string chunk)
         {
-            return urlChunksV2.Contains(chunk);
+            return urlAllChunks.Contains(chunk);
         }
 
         /// <summary>
@@ -304,41 +322,90 @@ namespace RedirectMachine
             UrlHead = urlHeaderMap[1];
         }
 
+        /// <summary>
+        /// split SanitizedUrl into chunks of substrings, dividing by both '-' and '/'
+        /// add chunks to a searchable HashSet
+        /// </summary>
         private void CreateUrlChunksV2()
         {
-            urlChunksV2 = SanitizedUrl.Split(new Char[] { '-', '/' }).ToHashSet();
+            //urlAllChunks = SanitizedUrl.Split(new Char[] { '-', '/' }).ToHashSet();
         }
 
-        internal string[] ReturnResourceDirChunks(string url)
+        /// <summary>
+        /// return a list of substrings from resource directory, dividing by both '-' and '/'
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        internal List<string> ReturnResourceDirChunks(string url)
         {
             string temp = BasicTruncateString(url);
-            string[] chunks = temp.Split(new Char[] { '-', '/' }).ToArray();
+            List<string> chunks = temp.Split(new Char[] { '-', '/' }).ToList();
+            chunks.RemoveAll(i => i == "");
             return chunks;
         }
 
-        internal string[] ReturnAllChunksInUrl(string url)
+        /// <summary>
+        /// return a list of substrings from full url, dividing by both '-' and '/'
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        internal List<string> ReturnAllChunksInUrl(string url)
         {
-            string[] chunks = url.Split(new Char[] { '-', '/' }).ToArray();
+            List<string> chunks = url.Split(new Char[] { '-', '/' }).ToList();
             return chunks;
         }
 
-        internal int ReturnResourceDirMatches(string url)
-        {
-            int j = 0;
-            List<string> chunks = ReturnResourceDirChunks(url).ToList();
-            foreach (var chunk in urlChunks)
-            {
-                if (chunks.Contains(chunk))
-                    j++;
-            }
-            return j * 2;
-        }
+        /// <summary>
+        /// return the number of matches 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        //internal int ReturnResourceDirMatches(string url)
+        //{
+        //    int j = 0;
+        //    List<string> chunks = ReturnResourceDirChunks(url).ToList();
+        //    foreach (var chunk in urlTailChunks)
+        //    {
+        //        if (chunks.Contains(chunk))
+        //            j++;
+        //    }
+        //    return j * 2;
+        //}
 
-        internal int ReturnFullUrlMatches(string url)
+        /// <summary>
+        /// return the number of matches 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        //internal int ReturnResourceDirMatches(string url, string[] tChunks)
+        //{
+        //    int j = 0;
+        //    List<string> chunks = ReturnResourceDirChunks(url).ToList();
+        //    foreach (var chunk in tChunks)
+        //    {
+        //        if (chunks.Contains(chunk))
+        //            j++;
+        //    }
+        //    return j * 2;
+        //}
+
+        //internal int ReturnFullUrlMatches(string url)
+        //{
+        //    int j = 0;
+        //    List<string> chunks = ReturnAllChunksInUrl(url).ToList();
+        //    foreach (var chunk in urlAllChunks)
+        //    {
+        //        if (chunks.Contains(chunk))
+        //            j++;
+        //    }
+        //    return j;
+        //}
+
+        internal int ReturnUrlMatches(string url, string[] chunks)
         {
             int j = 0;
-            List<string> chunks = ReturnAllChunksInUrl(url).ToList();
-            foreach (var chunk in urlChunksV2)
+
+            foreach (var chunk in chunks)
             {
                 if (chunks.Contains(chunk))
                     j++;
