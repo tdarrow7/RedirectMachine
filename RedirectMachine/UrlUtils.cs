@@ -81,6 +81,10 @@ namespace RedirectMachine
             return urlResourceChunks;
         }
 
+        /// <summary>
+        /// Return the length of the urlResourceChunks[] array
+        /// </summary>
+        /// <returns></returns>
         internal int ReturnUrlResourceChunkLength() {
             return urlResourceChunks.Length;
         }
@@ -287,8 +291,6 @@ namespace RedirectMachine
         /// <returns></returns>
         public string CheckUrlTail(string url)
         {
-            //if (url.Contains("?"))
-                //url = GetSubString(url, "?", false);
             if (url.EndsWith("-/"))
                 url = GetSubString(url, "-/", false);
             if (url.Contains("."))

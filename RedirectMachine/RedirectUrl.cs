@@ -11,13 +11,9 @@ namespace RedirectMachine
         internal UrlUtils urlUtil;
         public bool Score { get; set; } = false;
         public int Count { get; set; } = 0;
-        private int totalResourceChunkMatches;
-        private int totalUrlChunkMatches;
-
 
         public RedirectUrl()
         {
-            // default contstructor
         }
 
 
@@ -29,8 +25,6 @@ namespace RedirectMachine
         public RedirectUrl(string originalUrl, string[,] urlHeaderMaps)
         {
             urlUtil = new UrlUtils(originalUrl);
-            totalResourceChunkMatches = (urlUtil.IsResourceFile) ? 2 : 1;
-            totalUrlChunkMatches = (urlUtil.IsResourceFile) ? 2 : 1;
             matchedUrls = new List<string>();
             CheckUrlHeaderMaps(urlUtil, urlHeaderMaps);
         }
@@ -203,6 +197,16 @@ namespace RedirectMachine
             return (Count == 1) ? SetNewUrl() : false;
         }
 
+
+        /// <summary>
+        /// reset matchedUrls list to zero
+        /// scan each url in the list of urls passed into the function
+        /// Truncate the url and return the resource directory and assign that string to string temp
+        /// if first chunk in the resource directory of the original url in question is contained in temp and the url passes the CheckParentAndResourceDirs() audit, add as a potential matched url
+        /// return the ScanMatchedUrlsByChunk bool
+        /// </summary>
+        /// <param name="newUrlSiteMap"></param>
+        /// <returns></returns>
         internal bool UrlChunkFinder(List<string> newUrlSiteMap)
         {
             resetMatchedUrls();
@@ -224,6 +228,7 @@ namespace RedirectMachine
         /// if Count == 0, obviously no matching url wasn't found. Return false
         /// if Count == 1, a single match has been found. Return true
         /// if Count > 1, run the for loop again to build a new substring of originalUrl
+        /// once the entire resource dir has been built from the chunks and there are still more than one matched url, run the passive list through the AdvancedUrlFinder and return its result
         /// </summary>
         private bool ScanMatchedUrlsByChunk()
         {
@@ -251,6 +256,14 @@ namespace RedirectMachine
             return AdvancedUrlFinder(passiveList);
         }
 
+        /// <summary>
+        /// if at least one more larger substring can be built from the chunks of the original url, build that substring
+        ///     check if that substring is contained in the last remaining matched url in the list
+        ///     if contained, return true. Else, return false
+        /// else, by default return true
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         private bool CheckFinalUrlChunk(int i)
         {
             if (i < urlUtil.GetChunkLength())
