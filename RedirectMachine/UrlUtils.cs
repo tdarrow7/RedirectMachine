@@ -66,7 +66,9 @@ namespace RedirectMachine
         internal string[] SplitUrlChunks(string url)
         {
             List<string> tempList = url.Split(new Char[] { '-', '/' }).ToList();
-            //tempList.RemoveAll(i => i == "");
+            tempList.RemoveAll(i => i == "");
+            if (!tempList.Any())
+                tempList.Add("");
             return tempList.ToArray();
         }
 
@@ -77,6 +79,10 @@ namespace RedirectMachine
         internal string[] ReturnUrlResourceChunks()
         {
             return urlResourceChunks;
+        }
+
+        internal int ReturnUrlResourceChunkLength() {
+            return urlResourceChunks.Length;
         }
 
         /// <summary>
@@ -202,6 +208,8 @@ namespace RedirectMachine
             if (value.EndsWith("-/"))
                 value = GetSubString(value, "-/", false);
             if (value.EndsWith("-"))
+                value = GetSubString(value, "-", false);
+            if (value.EndsWith("#"))
                 value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
             value = Regex.Replace(value, "---", "-");

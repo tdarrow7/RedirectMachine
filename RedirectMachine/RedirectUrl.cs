@@ -57,7 +57,7 @@ namespace RedirectMachine
         /// return the results of BasicScanMatchedUrls()
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool BasicUrlFinder(HashSet<string> newUrlSiteMap)
+        internal bool BasicUrlFinder(List<string> newUrlSiteMap)
         {
             foreach (var url in newUrlSiteMap)
             {
@@ -117,7 +117,7 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool AdvancedUrlFinder(HashSet<string> newUrlSiteMap)
+        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
         {
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
@@ -150,7 +150,7 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool ReversedAdvancedUrlFinder(HashSet<string> newUrlSiteMap)
+        internal bool ReverseAdvancedUrlFinder(List<string> newUrlSiteMap)
         {
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
@@ -201,6 +201,64 @@ namespace RedirectMachine
                     AddMatchedUrl(item.Item1);
             }
             return (Count == 1) ? SetNewUrl() : false;
+        }
+
+        internal bool UrlChunkFinder(List<string> newUrlSiteMap)
+        {
+            resetMatchedUrls();
+            foreach (var url in newUrlSiteMap)
+            {
+                string temp = urlUtil.BasicTruncateString(url);
+                string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
+
+                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
+                    AddMatchedUrl(url);
+            }
+            return ScanMatchedUrlsByChunk();
+        }
+
+        /// <summary>
+        /// Create two temporary lists.
+        /// build string temp out of chunks from original url. for every iteration of the for loop, add a new chunk to the end of the url
+        /// check if chunk is contained in each of the new urls. If it is, keep. If not, remove from passive list and run RemoveFromMatchedUrls method
+        /// if Count == 0, obviously no matching url wasn't found. Return false
+        /// if Count == 1, a single match has been found. Return true
+        /// if Count > 1, run the for loop again to build a new substring of originalUrl
+        /// </summary>
+        private bool ScanMatchedUrlsByChunk()
+        {
+            List<string> activeList = new List<string>();
+            List<string> passiveList = matchedUrls.ToList();
+
+            for (int i = 0; i < urlUtil.ReturnUrlResourceChunkLength(); i++)
+            {
+                activeList.Clear();
+                activeList = passiveList.ToList();
+                string temp = urlUtil.BuildChunk(i);
+                foreach (var url in activeList)
+                {
+                    if (!url.Contains(temp))
+                    {
+                        passiveList.Remove(url);
+                        RemoveFromMatchedUrls(url);
+                    }
+                }
+                if (Count == 0)
+                    return false;
+                if (Count == 1)
+                    return CheckFinalUrlChunk(i);
+            }
+            return AdvancedUrlFinder(passiveList);
+        }
+
+        private bool CheckFinalUrlChunk(int i)
+        {
+            if (i < urlUtil.GetChunkLength())
+            {
+                string temp = urlUtil.BuildChunk(i + 1);
+                return (matchedUrls.First().Contains(temp)) ? SetNewUrl() : false;
+            }
+            else return true;
         }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace RedirectMachine
         // declare all universally needed variables
         public List<CatchAllObject> catchalls = new List<CatchAllObject>();
         //public static List<string> newUrlSiteMap = new List<string>();
-        public static HashSet<string> newUrlSiteMap = new HashSet<string>();
+        public static List<string> newUrlSiteMap = new List<string>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
         public static CatchAllObject catchAllCSV = new CatchAllObject();
         List<string> lostList = new List<string>();
@@ -46,6 +46,12 @@ namespace RedirectMachine
 
         /// <summary>
         /// Start the finder program
+        /// Initialize stopwatch.
+        /// Import both the old urls and new urls into lists
+        /// compare the new urls to the old urs using FindUrlMatches
+        /// Export all found catchalls to a CSV file
+        /// Export the lost url list and found url list to their respective CSVs
+        /// Stop and display the recorded time on the stopwatch.
         /// </summary>
         internal void Run()
         {
@@ -59,7 +65,6 @@ namespace RedirectMachine
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
             ExportNewCSVs();
             Console.WriteLine("end of exports");
-            // stop stopwatch and record elapsed time
             stopwatch.Stop();
             TimeSpan ts = stopwatch.Elapsed;
             string elapsedTime = string.Format("{0:00}:{1:00}:{2:00}{3:00}",
@@ -103,21 +108,21 @@ namespace RedirectMachine
 
         /// <summary>
         /// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
+        ///     Try the BasicUrlFinder() method
+        ///     Try the AdvancedUrlFinder() method
+        ///     Try the ReverseAdvancedUrlFinder() method
+        ///     Try the UrlChunkFinder() method
+        ///     If a match still wasn't found, add to catchalls
         /// </summary>
         /// <param name="oldList"></param>
         /// <param name="newList"></param>
         public void FindUrlMatches()
         {
-            foreach (var obj in redirectUrls)
+            foreach (var oldUrl in redirectUrls)
             {
-                if (!obj.BasicUrlFinder(newUrlSiteMap))
-                {
-                    if (!obj.AdvancedUrlFinder(newUrlSiteMap))
-                    {
-                        if (!obj.ReversedAdvancedUrlFinder(newUrlSiteMap))
-                            catchAllCSV.CheckNewCatchAlls(obj.GetSanitizedUrl());
-                    }
-                }
+                if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) {}
+                else
+                    catchAllCSV.CheckNewCatchAlls(oldUrl.GetSanitizedUrl());
             }
         }
 
