@@ -27,7 +27,7 @@ namespace RedirectMachine
             //{ "/providers/results/?termId=", "/our-doctors/" },
             //{ "/search-for-pages/results/?searchId", "/site-search/" },
             //{ "/services/?c=", "/our-services/" },
-            //{ "/app/files/", "/" }
+            { "/about-us/news-publications/news/2013/", "/blog/" }
         };
 
         Dictionary<string, int> catchAllList;
