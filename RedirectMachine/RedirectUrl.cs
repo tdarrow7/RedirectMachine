@@ -11,6 +11,7 @@ namespace RedirectMachine
         internal UrlUtils urlUtil;
         public bool Score { get; set; } = false;
         public int Count { get; set; } = 0;
+        public string Flag { get; set; } = "no match";
 
         public RedirectUrl()
         {
@@ -49,10 +50,12 @@ namespace RedirectMachine
         /// <summary>
         /// scan every url in newUrlSiteMap list. if the resource directory of the url contains the object's UrlTail, add it to matched urls
         /// return the results of BasicScanMatchedUrls()
+        /// set the flag to a value of 1
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
         internal bool BasicUrlFinder(List<string> newUrlSiteMap)
         {
+            SetFlag(1);
             foreach (var url in newUrlSiteMap)
             {
                 string temp = urlUtil.BasicTruncateString(url);
@@ -113,6 +116,7 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
         {
+            SetFlag(2);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
@@ -146,6 +150,7 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool ReverseAdvancedUrlFinder(List<string> newUrlSiteMap)
         {
+            SetFlag(3);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
@@ -209,6 +214,7 @@ namespace RedirectMachine
         /// <returns></returns>
         internal bool UrlChunkFinder(List<string> newUrlSiteMap)
         {
+            SetFlag(4);
             resetMatchedUrls();
             foreach (var url in newUrlSiteMap)
             {
@@ -363,6 +369,13 @@ namespace RedirectMachine
             matchedUrls.Add(link);
             int i = Count + 1;
             Count = i;
+        }
+
+        private void SetFlag(int i)
+        {
+            string[] flags = { "Great Match", "Good Match", "Decent Match", "Please Check Me" };
+            if (Flag != "Please Check Me")
+                Flag = flags[i];
         }
     }
 }

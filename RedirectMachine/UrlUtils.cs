@@ -360,7 +360,7 @@ namespace RedirectMachine
             foreach (var chunk in chunks)
             {
                 if (url.Contains(chunk))
-                    j++;
+                    j = j + (chunk.Length > 0 ? chunk.Length - 1 : 0);
             }
             return j;
         }
