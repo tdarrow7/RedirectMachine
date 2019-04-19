@@ -15,6 +15,9 @@ namespace RedirectMachine
         private string[] urlResourceChunks;
         internal string[] urlAllChunks;
 
+        internal Tuple<string, int> urlResourceChunksV2;
+        internal Tuple<string, int> urlAllChunksV2;
+
         public string OriginalUrl { get; set; }
         public string UrlParentDir
         {
@@ -364,5 +367,35 @@ namespace RedirectMachine
             }
             return j;
         }
+
+        ///// <summary>
+        ///// split url into a temporary list
+        ///// eliminate blank entries from that list
+        ///// return the list as an array
+        ///// </summary>
+        ///// <param name="url"></param>
+        ///// <returns></returns>
+        //internal string[] SplitUrlChunksV2(string url)
+        //{
+        //    int j = 0;
+        //    string temp = BasicTruncateString(url);
+
+        //    string[] urlArray = url.Split(new Char[] { '-', '/' }).ToArray();
+        //    urlArray = new HashSet<string>(urlArray).ToArray();
+
+        //    string[] tempArray = temp.Split(new Char[] { '-', '/' }).ToArray();
+        //    tempArray = new HashSet<string>(tempArray).ToArray();
+
+
+
+            //List<string> urlList = url.Split(new Char[] { '-', '/' }).ToList();
+            //urlList.RemoveAll(i => i == "");
+
+            //if (!urlList.Any())
+            //    urlList.Add("");
+            //return urlList.ToArray();
+        //}
+
+
     }
 }

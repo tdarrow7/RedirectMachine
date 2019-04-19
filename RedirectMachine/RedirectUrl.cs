@@ -125,7 +125,8 @@ namespace RedirectMachine
                 string[] allOriginalUrlChunks = urlUtil.ReturnAllUrlChunks();
                 string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
 
-                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
+                //if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
+                if (UrlMatchAnyChunks(temp, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url))
                         tupleList.Add(new Tuple<string, int, int>(url, this.urlUtil.ReturnUrlMatches(url, allOriginalUrlChunks), this.urlUtil.ReturnUrlMatches(url, originalUrlResourceChunks) * 2));
@@ -159,13 +160,24 @@ namespace RedirectMachine
                 string[] allNewUrlChunks = urlUtil.SplitUrlChunks(url);
                 string[] newUrlResourceChunks = urlUtil.SplitUrlChunks(urlUtil.BasicTruncateString(url));
 
-                if (temp.Contains(newUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
+                //if (temp.Contains(newUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
+                if (UrlMatchAnyChunks(temp, newUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url))
                         tupleList.Add(new Tuple<string, int, int>(url, urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, allNewUrlChunks), urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, newUrlResourceChunks) * 2));
                 }
             }
             return AdvancedScanMatchedUrls(tupleList);
+        }
+
+        private bool UrlMatchAnyChunks(string url, string[] chunks)
+        {
+            foreach (var chunk in chunks)
+            {
+                if (url.Contains(chunk))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
