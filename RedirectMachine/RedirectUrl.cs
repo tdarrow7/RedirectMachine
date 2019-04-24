@@ -53,14 +53,14 @@ namespace RedirectMachine
         /// set the flag to a value of 1
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool BasicUrlFinder(List<string> newUrlSiteMap)
+        internal bool BasicUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(1);
             foreach (var url in newUrlSiteMap)
             {
-                string temp = urlUtil.BasicTruncateString(url);
-                if (temp.Contains(urlUtil.UrlResourceDir) && CheckParentAndResourceDirs(urlUtil, url))
-                    AddMatchedUrl(url);
+                string resource = url.Item2;
+                if (resource.Contains(urlUtil.UrlResourceDir) && CheckParentAndResourceDirs(urlUtil, url.Item1))
+                    AddMatchedUrl(url.Item1);
             }
             return BasicScanMatchedUrls();
         }
@@ -114,22 +114,23 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool AdvancedUrlFinder(List<string> newUrlSiteMap)
+        internal bool AdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(2);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
             {
-                string temp = urlUtil.BasicTruncateString(url);
+                string resource = url.Item2;
+                //string temp = urlUtil.BasicTruncateString(url);
                 string[] allOriginalUrlChunks = urlUtil.ReturnAllUrlChunks();
                 string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
 
                 //if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
-                if (UrlMatchAnyChunks(temp, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url))
+                if (UrlMatchAnyChunks(url.Item2, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
                 {
-                    if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url))
-                        tupleList.Add(new Tuple<string, int, int>(url, this.urlUtil.ReturnUrlMatches(url, allOriginalUrlChunks), this.urlUtil.ReturnUrlMatches(url, originalUrlResourceChunks) * 2));
+                    if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
+                        tupleList.Add(new Tuple<string, int, int>(url.Item1, urlUtil.ReturnUrlMatches(url.Item1, allOriginalUrlChunks), urlUtil.ReturnUrlMatches(url.Item2, originalUrlResourceChunks) * 2));
                 }
             }
             return AdvancedScanMatchedUrls(tupleList);
@@ -149,22 +150,22 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool ReverseAdvancedUrlFinder(List<string> newUrlSiteMap)
+        internal bool ReverseAdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(3);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
             {
-                string temp = urlUtil.UrlResourceDir;
-                string[] allNewUrlChunks = urlUtil.SplitUrlChunks(url);
-                string[] newUrlResourceChunks = urlUtil.SplitUrlChunks(urlUtil.BasicTruncateString(url));
+                string resource = urlUtil.UrlResourceDir;
+                string[] allNewUrlChunks = urlUtil.SplitUrlChunks(url.Item1);
+                string[] newUrlResourceChunks = urlUtil.SplitUrlChunks(url.Item2);
 
                 //if (temp.Contains(newUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
-                if (UrlMatchAnyChunks(temp, newUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url))
+                if (UrlMatchAnyChunks(resource, newUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
                 {
-                    if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url))
-                        tupleList.Add(new Tuple<string, int, int>(url, urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, allNewUrlChunks), urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, newUrlResourceChunks) * 2));
+                    if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
+                        tupleList.Add(new Tuple<string, int, int>(url.Item1, urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, allNewUrlChunks), urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, newUrlResourceChunks) * 2));
                 }
             }
             return AdvancedScanMatchedUrls(tupleList);
@@ -224,19 +225,21 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
         /// <returns></returns>
-        internal bool UrlChunkFinder(List<string> newUrlSiteMap)
+        internal bool UrlChunkFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(4);
             resetMatchedUrls();
+            List<Tuple<string, string>> possibleMatchList = new List<Tuple<string, string>>();
             foreach (var url in newUrlSiteMap)
             {
-                string temp = urlUtil.BasicTruncateString(url);
+                string temp = url.Item2;
                 string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
 
-                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
-                    AddMatchedUrl(url);
+                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url.Item1))
+                    possibleMatchList.Add(new Tuple<string, string>(url.Item1, url.Item2));
+                    //AddMatchedUrl(url.Item1);
             }
-            return ScanMatchedUrlsByChunk();
+            return ScanMatchedUrlsByChunk(possibleMatchList);
         }
 
         /// <summary>
@@ -248,21 +251,26 @@ namespace RedirectMachine
         /// if Count > 1, run the for loop again to build a new substring of originalUrl
         /// once the entire resource dir has been built from the chunks and there are still more than one matched url, run the passive list through the AdvancedUrlFinder and return its result
         /// </summary>
-        private bool ScanMatchedUrlsByChunk()
+        private bool ScanMatchedUrlsByChunk(List<Tuple<string, string>> possibleMatchList)
         {
             List<string> activeList = new List<string>();
-            List<string> passiveList = matchedUrls.ToList();
+            //List<string> passiveList = matchedUrls.ToList();
 
             for (int i = 0; i < urlUtil.ReturnUrlResourceChunkLength(); i++)
             {
                 activeList.Clear();
-                activeList = passiveList.ToList();
+                foreach (var tuple in possibleMatchList)
+                {
+                    activeList.Add(tuple.Item1);
+                    AddMatchedUrl(tuple.Item1);
+                }
+                //activeList = possibleMatchList.ToList();
                 string temp = urlUtil.BuildChunk(i);
                 foreach (var url in activeList)
                 {
                     if (!url.Contains(temp))
                     {
-                        passiveList.Remove(url);
+                        possibleMatchList.RemoveAll(item => item.Item1 == url);
                         RemoveFromMatchedUrls(url);
                     }
                 }
@@ -271,7 +279,7 @@ namespace RedirectMachine
                 if (Count == 1)
                     return CheckFinalUrlChunk(i);
             }
-            return AdvancedUrlFinder(passiveList);
+            return AdvancedUrlFinder(possibleMatchList);
         }
 
         /// <summary>

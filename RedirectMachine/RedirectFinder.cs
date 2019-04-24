@@ -11,7 +11,7 @@ namespace RedirectMachine
         // declare all universally needed variables
         public List<CatchAllObject> catchalls = new List<CatchAllObject>();
         //public static List<string> newUrlSiteMap = new List<string>();
-        public static List<string> newUrlSiteMap = new List<string>();
+        public static List<Tuple<string, string>> newUrlSiteMap = new List<Tuple<string, string>>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
         //public static RedirectUrl[] redirectUrls;
         public static CatchAllObject catchAllCSV = new CatchAllObject();
@@ -63,7 +63,8 @@ namespace RedirectMachine
 
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
-            FindUrlMatches();
+            //FindUrlMatches();
+            StartThreads();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
             ExportNewCSVs();
             Console.WriteLine("end of exports");
@@ -85,7 +86,9 @@ namespace RedirectMachine
             {
                 while (!reader.EndOfStream)
                 {
-                    newUrlSiteMap.Add(reader.ReadLine().ToLower());
+                    string[] tempArray = reader.ReadLine().ToLower().Split(",");
+                    newUrlSiteMap.Add(new Tuple<string, string>(tempArray[0], "/" + tempArray[1] + "/"));
+                    //newUrlSiteMap.Add(reader.ReadLine().ToLower());
                 }
             }
         }
@@ -108,6 +111,29 @@ namespace RedirectMachine
         }
 
 
+        ///// <summary>
+        ///// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
+        /////     Try the BasicUrlFinder() method
+        /////     Try the AdvancedUrlFinder() method
+        /////     Try the ReverseAdvancedUrlFinder() method
+        /////     Try the UrlChunkFinder() method
+        /////     If a match still wasn't found, add to catchalls
+        ///// </summary>
+        ///// <param name="oldList"></param>
+        ///// <param name="newList"></param>
+        //public void FindUrlMatches(RedirectUrl[] chunkOfRedirects)
+        //{
+        //    foreach (var oldUrl in chunkOfRedirects)
+        //    {
+        //        if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) { }
+        //        else
+        //        {
+        //            oldUrl.Flag = "no match";
+        //            catchAllCSV.CheckNewCatchAlls(oldUrl.GetSanitizedUrl());
+        //        }
+        //    }
+        //}
+
         /// <summary>
         /// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
         ///     Try the BasicUrlFinder() method
@@ -118,9 +144,9 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="oldList"></param>
         /// <param name="newList"></param>
-        public void FindUrlMatches(RedirectUrl[] chunkOfRedirects)
+        public void FindUrlMatches()
         {
-            foreach (var oldUrl in chunkOfRedirects)
+            foreach (var oldUrl in redirectUrls)
             {
                 if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) { }
                 else
@@ -130,50 +156,53 @@ namespace RedirectMachine
                 }
             }
         }
-
-        /// <summary>
-        /// check every item in List<RedirectUrl> redirectUrls and compare with items in List<> newUrlSiteMap.
-        ///     Try the BasicUrlFinder() method
-        ///     Try the AdvancedUrlFinder() method
-        ///     Try the ReverseAdvancedUrlFinder() method
-        ///     Try the UrlChunkFinder() method
-        ///     If a match still wasn't found, add to catchalls
-        /// </summary>
-        /// <param name="oldList"></param>
-        /// <param name="newList"></param>
+         
         public void StartThreads()
         {
             RedirectUrl[] tempRedirectArray = redirectUrls.ToArray();
-            int i = tempRedirectArray.Length / 6,
+            int i = tempRedirectArray.Length / 1000,
                 j = 1;
-                RedirectUrl[] chunkOfRedirects1 = CopyFromArray(tempRedirectArray, i, i * j);
-                Thread t1 = new Thread(FindUrlMatches(chunkOfRedirects1)).Start();
-
-            
-
-            foreach (var oldUrl in redirectUrls)
+            //RedirectUrl[] chunkOfRedirects1 = CopyFromArray(tempRedirectArray, i, i * j);
+            Thread[] threads = new Thread[i];
+            for (int k = 0; k < threads.Length; k++)
             {
-                if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) {}
-                else
-                {
-                    oldUrl.Flag = "no match";
-                    catchAllCSV.CheckNewCatchAlls(oldUrl.GetSanitizedUrl());
-                }
+                string dog = "dog" + k;
+                threads[k] = new Thread(() => this.k(dog));
             }
+            for (int k = 0; k < threads.Length; k++)
+            {
+                threads[k].Start();
+            }
+
         }
 
-        internal T[] CopyFromArray<T>(T[] tempRedirectArray, int index, int length)
-        {
-            T[] result = new T[length];
-            Array.Copy(tempRedirectArray, index, result, index, length);
-            return result;
-        }
+            //Thread t1 = new Thread(FindUrlMatches(chunkOfRedirects1)).Start();
 
-        /// <summary>
-        /// Scan all objects in redirectUrls list and put them in either the foundList or lostList, depending on their score
-        /// Send both temporary lists to buildCSV method to print both found and lost lists
-        /// </summary>
-        internal void ExportNewCSVs()
+
+
+            //    foreach (var oldUrl in redirectUrls)
+            //    {
+            //        if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) {}
+            //        else
+            //        {
+            //            oldUrl.Flag = "no match";
+            //            catchAllCSV.CheckNewCatchAlls(oldUrl.GetSanitizedUrl());
+            //        }
+            //    }
+            //}
+
+            //internal T[] CopyFromArray<T>(T[] tempRedirectArray, int index, int length)
+            //{
+            //    T[] result = new T[length];
+            //    Array.Copy(tempRedirectArray, index, result, index, length);
+            //    return result;
+            //}
+
+            /// <summary>
+            /// Scan all objects in redirectUrls list and put them in either the foundList or lostList, depending on their score
+            /// Send both temporary lists to buildCSV method to print both found and lost lists
+            /// </summary>
+            internal void ExportNewCSVs()
         {
             List<string> foundList = new List<string>();
             List<string> lostList = new List<string>();
@@ -221,6 +250,15 @@ namespace RedirectMachine
                     tw.WriteLine(item);
                 }
             }
+        }
+
+        internal void k(string dog)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(dog);
+            }
+            
         }
     }
 }
