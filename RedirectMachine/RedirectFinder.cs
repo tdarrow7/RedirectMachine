@@ -16,6 +16,9 @@ namespace RedirectMachine
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
 
+        public int FoundCount = 0;
+        public int LostCount = 0;
+
         public static string[,] urlHeaderMaps = {
             { "https://www.google.com", "/googleness/" }
         };
@@ -58,11 +61,15 @@ namespace RedirectMachine
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.WriteLine("begin search: ");
+            string filename = @"..\..\OldSiteUrls.csv";
+            //Console.WriteLine(Path.GetDirectoryName(@"\"));
+
+            Console.WriteLine(System.IO.File.Exists(filename));
 
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
-            //FindUrlMatches(redirectUrls);
-            StartThreads();
+            FindUrlMatches(redirectUrls);
+            //StartThreads();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);
             ExportNewCSVs();
             Console.WriteLine("end of exports");
@@ -180,11 +187,17 @@ namespace RedirectMachine
             foreach (var obj in redirectUrls)
             {
                 if (obj.Score == true)
+                {
+                    FoundCount++;
                     foundList.Add($"{obj.GetOriginalUrl()},{obj.GetNewUrl()}, {obj.Flag}");
+                }
+                    
                 else
                 {
+                    LostCount++;
                     if (obj.matchedUrls.Count > 0)
                     {
+                        
                         string[] arrayOfMatches = obj.matchedUrls.ToArray();
                         for (int i = 0; i < arrayOfMatches.Length; i++)
                         {
@@ -198,10 +211,13 @@ namespace RedirectMachine
                         lostList.Add($"{obj.GetOriginalUrl()}");
                 }
             }
+
             ExportToCSV(foundList, foundUrlFile);
             ExportToCSV(lostList, lostUrlFile);
-            Console.WriteLine($"foundList: {foundList.Count}");
-            Console.WriteLine($"lostList: {lostList.Count}");
+            //Console.WriteLine($"foundList: {foundList.Count}");
+            //Console.WriteLine($"lostList: {lostList.Count}");
+            Console.WriteLine($"number of found urls: {FoundCount}");
+            Console.WriteLine($"number of lost urls: {LostCount}");
         }
 
         /// <summary>
@@ -220,4 +236,4 @@ namespace RedirectMachine
             }
         }
     }
-}
+} 

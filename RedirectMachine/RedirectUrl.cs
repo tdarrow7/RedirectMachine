@@ -55,7 +55,7 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool BasicUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
-            //SetFlag(1);
+            SetFlag(1);
             foreach (var url in newUrlSiteMap)
             {
                 string resource = url.Item2;
@@ -116,7 +116,7 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool AdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
-            //SetFlag(2);
+            SetFlag(2);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
@@ -152,7 +152,7 @@ namespace RedirectMachine
         /// <param name="newUrlSiteMap"></param>
         internal bool ReverseAdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
-            //SetFlag(3);
+            SetFlag(3);
             resetMatchedUrls();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
@@ -227,7 +227,7 @@ namespace RedirectMachine
         /// <returns></returns>
         internal bool UrlChunkFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
-            //SetFlag(4);
+            SetFlag(4);
             resetMatchedUrls();
             List<Tuple<string, string>> possibleMatchList = new List<Tuple<string, string>>();
             foreach (var url in newUrlSiteMap)

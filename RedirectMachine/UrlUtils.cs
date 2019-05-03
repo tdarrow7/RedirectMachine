@@ -15,10 +15,8 @@ namespace RedirectMachine
         private string[] urlResourceChunks;
         internal string[] urlAllChunks;
 
-        internal Tuple<string, int> urlResourceChunksV2;
-        internal Tuple<string, int> urlAllChunksV2;
-
         public string OriginalUrl { get; set; }
+
         public string UrlParentDir
         {
             get { return urlParentDir; }

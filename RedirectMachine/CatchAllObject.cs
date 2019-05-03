@@ -7,27 +7,29 @@ namespace RedirectMachine
 {
     internal class CatchAllObject
     {
-        private string[,] catchAllParams =  {
-            //{ "/events/details/", "/classes-events/" },
-            //{ "/events/event-results/", "/classes-events/" },
-            //{ "/events/search-results/", "/classes-events/" },
-            //{ "/events/smart-panel-overflow/", "/classes-events/" },
-            //{ "/lifestyle-health-classes-and-events/lifestyle-health-calendar-of-events/", "/classes-events/" },
-            //{ "/for-the-health-of-it/full-blog-listing/?searchId", "/blog/" },
-            //{ "/locations/location-clinics/clinic-profile/", "/locations/" },
-            //{ "/locations/results/", "/locations/" },
-            //{ "/locations/profile/?id=", "/locations/" },
-            //{ "/locations/monticello/enewsletter/", "/locations/centracare-monticello/" },
-            //{ "/location-tabs-test/", "/locations" },
-            //{ "/patients-visitors/cheer-cards/", "/ecards/" },
-            //{ "/about-us/news-publications/news/?searchId", "/blog/" },
-            //{ "/for-the-health-of-it/search-results/?searchId", "/blog/" },
-            //{ "/about-us/news-publications/news/?year", "/blog/" },
-            //{ "/providers/results/?searchId=", "/our-doctors/" },
-            //{ "/providers/results/?termId=", "/our-doctors/" },
-            //{ "/search-for-pages/results/?searchId", "/site-search/" },
-            //{ "/services/?c=", "/our-services/" },
-            { "/about-us/news-publications/news/2013/", "/blog/" }
+        internal string[,] catchAllParams =  {
+            { "http://www.ricehospital.com/event/", "/classes-events/" },
+            { "https://www.ricehospital.com/event/", "/classes-events/" },
+            { "http://www.ricehospital.com/events/", "/classes-events/" },
+            { "https://www.ricehospital.com/events/", "/classes-events/" },
+            { "http://redwoodareahospital.org/event/", "/classes-events/" },
+            { "https://redwoodareahospital.org/event/", "/classes-events/" },
+            { "http://redwoodareahospital.org/events/", "/classes-events/" },
+            { "https://redwoodareahospital.org/events/", "/classes-events/" },
+            { "https://www.ricehospital.com/wellness-resources/support-groups/", "/classes-events/" },
+            { "https://www.ricehospital.com/contact/", "/contact-us/" },
+            { "https://redwoodareahospital.org/category/", "/blog/" },
+            { "http://ricehospice.com/tag/", "/blog/" },
+            { "https://www.ricehospital.com/blog/author/", "/blog/" },
+            { "https://www.ricehospital.com/blog/category/", "/blog/" },
+            { "https://www.ricehospital.com/blog/tag/", "/blog/" },
+            { "http://discoveracmc.com/author/", "/blog/" },
+            { "http://discoveracmc.com/category/", "/blog/" },
+            { "http://discoveracmc.com/tag/", "/blog/" },
+            { "https://www.ricehospital.com/blog/nursery/", "/blog/" },
+            { "https://www.ricehospital.com/care-services/birth-suites/planning-for-baby/", "/services/birthing-services/carris-health-rice-memorial-hospital-birthing-services/" },
+            { "http://discoveracmc.com/wp-content/uploads/", "/" },
+            { "https://www.ricehospital.com/wp-content/", "/" }
         };
 
         Dictionary<string, int> catchAllList;
@@ -89,7 +91,16 @@ namespace RedirectMachine
                     if (keyValuePair.Value > 1)
                         tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value}");
                 }
+
+                for (int i = 0; i < catchAllParams.GetLength(0); i++)
+                {
+                    tw.WriteLine($"{catchAllParams[i, 0]}*, {catchAllParams[i, 1]}");
+                }
             }
         }
+
+        //internal string[] ExportCatchAllParams()
+        //{
+        //}
     }
 }
