@@ -9,10 +9,10 @@ namespace RedirectMachine
     internal class RedirectFinder
     {
         // declare all universally needed variables
-        public List<CatchAllObject> catchalls = new List<CatchAllObject>();
+        public List<CatchAllUtils> catchalls = new List<CatchAllUtils>();
         public static List<Tuple<string, string>> newUrlSiteMap = new List<Tuple<string, string>>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
-        public static CatchAllObject catchAllCSV = new CatchAllObject();
+        public static CatchAllUtils catchAllCSV = new CatchAllUtils();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
 
@@ -27,6 +27,7 @@ namespace RedirectMachine
         //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
         string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
         //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
         string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
         string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
         string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
@@ -68,6 +69,7 @@ namespace RedirectMachine
 
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
+            catchAllCSV.GenerateCatchAllParams(osCatchAllUrlFile);
             FindUrlMatches(redirectUrls);
             //StartThreads();
             catchAllCSV.ExportCatchAllsToCSV(catchAllFile);

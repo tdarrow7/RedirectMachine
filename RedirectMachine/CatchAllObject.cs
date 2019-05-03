@@ -5,41 +5,36 @@ using System.Linq;
 
 namespace RedirectMachine
 {
-    internal class CatchAllObject
+    internal class CatchAllUtils
     {
-        internal string[,] catchAllParams =  {
-            { "http://www.ricehospital.com/event/", "/classes-events/" },
-            { "https://www.ricehospital.com/event/", "/classes-events/" },
-            { "http://www.ricehospital.com/events/", "/classes-events/" },
-            { "https://www.ricehospital.com/events/", "/classes-events/" },
-            { "http://redwoodareahospital.org/event/", "/classes-events/" },
-            { "https://redwoodareahospital.org/event/", "/classes-events/" },
-            { "http://redwoodareahospital.org/events/", "/classes-events/" },
-            { "https://redwoodareahospital.org/events/", "/classes-events/" },
-            { "https://www.ricehospital.com/wellness-resources/support-groups/", "/classes-events/" },
-            { "https://www.ricehospital.com/contact/", "/contact-us/" },
-            { "https://redwoodareahospital.org/category/", "/blog/" },
-            { "http://ricehospice.com/tag/", "/blog/" },
-            { "https://www.ricehospital.com/blog/author/", "/blog/" },
-            { "https://www.ricehospital.com/blog/category/", "/blog/" },
-            { "https://www.ricehospital.com/blog/tag/", "/blog/" },
-            { "http://discoveracmc.com/author/", "/blog/" },
-            { "http://discoveracmc.com/category/", "/blog/" },
-            { "http://discoveracmc.com/tag/", "/blog/" },
-            { "https://www.ricehospital.com/blog/nursery/", "/blog/" },
-            { "https://www.ricehospital.com/care-services/birth-suites/planning-for-baby/", "/services/birthing-services/carris-health-rice-memorial-hospital-birthing-services/" },
-            { "http://discoveracmc.com/wp-content/uploads/", "/" },
-            { "https://www.ricehospital.com/wp-content/", "/" }
-        };
+        internal List<Tuple<string, string>> catchAllParams;
 
-        Dictionary<string, int> catchAllList;
+        Dictionary<string, CatchAllUrl> catchAllList;
 
         /// <summary>
         /// default working constructor
         /// </summary>
-        public CatchAllObject()
+        public CatchAllUtils()
         {
-            catchAllList = new Dictionary<string, int>();
+            catchAllList = new Dictionary<string, CatchAllUrl>();
+            catchAllParams = new List<Tuple<string, string>>();
+        }
+
+
+        /// <summary>
+        /// Create working list of all pararameters that need to be checked.
+        /// </summary>
+        /// <param name="urlFile"></param>
+        public void GenerateCatchAllParams(string urlFile)
+        {
+            using (var reader = new StreamReader(@"" + urlFile))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string[] tempArray = reader.ReadLine().ToLower().Split(",");
+                    catchAllParams.Add(new Tuple<string, string>(tempArray[0], tempArray[1]));
+                }
+            }
         }
 
         /// <summary>
@@ -47,17 +42,17 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        internal bool CheckCatchallParams(string url)
+        public bool CheckCatchallParams(string url)
         {
-            for (int i = 0; i < catchAllParams.GetLength(0); i++)
+            foreach (var tuple in catchAllParams)
             {
-                if (url.StartsWith(catchAllParams[i, 0].ToString().ToLower()))
+                if (url.StartsWith(tuple.Item1))
                     return true;
             }
             if (url.Contains("?"))
             {
-                var obj = new UrlUtils(url);
-                CheckNewCatchAlls(obj.SanitizedUrl);
+                string urlSub = url.Split("?")[0] + "?";
+                CheckNewCatchAlls(urlSub);
                 return true;
             }
             return false;
@@ -69,38 +64,36 @@ namespace RedirectMachine
         /// <param name="url"></param>
         internal void CheckNewCatchAlls(string url)
         {
-            if (!url.EndsWith("/"))
-                url = url + "/";
             if (!catchAllList.ContainsKey(url))
-                catchAllList.Add(url, 1);
+            {
+                catchAllList.Add(url, new CatchAllUrl(url));
+                if (url.EndsWith("?"))
+                    catchAllParams.Add(new Tuple<string, string>(url, "(needs to be determined)"));
+            }
             else
-                catchAllList[url] = catchAllList[url] + 1;
+                catchAllList[url].IncreaseCount();
         }
+
 
         /// <summary>
         /// Sort catchAllList and then export catchAllList to CSV to specified filepath
         /// </summary>
         /// <param name="filePath"></param>
-        internal void ExportCatchAllsToCSV(string filePath)
+        public void ExportCatchAllsToCSV(string filePath)
         {
             using (TextWriter tw = new StreamWriter(@"" + filePath))
             {
                 tw.WriteLine("Potential Probability,Number of times seen");
                 foreach (var keyValuePair in catchAllList)
                 {
-                    if (keyValuePair.Value > 1)
-                        tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value}");
+                    if (keyValuePair.Value.Count > 1)
+                        tw.WriteLine($"{keyValuePair.Key}*,{keyValuePair.Value.Count}");
                 }
-
-                for (int i = 0; i < catchAllParams.GetLength(0); i++)
+                foreach (var tuple in catchAllParams)
                 {
-                    tw.WriteLine($"{catchAllParams[i, 0]}*, {catchAllParams[i, 1]}");
+                    tw.WriteLine($"{tuple.Item1},{tuple.Item2}");
                 }
             }
         }
-
-        //internal string[] ExportCatchAllParams()
-        //{
-        //}
     }
 }
