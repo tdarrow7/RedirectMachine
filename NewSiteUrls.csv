@@ -1,3 +1,4 @@
+/,home
 /gift-shop/,gift-shop
 /about-us/,about-us
 /style-guide/,style-guide
@@ -48,7 +49,7 @@
 /doctors/search-results/,search-results
 /possible-pages-delete/blog-comments/,blog-comments
 /possible-pages-delete/refer-a-friend/,refer-a-friend
-/possible-pages-delete/test/,test
+/possible-pages-delete/complete-site-map/,complete-site-map
 /gift-shop/log-in/forgot-password/,forgot-password
 /gift-shop/log-in/reset-password/,reset-password
 /gift-shop/my-account/my-orders/,my-orders
@@ -2040,7 +2041,7 @@
 /doctors/allen-j-butkowski-aprn-crna/,allen-j-butkowski-aprn-crna
 /doctors/michael-k-butts-md/,michael-k-butts-md
 /doctors/shannon-r-cabrera-md/,shannon-r-cabrera-md
-/doctors/ellen-j-calvert-ms-lplicsw/,ellen-j-calvert-ms-lplicsw
+/doctors/ellen-j-calvert-lplicsw-ms/,ellen-j-calvert-lplicsw-ms
 /doctors/damon-m-campbell-md/,damon-m-campbell-md
 /doctors/rebecca-k-campbell-md/,rebecca-k-campbell-md
 /doctors/thomas-f-campbell-md/,thomas-f-campbell-md
@@ -3343,3 +3344,17 @@
 /about-us/news-publications/annual-reports/2018/,2018
 /careers/thank-you/,thank-you
 /locations/centracare-long-prairie/vitality-wellness/,vitality-wellness
+/possible-pages-delete/existing-redirects/,existing-redirects
+/services/neurosciences/pain-center/,pain-center
+/services/neurosciences/rehabilitation-services/,rehabilitation-services
+/services/cancer-care/oncology-rehabilitation-guide/,oncology-rehabilitation-guide
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/program-goals-and-objectives/,program-goals-and-objectives
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/requirements-for-dietetic-registration/,requirements-for-dietetic-registration
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/program-student-expenses/,program-student-expenses
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/admission-requirements/,admission-requirements
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/program-schedule/,program-schedule
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/computer-matching-pre-select/,computer-matching-pre-select
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/post-matching/,post-matching
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/student-handbook/,student-handbook
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/policies/,policies
+/careers/internships-and-nursing-programs/internships-observational-experiences/st-cloud-hospital-dietetic-internship-program/graduation/,graduation

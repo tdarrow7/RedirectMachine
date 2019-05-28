@@ -66,9 +66,9 @@ namespace RedirectMachine
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.WriteLine("begin search: ");
+            ImportExistingRedirects(existingRedirectsFile);
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
-            ImportExistingRedirects(existingRedirectsFile);
             catchAllUtilObject.GenerateCatchAllParams(osCatchAllUrlFile);
             FindUrlMatches(redirectUrls);
             //StartThreads();
@@ -151,11 +151,11 @@ namespace RedirectMachine
                 else
                 {
                     oldUrl.Flag = "no match";
-                    if (!oldUrl.GetOriginalUrl().Contains("."))
-                    {
-                        catchAllUtilObject.checkIfCatchAllIsCreated(oldUrl.GetOriginalUrl());
-                        catchAllUtilObject.CatchAllCount++;
-                    }
+                    //if (!oldUrl.GetOriginalUrl().Contains("."))
+                    //{
+                    //    catchAllUtilObject.checkIfCatchAllIsCreated(oldUrl.GetOriginalUrl());
+                    //    catchAllUtilObject.CatchAllCount++;
+                    //}
                         
                 }
             }
