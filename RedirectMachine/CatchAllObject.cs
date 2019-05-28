@@ -10,6 +10,7 @@ namespace RedirectMachine
         internal List<Tuple<string, string>> catchAllParams;
 
         Dictionary<string, CatchAllUrl> catchAllList;
+        internal int CatchAllCount = 0;
 
         /// <summary>
         /// default working constructor
@@ -33,6 +34,7 @@ namespace RedirectMachine
                 {
                     string[] tempArray = reader.ReadLine().ToLower().Split(",");
                     catchAllParams.Add(new Tuple<string, string>(tempArray[0], tempArray[1]));
+                    //Console.WriteLine($"{tempArray[0]}, {tempArray[1]}");
                 }
             }
         }
@@ -42,17 +44,23 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool CheckCatchallParams(string url)
+        public bool CheckExistingCatchallParams(string url)
         {
             foreach (var tuple in catchAllParams)
             {
                 if (url.StartsWith(tuple.Item1))
+                {
+                    CatchAllCount++;
                     return true;
+                }
+                    
             }
             if (url.Contains("?"))
             {
+                CatchAllCount++;
                 string urlSub = url.Split("?")[0] + "?";
-                CheckNewCatchAlls(urlSub);
+                catchAllParams.Add(new Tuple<string, string>(urlSub, "(needs to be determined)"));
+                checkIfCatchAllIsCreated(urlSub);
                 return true;
             }
             return false;
@@ -62,14 +70,10 @@ namespace RedirectMachine
         /// check to see if we already have the catchall
         /// </summary>
         /// <param name="url"></param>
-        internal void CheckNewCatchAlls(string url)
+        internal void checkIfCatchAllIsCreated(string url)
         {
             if (!catchAllList.ContainsKey(url))
-            {
                 catchAllList.Add(url, new CatchAllUrl(url));
-                if (url.EndsWith("?"))
-                    catchAllParams.Add(new Tuple<string, string>(url, "(needs to be determined)"));
-            }
             else
                 catchAllList[url].IncreaseCount();
         }
@@ -86,14 +90,16 @@ namespace RedirectMachine
                 tw.WriteLine("Potential Probability,Number of times seen");
                 foreach (var keyValuePair in catchAllList)
                 {
-                    if (keyValuePair.Value.Count > 1)
-                        tw.WriteLine($"{keyValuePair.Key}*,{keyValuePair.Value.Count}");
+                    //if (keyValuePair.Value.Count > 1)
+                        tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value.Count}");
                 }
                 foreach (var tuple in catchAllParams)
                 {
-                    tw.WriteLine($"{tuple.Item1},{tuple.Item2}");
+                    tw.WriteLine($"{tuple.Item1}*,{tuple.Item2}");
+                    //Console.WriteLine($"{tuple.Item1}*, {tuple.Item2}");
                 }
             }
+            Console.WriteLine($"Number of urls turned to catchalls: {CatchAllCount}");
         }
     }
 }

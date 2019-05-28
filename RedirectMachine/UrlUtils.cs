@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RedirectMachine
 {
     public class UrlUtils
     {
-        private string urlParentDir, urlResourceDir, sanitizedUrl;
-        private bool endsWithSlash = false;
+        private string urlParentDir, urlResourceDir, sanitizedUrl, originalUrl;
         private bool startsWithSlash = false;
         public string[] urlHeaderMap = new string[2];
-        private string[] urlResourceChunks;
+        internal string[] urlResourceChunks;
         internal string[] urlAllChunks;
 
-        public string OriginalUrl { get; set; }
+        //public string OriginalUrl { get; set; }
+        public string OriginalUrl
+        {
+            get { return originalUrl; }
+            set
+            {
+                originalUrl = CheckIfEndsWithSlash(value);
+            }
+        }
 
         public string UrlParentDir
         {
@@ -27,14 +33,14 @@ namespace RedirectMachine
             get { return urlResourceDir; }
             set { urlResourceDir = TruncateString(value, 48); }
         }
-        public string SanitizedUrl {
+        public string SanitizedUrl
+        {
             get { return sanitizedUrl; }
-            set { sanitizedUrl = CheckUrlTail(value); }
+            set { sanitizedUrl = CheckVars(value); }
         }
         public string NewUrl { get; set; }
         public bool HasHeaderMap { get; set; } = false;
         public bool IsParentDir { get; set; } = false;
-        public bool IsResourceFile { get; set; } = false;
 
         /// <summary>
         /// default constructor
@@ -49,18 +55,21 @@ namespace RedirectMachine
         /// <param name="originalUrl"></param>
         public UrlUtils(string originalUrl)
         {
-            OriginalUrl = originalUrl.Trim('"');
+            //OriginalUrl = originalUrl.Trim('"');
+            OriginalUrl = originalUrl;
             UrlResourceDir = OriginalUrl;
             UrlParentDir = OriginalUrl;
             SanitizedUrl = OriginalUrl;
             urlResourceChunks = SplitUrlChunks(UrlResourceDir);
-            urlAllChunks = SplitUrlChunks(SanitizedUrl);
+            //urlAllChunks = SplitUrlChunks(SanitizedUrl);
+            urlAllChunks = SplitUrlChunks(OriginalUrl);
         }
 
         /// <summary>
         /// split url into a temporary list
         /// eliminate blank entries from that list
         /// return the list as an array
+        /// if the array is empty (such as the root directory), add an empty string
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
@@ -97,15 +106,6 @@ namespace RedirectMachine
         internal string[] ReturnAllUrlChunks()
         {
             return urlAllChunks;
-        }
-
-
-        /// <summary>
-        /// Check to see if the original url contains query strings
-        /// </summary>
-        public bool CheckForQueryStrings()
-        {
-            return OriginalUrl.Contains("?") ? true : false;
         }
 
         /// <summary>
@@ -147,8 +147,6 @@ namespace RedirectMachine
             string temp = CheckVars(value);
             int pos = temp.LastIndexOf("/") + 1;
             temp = temp.Substring(pos, temp.Length - pos);
-            if (endsWithSlash)
-                temp = temp + "/";
             if (!temp.StartsWith("/"))
                 temp = "/" + temp;
             return temp.Length <= maxLength ? temp : temp.Substring(0, maxLength);
@@ -178,8 +176,9 @@ namespace RedirectMachine
                 value = "/" + value;
                 index++;
             }
-                
-            return (!value.EndsWith("/")) ? value.Substring(0, index) + "/" : value.Substring(0, index);
+
+            //return (!value.EndsWith("/")) ? value.Substring(0, index) + "/" : value.Substring(0, index);
+            return value.Substring(0, index);
         }
 
         /// <summary>
@@ -205,23 +204,10 @@ namespace RedirectMachine
         /// <returns></returns>
         public string CheckVars(string value)
         {
-            if (value.EndsWith("/"))
-            {
-                endsWithSlash = true;
-                value = GetSubString(value, "/", false);
-            }
-            if (value.EndsWith("-/"))
-                value = GetSubString(value, "-/", false);
-            if (value.EndsWith("-"))
-                value = GetSubString(value, "-", false);
-            if (value.EndsWith("#"))
-                value = GetSubString(value, "-", false);
             value = Regex.Replace(value, "--", "-");
             value = Regex.Replace(value, "---", "-");
             value = Regex.Replace(value, "dont", "don-t");
             value = Regex.Replace(value, "cant", "can-t");
-            if (value.Contains("."))
-                IsResourceFile = true;
             return value;
         }
 
@@ -284,20 +270,20 @@ namespace RedirectMachine
             return temp;
         }
 
-        /// <summary>
-        /// return a url that has a slash on the end for redirection purposes.
-        /// if url contains an ending extension already (eg .html), skip
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public string CheckUrlTail(string url)
-        {
-            if (url.EndsWith("-/"))
-                url = GetSubString(url, "-/", false);
-            if (url.Contains("."))
-                return url;
-            return (!url.EndsWith("/") ? url + "/" : url);
-        }
+        ///// <summary>
+        ///// return a url that has a slash on the end for redirection purposes.
+        ///// if url contains an ending extension already (eg .html), skip
+        ///// </summary>
+        ///// <param name="url"></param>
+        ///// <returns></returns>
+        //internal string CheckUrlTail(string url)
+        //{
+        //    if (url.EndsWith("-/"))
+        //        url = GetSubString(url, "-/", false);
+        //    if (url.Contains("."))
+        //        return url;
+        //    return url;
+        //}
 
         /// <summary>
         /// return a string build from a series of chunks from the working url
@@ -317,7 +303,7 @@ namespace RedirectMachine
         /// return a string build from a series of chunks from the working url
         /// </summary>
         /// <param name="index"></param>
-        public string GetResourceDirChunk(int index)
+        public string GetResourceChunk(int index)
         {
             return urlResourceChunks[index];
         }
@@ -329,11 +315,6 @@ namespace RedirectMachine
         public int GetChunkLength()
         {
             return urlResourceChunks.Length;
-        }
-
-        internal bool IsChunkFoundInResource(string chunk)
-        {
-            return urlAllChunks.Contains(chunk);
         }
 
         /// <summary>
@@ -366,34 +347,16 @@ namespace RedirectMachine
             return j;
         }
 
-        ///// <summary>
-        ///// split url into a temporary list
-        ///// eliminate blank entries from that list
-        ///// return the list as an array
-        ///// </summary>
-        ///// <param name="url"></param>
-        ///// <returns></returns>
-        //internal string[] SplitUrlChunksV2(string url)
-        //{
-        //    int j = 0;
-        //    string temp = BasicTruncateString(url);
-
-        //    string[] urlArray = url.Split(new Char[] { '-', '/' }).ToArray();
-        //    urlArray = new HashSet<string>(urlArray).ToArray();
-
-        //    string[] tempArray = temp.Split(new Char[] { '-', '/' }).ToArray();
-        //    tempArray = new HashSet<string>(tempArray).ToArray();
-
-
-
-            //List<string> urlList = url.Split(new Char[] { '-', '/' }).ToList();
-            //urlList.RemoveAll(i => i == "");
-
-            //if (!urlList.Any())
-            //    urlList.Add("");
-            //return urlList.ToArray();
-        //}
-
-
+        /// <summary>
+        /// do a very quick check if the url ends with a slash
+        /// this also takes into account the root directory url.
+        /// </summary>
+        /// <param name="value"></param>
+        private string CheckIfEndsWithSlash(string value)
+        {
+            if (value.Length == 1)
+                return value;
+            return value.EndsWith("/") ? value.Substring(0, value.Length - 1) : value;
+        }
     }
 }

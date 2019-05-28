@@ -34,15 +34,15 @@ namespace RedirectMachine
         /// check to see if the url from obj contains one of the urlHeaderMap entries.
         /// e.g. www.google.com redirecting to /google/ on the new site
         /// </summary>
-        /// <param name="obj"></param>
-        private void CheckUrlHeaderMaps(UrlUtils obj, string[,] urlHeaderMaps)
+        /// <param name="urlUtilsObject"></param>
+        private void CheckUrlHeaderMaps(UrlUtils urlUtilsObject, string[,] urlHeaderMaps)
         {
             for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
             {
-                if (obj.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
+                if (urlUtilsObject.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
                 {
-                    obj.HasHeaderMap = true;
-                    obj.SetUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
+                    urlUtilsObject.HasHeaderMap = true;
+                    urlUtilsObject.SetUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
                 }
             }
         }
@@ -70,16 +70,16 @@ namespace RedirectMachine
         /// If there is a header map, does the url start with that header map? if yes, return true. If no, return false
         /// Else, if there's no header map, does the url's parent directory match the old url's parent directory? return either true or false
         /// </summary>
-        /// <param name="urlUtils"></param>
+        /// <param name="urlUtilsObject"></param>
         /// <param name="url"></param>
-        private bool CheckParentAndResourceDirs(UrlUtils urlUtils, string url)
+        private bool CheckParentAndResourceDirs(UrlUtils urlUtilsObject, string url)
         {
-            if (!CheckResourceDirs(urlUtils, url))
+            if (!CheckResourceDirs(urlUtilsObject, url))
                 return false;
-            if (urlUtils.HasHeaderMap)
-                return url.StartsWith(urlUtils.urlHeaderMap[1]);
-            else if (urlUtils.IsParentDir)
-                return url.StartsWith(urlUtils.UrlParentDir);
+            if (urlUtilsObject.HasHeaderMap)
+                return url.StartsWith(urlUtilsObject.urlHeaderMap[1]);
+            else if (urlUtilsObject.IsParentDir)
+                return url.StartsWith(urlUtilsObject.UrlParentDir);
             else
                 return true;
         }
@@ -122,11 +122,8 @@ namespace RedirectMachine
             foreach (var url in newUrlSiteMap)
             {
                 string resource = url.Item2;
-                //string temp = urlUtil.BasicTruncateString(url);
                 string[] allOriginalUrlChunks = urlUtil.ReturnAllUrlChunks();
                 string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
-
-                //if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
                 if (UrlMatchAnyChunks(url.Item2, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
@@ -161,7 +158,6 @@ namespace RedirectMachine
                 string[] allNewUrlChunks = urlUtil.SplitUrlChunks(url.Item1);
                 string[] newUrlResourceChunks = urlUtil.SplitUrlChunks(url.Item2);
 
-                //if (temp.Contains(newUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url))
                 if (UrlMatchAnyChunks(resource, newUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
@@ -343,14 +339,6 @@ namespace RedirectMachine
                 return (UrlHeaderMatch(temp));
             else
                 return (temp.Contains(urlUtil.UrlParentDir));
-        }
-
-        /// <summary>
-        /// return private string sanitizedUrl
-        /// </summary>
-        internal string GetSanitizedUrl()
-        {
-            return urlUtil.SanitizedUrl;
         }
 
         /// <summary>
