@@ -15,6 +15,7 @@ namespace RedirectMachine
         public static CatchAllUtils catchAllUtilObject = new CatchAllUtils();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
+        HashSet<string> existingRedirects = new HashSet<string>();
 
         public int FoundCount = 0;
         public int LostCount = 0;
@@ -23,23 +24,25 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        //string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
-        ////string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-        ////string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        //string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
-        //string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-        //string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-        //string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+        string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
+        string existingRedirectsFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\ExistingRedirects.csv";
+        string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+        string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+        string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
-        string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
-        //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
-        string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
-        //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        string osCatchAllUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
-        string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
-        string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
-        string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
+        //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
+        ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
+        //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
+        ////string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestNewSiteUrls.csv";
+        //string osCatchAllUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
+        //string existingRedirectsFile = @"C:\Users\timot\source\repos\RedirectMachine\ExistingRedirects.csv";
+        //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
+        //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
+        //string catchAllFile = @"C:\Users\timot\Downloads\Probabilities.csv";
 
 
         /// <summary>
@@ -65,6 +68,7 @@ namespace RedirectMachine
             Console.WriteLine("begin search: ");
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
+            ImportExistingRedirects(existingRedirectsFile);
             catchAllUtilObject.GenerateCatchAllParams(osCatchAllUrlFile);
             FindUrlMatches(redirectUrls);
             //StartThreads();
@@ -77,6 +81,8 @@ namespace RedirectMachine
                 ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
             Console.WriteLine($"Run time: {elapsedTime}");
         }
+
+        
 
         /// <summary>
         /// Add CSV file contents to list
@@ -99,17 +105,32 @@ namespace RedirectMachine
         /// For Every line in CSV, read line and check if line belongs in a catchAll. If not, create new RedirectUrl Object.
         /// </summary>
         /// <param name="urlFile"></param>
-        internal void ImportOldUrlsIntoList(string urlFile)
+        private void ImportOldUrlsIntoList(string urlFile)
         {
             using (var reader = new StreamReader(@"" + urlFile))
             {
                 while (!reader.EndOfStream)
                 {
                     string url = reader.ReadLine().ToLower();
-                    if (!catchAllUtilObject.CheckExistingCatchallParams(url))
+                    if (existingRedirects.Contains(url))
+                        Console.WriteLine("found existing redirect");
+                    if (!catchAllUtilObject.CheckExistingCatchallParams(url) && !existingRedirects.Contains(url))
                         redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
                 }
             }
+        }
+
+        private void ImportExistingRedirects(string urlFile)
+        {
+            using (var reader = new StreamReader(@"" + urlFile))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string url = reader.ReadLine().ToLower();
+                    existingRedirects.Add(url);
+                }
+            }
+            Console.WriteLine($"number of existing redirects: {existingRedirects.Count}");
         }
 
         /// <summary>
