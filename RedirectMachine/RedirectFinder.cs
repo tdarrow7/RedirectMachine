@@ -112,8 +112,6 @@ namespace RedirectMachine
                 while (!reader.EndOfStream)
                 {
                     string url = reader.ReadLine().ToLower();
-                    if (existingRedirects.Contains(url))
-                        Console.WriteLine("found existing redirect");
                     if (!catchAllUtilObject.CheckExistingCatchallParams(url) && !existingRedirects.Contains(url))
                         redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
                 }
@@ -130,7 +128,6 @@ namespace RedirectMachine
                     existingRedirects.Add(url);
                 }
             }
-            Console.WriteLine($"number of existing redirects: {existingRedirects.Count}");
         }
 
         /// <summary>
@@ -151,12 +148,12 @@ namespace RedirectMachine
                 else
                 {
                     oldUrl.Flag = "no match";
-                    //if (!oldUrl.GetOriginalUrl().Contains("."))
-                    //{
-                    //    catchAllUtilObject.checkIfCatchAllIsCreated(oldUrl.GetOriginalUrl());
-                    //    catchAllUtilObject.CatchAllCount++;
-                    //}
-                        
+                    if (!oldUrl.GetOriginalUrl().Contains("."))
+                    {
+                        catchAllUtilObject.checkIfCatchAllIsCreated(oldUrl.GetOriginalUrl());
+                        catchAllUtilObject.CatchAllCount++;
+                    }
+
                 }
             }
         }

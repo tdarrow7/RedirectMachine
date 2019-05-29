@@ -11,7 +11,7 @@ namespace RedirectMachine
 
         Dictionary<string, CatchAllUrl> catchAllList;
         internal int CatchAllCount = 0;
-
+        
         /// <summary>
         /// default working constructor
         /// </summary>
@@ -34,7 +34,6 @@ namespace RedirectMachine
                 {
                     string[] tempArray = reader.ReadLine().ToLower().Split(",");
                     catchAllParams.Add(new Tuple<string, string>(tempArray[0], tempArray[1]));
-                    //Console.WriteLine($"{tempArray[0]}, {tempArray[1]}");
                 }
             }
         }
@@ -73,9 +72,16 @@ namespace RedirectMachine
         internal void checkIfCatchAllIsCreated(string url)
         {
             if (!catchAllList.ContainsKey(url))
+            {
                 catchAllList.Add(url, new CatchAllUrl(url));
+                Console.WriteLine(url);
+            }
             else
+            {
                 catchAllList[url].IncreaseCount();
+                Console.WriteLine(url);
+            }
+                
         }
 
 
@@ -96,7 +102,6 @@ namespace RedirectMachine
                 foreach (var tuple in catchAllParams)
                 {
                     tw.WriteLine($"{tuple.Item1}*,{tuple.Item2}");
-                    //Console.WriteLine($"{tuple.Item1}*, {tuple.Item2}");
                 }
             }
             Console.WriteLine($"Number of urls turned to catchalls: {CatchAllCount}");
