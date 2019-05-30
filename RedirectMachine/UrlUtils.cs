@@ -166,6 +166,11 @@ namespace RedirectMachine
                 startsWithSlash = true;
                 value = value.Substring(1);
             }
+            else
+            {
+                value = "/" + new Uri(value).Segments[1];
+                value = value.Substring(0, value.Length - 1);
+            }
             int index = value.IndexOf("/");
             if (index <= -1)
                 index = value.Length;
