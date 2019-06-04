@@ -8,7 +8,7 @@ namespace RedirectMachine
 {
     internal class RedirectFinder
     {
-        // declare all universally needed variables
+        // declare all universally needed variables 
         public List<CatchAllUtils> catchalls = new List<CatchAllUtils>();
         public static List<Tuple<string, string>> newUrlSiteMap = new List<Tuple<string, string>>();
         public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
@@ -24,8 +24,8 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        //string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
-        string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
+        string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
+        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
         string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
         //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
         string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";

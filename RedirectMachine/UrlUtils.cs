@@ -166,7 +166,7 @@ namespace RedirectMachine
                 startsWithSlash = true;
                 value = value.Substring(1);
             }
-            else
+            else if (value.StartsWith("http"))
             {
                 value = "/" + new Uri(value).Segments[1];
                 value = value.Substring(0, value.Length - 1);
