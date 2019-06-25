@@ -53,7 +53,7 @@ namespace RedirectMachine
         /// set the flag to a value of 1
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool BasicUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Basic301Finder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(1);
             foreach (var url in newUrlSiteMap)
@@ -114,7 +114,7 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool AdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Advanced301Finder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(2);
             resetMatchedUrls();
@@ -147,7 +147,7 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool ReverseAdvancedUrlFinder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool ReverseAdvanced301Finder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(3);
             resetMatchedUrls();
@@ -165,6 +165,11 @@ namespace RedirectMachine
                 }
             }
             return AdvancedScanMatchedUrls(tupleList);
+        }
+
+        internal bool findMatching301(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
+        {
+            return (Basic301Finder(newUrlSiteMap) || Advanced301Finder(newUrlSiteMap) || ReverseAdvanced301Finder(newUrlSiteMap) || Url301ChunkFinder(newUrlSiteMap)) ? true : false;
         }
 
         private bool UrlMatchAnyChunks(string url, string[] chunks)
@@ -221,7 +226,7 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
         /// <returns></returns>
-        internal bool UrlChunkFinder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Url301ChunkFinder(List<Tuple<string, string>> newUrlSiteMap)
         {
             SetFlag(4);
             resetMatchedUrls();
@@ -275,7 +280,7 @@ namespace RedirectMachine
                 if (Count == 1)
                     return CheckFinalUrlChunk(i);
             }
-            return AdvancedUrlFinder(possibleMatchList);
+            return Advanced301Finder(possibleMatchList);
         }
 
         /// <summary>

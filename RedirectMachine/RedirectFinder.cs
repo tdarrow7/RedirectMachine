@@ -11,8 +11,11 @@ namespace RedirectMachine
         // declare all universally needed variables 
         public List<CatchAllUtils> catchalls = new List<CatchAllUtils>();
         public static List<Tuple<string, string>> newUrlSiteMap = new List<Tuple<string, string>>();
-        public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
+        //public static List<RedirectUrl> redirectUrls = new List<RedirectUrl>();
+        public static List<UrlDto> urlDtos = new List<UrlDto>();
         public static CatchAllUtils catchAllUtilObject = new CatchAllUtils();
+        UrlUtils utils = new UrlUtils();
+        RedirectUrl redirectUrlUtils = new RedirectUrl();
         List<string> lostList = new List<string>();
         List<string> foundList = new List<string>();
         HashSet<string> existingRedirects = new HashSet<string>();
@@ -70,7 +73,8 @@ namespace RedirectMachine
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
             catchAllUtilObject.GenerateCatchAllParams(osCatchAllUrlFile);
-            FindUrlMatches(redirectUrls);
+            //FindUrlMatches(redirectUrls);
+            FindUrlMatches(urlDtos);
             //StartThreads();
             catchAllUtilObject.ExportCatchAllsToCSV(catchAllFile);
             ExportNewCSVs();
@@ -113,9 +117,26 @@ namespace RedirectMachine
                 {
                     string url = reader.ReadLine().ToLower();
                     if (!catchAllUtilObject.CheckExistingCatchallParams(url) && !existingRedirects.Contains(url))
-                        redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
+                        //redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
+                        urlDtos.Add(createUrlDto(url));
                 }
             }
+        }
+
+
+        /// <summary>
+        /// return a UrlDto object with all the props from UrlUtils class
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private UrlDto createUrlDto(string url)
+        {
+            UrlDto urlDto = new UrlDto(url);
+            urlDto.UrlParentDir = utils.TruncateStringHead(url);
+            urlDto.UrlResourceDir = utils.TruncateString(url, 48);
+            urlDto.UrlResourceDirChunks = utils.ReturnUrlResourceChunks();
+            urlDto.UrlAllChunks = utils.ReturnAllUrlChunks();
+            return urlDto;
         }
 
         private void ImportExistingRedirects(string urlFile)
@@ -140,17 +161,18 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="oldList"></param>
         /// <param name="newList"></param>
-        public void FindUrlMatches(List<RedirectUrl> chunkOfRedirects)
+        public void FindUrlMatches(List<UrlDto> chunkOfRedirects)
         {
-            foreach (var oldUrl in chunkOfRedirects)
+            foreach (var urlDto in chunkOfRedirects)
             {
-                if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) { }
-                else
+                //if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) { }
+                //else
+                if (!redirectUrlUtils.findMatching301(urlDto, newUrlSiteMap))
                 {
-                    oldUrl.Flag = "no match";
-                    if (!oldUrl.GetOriginalUrl().Contains("."))
+                    urlDto.Flag = "no match";
+                    if (!urlDto.OriginalUrl.Contains("."))
                     {
-                        catchAllUtilObject.checkIfCatchAllIsCreated(oldUrl.GetOriginalUrl());
+                        catchAllUtilObject.checkIfCatchAllIsCreated(urlDto.OriginalUrl);
                         catchAllUtilObject.CatchAllCount++;
                     }
 
@@ -183,11 +205,11 @@ namespace RedirectMachine
 
         // }
 
-        internal List<RedirectUrl> GetChunkOfRedirects(int index, int length)
-        {
-            List<RedirectUrl> result = redirectUrls.GetRange(index, length);
-            return result;
-        }
+        //internal List<RedirectUrl> GetChunkOfRedirects(int index, int length)
+        //{
+        //    List<RedirectUrl> result = redirectUrls.GetRange(index, length);
+        //    return result;
+        //}
 
         /// <summary>
         /// Scan all objects in redirectUrls list and put them in either the foundList or lostList, depending on their score
@@ -200,31 +222,31 @@ namespace RedirectMachine
 
             foundList.Add("Old Site Url,Redirected Url,Flag");
             lostList.Add("Old Site Url, Potential Redirected Url");
-            foreach (var urlObject in redirectUrls)
+            foreach (var urlDto in urlDtos)
             {
-                if (urlObject.Score == true)
+                if (urlDto.Score == true)
                 {
                     FoundCount++;
-                    foundList.Add($"{urlObject.GetOriginalUrl()},{urlObject.GetNewUrl()}, {urlObject.Flag}");
+                    foundList.Add($"{urlDto.OriginalUrl},{urlDto.NewUrl}, {urlDto.Flag}");
                 }
                     
                 else
                 {
                     LostCount++;
-                    if (urlObject.matchedUrls.Count > 0)
+                    if (urlDto.matchedUrls.Count > 0)
                     {
                         
-                        string[] arrayOfMatches = urlObject.matchedUrls.ToArray();
+                        string[] arrayOfMatches = urlDto.matchedUrls.ToArray();
                         for (int i = 0; i < arrayOfMatches.Length; i++)
                         {
                             if (i == 0)
-                                lostList.Add($"{urlObject.GetOriginalUrl()},{arrayOfMatches[i]}");
+                                lostList.Add($"{urlDto.OriginalUrl},{arrayOfMatches[i]}");
                             else
                                 lostList.Add($",{arrayOfMatches[i]}");
                         }
                     }
                     else
-                        lostList.Add($"{urlObject.GetOriginalUrl()}");
+                        lostList.Add($"{urlDto.OriginalUrl}");
                 }
             }
             ExportToCSV(foundList, foundUrlFile);

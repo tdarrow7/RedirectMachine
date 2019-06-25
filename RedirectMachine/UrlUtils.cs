@@ -186,6 +186,17 @@ namespace RedirectMachine
             return value.Substring(0, index);
         }
 
+
+        /// <summary>
+        /// return if url contains header map
+        /// </summary>
+        /// <param name="urlHeaderMaps"></param>
+        /// <returns></returns>
+        internal static string checkParentHeaderMaps(string[,] urlHeaderMaps)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Purpose: return first chunk of url. 
         /// Check if url starts with http or https. If it does, grab entire domain of url
