@@ -74,12 +74,12 @@ namespace RedirectMachine
             if (!catchAllList.ContainsKey(url))
             {
                 catchAllList.Add(url, new CatchAllUrl(url));
-                Console.WriteLine(url);
+                //Console.WriteLine(url);
             }
             else
             {
                 catchAllList[url].IncreaseCount();
-                Console.WriteLine(url);
+                //Console.WriteLine(url);
             }
                 
         }

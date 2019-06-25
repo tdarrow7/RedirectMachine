@@ -7,41 +7,6 @@ namespace RedirectMachine
 {
     public class UrlUtils
     {
-        private string urlParentDir, urlResourceDir, sanitizedUrl, originalUrl;
-        private bool startsWithSlash = false;
-        public string[] urlHeaderMap = new string[2];
-        internal string[] urlResourceChunks;
-        internal string[] urlAllChunks;
-
-        //public string OriginalUrl { get; set; }
-        public string OriginalUrl
-        {
-            get { return originalUrl; }
-            set
-            {
-                originalUrl = CheckIfEndsWithSlash(value);
-            }
-        }
-
-        public string UrlParentDir
-        {
-            get { return urlParentDir; }
-            set { urlParentDir = TruncateStringHead(OriginalUrl); }
-        }
-        public string UrlResourceDir
-        {
-            get { return urlResourceDir; }
-            set { urlResourceDir = TruncateString(value, 48); }
-        }
-        public string SanitizedUrl
-        {
-            get { return sanitizedUrl; }
-            set { sanitizedUrl = CheckVars(value); }
-        }
-        public string NewUrl { get; set; }
-        public bool HasHeaderMap { get; set; } = false;
-        public bool IsParentDir { get; set; } = false;
-
         /// <summary>
         /// default constructor
         /// </summary>
@@ -55,14 +20,6 @@ namespace RedirectMachine
         /// <param name="originalUrl"></param>
         public UrlUtils(string originalUrl)
         {
-            //OriginalUrl = originalUrl.Trim('"');
-            OriginalUrl = originalUrl;
-            UrlResourceDir = OriginalUrl;
-            UrlParentDir = OriginalUrl;
-            SanitizedUrl = OriginalUrl;
-            urlResourceChunks = SplitUrlChunks(UrlResourceDir);
-            //urlAllChunks = SplitUrlChunks(SanitizedUrl);
-            urlAllChunks = SplitUrlChunks(OriginalUrl);
         }
 
         /// <summary>
@@ -86,26 +43,9 @@ namespace RedirectMachine
         /// Return the urlResourceChunks[] array
         /// </summary>
         /// <returns></returns>
-        internal string[] ReturnUrlResourceChunks()
+        internal string[] ReturnUrlChunks(string url)
         {
-            return urlResourceChunks;
-        }
-
-        /// <summary>
-        /// Return the length of the urlResourceChunks[] array
-        /// </summary>
-        /// <returns></returns>
-        internal int ReturnUrlResourceChunkLength() {
-            return urlResourceChunks.Length;
-        }
-
-        /// <summary>
-        /// Return the urlAllChunks[] array
-        /// </summary>
-        /// <returns></returns>
-        internal string[] ReturnAllUrlChunks()
-        {
-            return urlAllChunks;
+            return SplitUrlChunks(url);
         }
 
         /// <summary>
@@ -160,7 +100,7 @@ namespace RedirectMachine
         /// <param name="value"></param>
         public string TruncateStringHead(string value)
         {
-            IsParentDir = (urlResourceDir.Contains(value));
+            bool startsWithSlash = false;
             if (value.StartsWith("/"))
             {
                 startsWithSlash = true;
@@ -181,8 +121,6 @@ namespace RedirectMachine
                 value = "/" + value;
                 index++;
             }
-
-            //return (!value.EndsWith("/")) ? value.Substring(0, index) + "/" : value.Substring(0, index);
             return value.Substring(0, index);
         }
 
@@ -192,9 +130,16 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="urlHeaderMaps"></param>
         /// <returns></returns>
-        internal static string checkParentHeaderMaps(string[,] urlHeaderMaps)
+        internal string ReturnRemappedUrlParentDir(string url, string[,] urlHeaderMaps)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
+            {
+                if (url.Contains(urlHeaderMaps[i, 0]))
+                {
+                    return urlHeaderMaps[i, 1];
+                }
+            }
+            return "/";
         }
 
         /// <summary>
@@ -286,63 +231,18 @@ namespace RedirectMachine
             return temp;
         }
 
-        ///// <summary>
-        ///// return a url that has a slash on the end for redirection purposes.
-        ///// if url contains an ending extension already (eg .html), skip
-        ///// </summary>
-        ///// <param name="url"></param>
-        ///// <returns></returns>
-        //internal string CheckUrlTail(string url)
-        //{
-        //    if (url.EndsWith("-/"))
-        //        url = GetSubString(url, "-/", false);
-        //    if (url.Contains("."))
-        //        return url;
-        //    return url;
-        //}
-
         /// <summary>
         /// return a string build from a series of chunks from the working url
         /// </summary>
         /// <param name="index"></param>
-        public string BuildChunk(int index)
+        public string BuildChunk(string[] chunks, int index)
         {
-            string temp = urlResourceChunks[0];
+            string temp = chunks[0];
             for (int i = 1; i < index; i++)
             {
-                temp = temp + "-" + urlResourceChunks[i];
+                temp = temp + "-" + chunks[i];
             }
             return temp;
-        }
-
-        /// <summary>
-        /// return a string build from a series of chunks from the working url
-        /// </summary>
-        /// <param name="index"></param>
-        public string GetResourceChunk(int index)
-        {
-            return urlResourceChunks[index];
-        }
-
-        /// <summary>
-        /// return a string build from a series of chunks from the working url
-        /// </summary>
-        /// <param name="index"></param>
-        public int GetChunkLength()
-        {
-            return urlResourceChunks.Length;
-        }
-
-        /// <summary>
-        /// set urHeaderMap array to string a/b values
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        public void SetUrlHeaderMap(string a, string b)
-        {
-            urlHeaderMap[0] = a;
-            urlHeaderMap[1] = b;
-            UrlParentDir = urlHeaderMap[1];
         }
 
         /// <summary>

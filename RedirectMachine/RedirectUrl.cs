@@ -7,14 +7,11 @@ namespace RedirectMachine
 {
     public class RedirectUrl
     {
-        public List<string> matchedUrls;
-        internal UrlUtils urlUtil;
-        public bool Score { get; set; } = false;
-        public int Count { get; set; } = 0;
-        public string Flag { get; set; } = "no match";
+        internal UrlUtils urlUtils;
 
         public RedirectUrl()
         {
+            urlUtils = new UrlUtils();
         }
 
 
@@ -25,24 +22,20 @@ namespace RedirectMachine
         /// <param name="urlHeaderMaps"></param>
         public RedirectUrl(string originalUrl, string[,] urlHeaderMaps)
         {
-            urlUtil = new UrlUtils(originalUrl);
-            matchedUrls = new List<string>();
-            CheckUrlHeaderMaps(urlUtil, urlHeaderMaps);
         }
 
         /// <summary>
         /// check to see if the url from obj contains one of the urlHeaderMap entries.
         /// e.g. www.google.com redirecting to /google/ on the new site
         /// </summary>
-        /// <param name="urlUtilsObject"></param>
-        private void CheckUrlHeaderMaps(UrlUtils urlUtilsObject, string[,] urlHeaderMaps)
+        /// <param name="urlDto"></param>
+        private void CheckUrlHeaderMaps(UrlDto urlDto, string[,] urlHeaderMaps)
         {
             for (int i = 0; i < urlHeaderMaps.GetLength(0); i++)
             {
-                if (urlUtilsObject.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
+                if (urlDto.SanitizedUrl.Contains(urlHeaderMaps[i, 0]))
                 {
-                    urlUtilsObject.HasHeaderMap = true;
-                    urlUtilsObject.SetUrlHeaderMap(urlHeaderMaps[i, 0], urlHeaderMaps[i, 1]);
+                    urlDto.RemappedParentDir = urlHeaderMaps[i, 1];
                 }
             }
         }
@@ -53,16 +46,16 @@ namespace RedirectMachine
         /// set the flag to a value of 1
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool Basic301Finder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Basic301Finder(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
         {
-            SetFlag(1);
+            urlDto.Flag = "Great Match";
             foreach (var url in newUrlSiteMap)
             {
                 string resource = url.Item2;
-                if (resource.Contains(urlUtil.UrlResourceDir) && CheckParentAndResourceDirs(urlUtil, url.Item1))
-                    AddMatchedUrl(url.Item1);
+                if (resource.Contains(urlDto.UrlResourceDir) && CheckParentAndResourceDirs(urlDto, url.Item1))
+                    urlDto.matchedUrls.Add(url.Item1);
             }
-            return BasicScanMatchedUrls();
+            return BasicScanMatchedUrls(urlDto);
         }
 
         /// <summary>
@@ -70,27 +63,22 @@ namespace RedirectMachine
         /// If there is a header map, does the url start with that header map? if yes, return true. If no, return false
         /// Else, if there's no header map, does the url's parent directory match the old url's parent directory? return either true or false
         /// </summary>
-        /// <param name="urlUtilsObject"></param>
+        /// <param name="urlDto"></param>
         /// <param name="url"></param>
-        private bool CheckParentAndResourceDirs(UrlUtils urlUtilsObject, string url)
+        private bool CheckParentAndResourceDirs(UrlDto urlDto, string url)
         {
-            if (!CheckResourceDirs(urlUtilsObject, url))
+            if (!CheckResourceDirs(urlDto, url))
                 return false;
-            if (urlUtilsObject.HasHeaderMap)
-                return url.StartsWith(urlUtilsObject.urlHeaderMap[1]);
-            else if (urlUtilsObject.IsParentDir)
-                return url.StartsWith(urlUtilsObject.UrlParentDir);
-            else
-                return true;
+            return url.StartsWith(urlDto.RemappedParentDir);
         }
 
-        private bool CheckResourceDirs(UrlUtils urlUtils, string url)
+        private bool CheckResourceDirs(UrlDto urlDto, string url)
         {
-            if (urlUtils.UrlResourceDir.Contains("."))
+            if (urlDto.UrlResourceDir.Contains("."))
             {
                 if (url.Contains("."))
                 {
-                    string x = urlUtils.UrlResourceDir.Split(".")[1];
+                    string x = urlDto.UrlResourceDir.Split(".")[1];
                     string y = url.Split(".")[1];
                     return (x == y) ? true : false;
                 }
@@ -104,9 +92,14 @@ namespace RedirectMachine
         /// if no urls were found, return false to report none were found
         /// if exactly one match is found, return true to report a match was found
         /// </summary>
-        private bool BasicScanMatchedUrls()
+        private bool BasicScanMatchedUrls(UrlDto urlDto)
         {
-            return (Count == 1) ? SetNewUrl() : false;
+            if (urlDto.matchedUrls.Count == 1)
+            {
+                urlDto.NewUrl = urlDto.matchedUrls.First();
+                return true;
+            }
+            return (urlDto.matchedUrls.Count == 1) ? SetNewUrl(urlDto) : false;
         }
 
         /// <summary>
@@ -114,23 +107,23 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool Advanced301Finder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Advanced301Finder(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
         {
-            SetFlag(2);
-            resetMatchedUrls();
+            urlDto.Flag = (urlDto.Flag == "Please Check Match") ? "Please Check Match" : "Good Match";
+            urlDto.matchedUrls.Clear();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
             {
                 string resource = url.Item2;
-                string[] allOriginalUrlChunks = urlUtil.ReturnAllUrlChunks();
-                string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
-                if (UrlMatchAnyChunks(url.Item2, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
+                string[] allOriginalUrlChunks = urlDto.UrlAllChunks;
+                string[] originalUrlResourceChunks = urlDto.UrlResourceDirChunks;
+                if (UrlMatchAnyChunks(url.Item2, originalUrlResourceChunks) && CheckParentAndResourceDirs(urlDto, url.Item1))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
-                        tupleList.Add(new Tuple<string, int, int>(url.Item1, urlUtil.ReturnUrlMatches(url.Item1, allOriginalUrlChunks), urlUtil.ReturnUrlMatches(url.Item2, originalUrlResourceChunks) * 2));
+                        tupleList.Add(new Tuple<string, int, int>(url.Item1, ReturnUrlMatches(url.Item1, allOriginalUrlChunks), ReturnUrlMatches(url.Item2, originalUrlResourceChunks) * 2));
                 }
             }
-            return AdvancedScanMatchedUrls(tupleList);
+            return AdvancedScanMatchedUrls(urlDto, tupleList);
         }
 
         /// <summary>
@@ -147,29 +140,28 @@ namespace RedirectMachine
         /// return whatever AdvancedScanMatchedUrls finds
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
-        internal bool ReverseAdvanced301Finder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool ReverseAdvanced301Finder(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
         {
-            SetFlag(3);
-            resetMatchedUrls();
+            urlDto.Flag = "Decent Match";
+            urlDto.matchedUrls.Clear();
             var tupleList = new List<Tuple<string, int, int>>();
             foreach (var url in newUrlSiteMap)
             {
-                string resource = urlUtil.UrlResourceDir;
-                string[] allNewUrlChunks = urlUtil.SplitUrlChunks(url.Item1);
-                string[] newUrlResourceChunks = urlUtil.SplitUrlChunks(url.Item2);
+                string[] allNewUrlChunks = urlUtils.SplitUrlChunks(url.Item1);
+                string[] newUrlResourceChunks = urlUtils.SplitUrlChunks(url.Item2);
 
-                if (UrlMatchAnyChunks(resource, newUrlResourceChunks) && CheckParentAndResourceDirs(urlUtil, url.Item1))
+                if (UrlMatchAnyChunks(urlDto.UrlResourceDir, newUrlResourceChunks) && CheckParentAndResourceDirs(urlDto, url.Item1))
                 {
                     if (!tupleList.Exists((Tuple<string, int, int> i) => i.Item1 == url.Item1))
-                        tupleList.Add(new Tuple<string, int, int>(url.Item1, urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, allNewUrlChunks), urlUtil.ReturnUrlMatches(urlUtil.OriginalUrl, newUrlResourceChunks) * 2));
+                        tupleList.Add(new Tuple<string, int, int>(url.Item1, urlUtils.ReturnUrlMatches(urlDto.OriginalUrl, allNewUrlChunks), urlUtils.ReturnUrlMatches(urlDto.OriginalUrl, newUrlResourceChunks) * 2));
                 }
             }
-            return AdvancedScanMatchedUrls(tupleList);
+            return AdvancedScanMatchedUrls(urlDto, tupleList);
         }
 
         internal bool findMatching301(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
         {
-            return (Basic301Finder(newUrlSiteMap) || Advanced301Finder(newUrlSiteMap) || ReverseAdvanced301Finder(newUrlSiteMap) || Url301ChunkFinder(newUrlSiteMap)) ? true : false;
+            return (Basic301Finder(urlDto, newUrlSiteMap) || Advanced301Finder(urlDto, newUrlSiteMap) || ReverseAdvanced301Finder(urlDto, newUrlSiteMap) || Url301ChunkFinder(urlDto, newUrlSiteMap)) ? true : false;
         }
 
         private bool UrlMatchAnyChunks(string url, string[] chunks)
@@ -196,7 +188,7 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="tupleList"></param>
         /// <returns></returns>
-        private bool AdvancedScanMatchedUrls(List<Tuple<string, int, int>> tupleList)
+        private bool AdvancedScanMatchedUrls(UrlDto urlDto, List<Tuple<string, int, int>> tupleList)
         {
             int a = 1,
                 b = 1;
@@ -205,15 +197,15 @@ namespace RedirectMachine
                 if (item.Item2 < a || item.Item3 < b) { }
                 else if (item.Item2 > a && item.Item3 > b)
                 {
-                    resetMatchedUrls();
-                    AddMatchedUrl(item.Item1);
+                    urlDto.matchedUrls.Clear();
+                    urlDto.matchedUrls.Add(item.Item1);
                     a = item.Item2;
                     b = item.Item3;
                 }
                 else
-                    AddMatchedUrl(item.Item1);
+                    urlDto.matchedUrls.Add(item.Item1);
             }
-            return (Count == 1) ? SetNewUrl() : false;
+            return (urlDto.matchedUrls.Count == 1) ? SetNewUrl(urlDto) : false;
         }
 
 
@@ -226,21 +218,20 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="newUrlSiteMap"></param>
         /// <returns></returns>
-        internal bool Url301ChunkFinder(List<Tuple<string, string>> newUrlSiteMap)
+        internal bool Url301ChunkFinder(UrlDto urlDto, List<Tuple<string, string>> newUrlSiteMap)
         {
-            SetFlag(4);
-            resetMatchedUrls();
+            urlDto.Flag = "Please Check Match";
+            urlDto.matchedUrls.Clear();
             List<Tuple<string, string>> possibleMatchList = new List<Tuple<string, string>>();
             foreach (var url in newUrlSiteMap)
             {
                 string temp = url.Item2;
-                string[] originalUrlResourceChunks = urlUtil.ReturnUrlResourceChunks();
+                string[] originalUrlResourceChunks = urlDto.UrlAllChunks;
 
-                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlUtil, url.Item1))
+                if (temp.Contains(originalUrlResourceChunks[0]) && CheckParentAndResourceDirs(urlDto, url.Item1))
                     possibleMatchList.Add(new Tuple<string, string>(url.Item1, url.Item2));
-                    //AddMatchedUrl(url.Item1);
             }
-            return ScanMatchedUrlsByChunk(possibleMatchList);
+            return ScanMatchedUrlsByChunk(urlDto, possibleMatchList);
         }
 
         /// <summary>
@@ -252,35 +243,32 @@ namespace RedirectMachine
         /// if Count > 1, run the for loop again to build a new substring of originalUrl
         /// once the entire resource dir has been built from the chunks and there are still more than one matched url, run the passive list through the AdvancedUrlFinder and return its result
         /// </summary>
-        private bool ScanMatchedUrlsByChunk(List<Tuple<string, string>> possibleMatchList)
+        private bool ScanMatchedUrlsByChunk(UrlDto urlDto, List<Tuple<string, string>> possibleMatchList)
         {
             List<string> activeList = new List<string>();
-            //List<string> passiveList = matchedUrls.ToList();
-
-            for (int i = 0; i < urlUtil.ReturnUrlResourceChunkLength(); i++)
+            for (int i = 0; i < urlDto.UrlResourceDirChunks.Length; i++)
             {
                 activeList.Clear();
                 foreach (var tuple in possibleMatchList)
                 {
                     activeList.Add(tuple.Item1);
-                    AddMatchedUrl(tuple.Item1);
+                    urlDto.matchedUrls.Add(tuple.Item1);
                 }
-                //activeList = possibleMatchList.ToList();
-                string temp = urlUtil.BuildChunk(i);
+                string temp = urlUtils.BuildChunk(urlDto.UrlResourceDirChunks, i);
                 foreach (var url in activeList)
                 {
                     if (!url.Contains(temp))
                     {
                         possibleMatchList.RemoveAll(item => item.Item1 == url);
-                        RemoveFromMatchedUrls(url);
+                        urlDto.matchedUrls.Remove(url);
                     }
                 }
-                if (Count == 0)
+                if (urlDto.matchedUrls.Count == 0)
                     return false;
-                if (Count == 1)
-                    return CheckFinalUrlChunk(i);
+                if (urlDto.matchedUrls.Count == 1)
+                    return CheckFinalUrlChunk(urlDto, i);
             }
-            return Advanced301Finder(possibleMatchList);
+            return Advanced301Finder(urlDto, possibleMatchList);
         }
 
         /// <summary>
@@ -291,12 +279,12 @@ namespace RedirectMachine
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        private bool CheckFinalUrlChunk(int i)
+        private bool CheckFinalUrlChunk(UrlDto urlDto, int i)
         {
-            if (i < urlUtil.GetChunkLength())
+            if (i < urlDto.UrlResourceDirChunks.Length)
             {
-                string temp = urlUtil.BuildChunk(i + 1);
-                return (matchedUrls.First().Contains(temp)) ? SetNewUrl() : false;
+                string temp = urlUtils.BuildChunk(urlDto.UrlResourceDirChunks, i + 1);
+                return (urlDto.matchedUrls.First().Contains(temp)) ? SetNewUrl(urlDto) : false;
             }
             else return true;
         }
@@ -304,91 +292,29 @@ namespace RedirectMachine
         /// <summary>
         /// set the new url to the only matched url left in matchedUrls list
         /// </summary>
-        private bool SetNewUrl()
+        private bool SetNewUrl(UrlDto urlDto)
         {
-            urlUtil.NewUrl = matchedUrls.First();
-            Score = true;
+            urlDto.NewUrl = urlDto.matchedUrls.First();
+            urlDto.Score = true;
             return true;
         }
 
-
         /// <summary>
-        /// set matchUrls list to zero, and reset count to zero
-        /// </summary>
-        private void resetMatchedUrls()
-        {
-            matchedUrls.Clear();
-            Count = 0;
-        }
-
-        /// <summary>
-        /// remove a matched url from matchedUrls list that corresponds with the value of url string
+        /// return the number of times each entry in the chunks[] array is seen in string url
         /// </summary>
         /// <param name="url"></param>
-        private void RemoveFromMatchedUrls(string url)
-        {
-            matchedUrls.Remove(url);
-            int c = Count - 1;
-            Count = c;
-        }
-
-        /// <summary>
-        /// if the hasUrlHeaderMap bool is set to true, check to see if the old url's parent directory matches string temp. if not, return false
-        /// if the hasUrlHeaderMap bool is set to false, check if string temp contains parent directory of old url. if not, return false
-        /// return true by default
-        /// </summary>
-        /// <param name="temp"></param>
-        private bool BasicCheckUrlParentDir(string temp)
-        {
-            if (urlUtil.HasHeaderMap)
-                return (UrlHeaderMatch(temp));
-            else
-                return (temp.Contains(urlUtil.UrlParentDir));
-        }
-
-        /// <summary>
-        /// return private string originalUrl
-        /// </summary>
+        /// <param name="chunks"></param>
         /// <returns></returns>
-        internal string GetOriginalUrl()
+        internal int ReturnUrlMatches(string url, string[] chunks)
         {
-            return urlUtil.OriginalUrl;
-        }
+            int j = 0;
 
-        /// <summary>
-        /// return private string newUrl
-        /// </summary>
-        /// <returns></returns>
-        internal string GetNewUrl()
-        {
-            return urlUtil.NewUrl;
-        }
-
-        /// <summary>
-        /// returns either true or false depending on whether or not the HeaderMap[1] contains the string temp
-        /// </summary>
-        /// <param name="temp"></param>
-        public bool UrlHeaderMatch(string temp)
-        {
-            return urlUtil.urlHeaderMap[1].Contains(temp);
-        }
-
-        /// <summary>
-        /// add potential url match
-        /// </summary>
-        /// <param name="link"></param>
-        public void AddMatchedUrl(string link)
-        {
-            matchedUrls.Add(link);
-            int i = Count + 1;
-            Count = i;
-        }
-
-        private void SetFlag(int i)
-        {
-            string[] flags = { "Great Match", "Good Match", "Decent Match", "Please Check Me" };
-            if (Flag != "Please Check Me")
-                Flag = flags[i];
+            foreach (var chunk in chunks)
+            {
+                if (url.Contains(chunk))
+                    j = j + (chunk.Length > 0 ? chunk.Length - 1 : 0);
+            }
+            return j;
         }
     }
 }

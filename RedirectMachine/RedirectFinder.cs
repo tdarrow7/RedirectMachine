@@ -134,8 +134,9 @@ namespace RedirectMachine
             UrlDto urlDto = new UrlDto(url);
             urlDto.UrlParentDir = utils.TruncateStringHead(url);
             urlDto.UrlResourceDir = utils.TruncateString(url, 48);
-            urlDto.UrlResourceDirChunks = utils.ReturnUrlResourceChunks();
-            urlDto.UrlAllChunks = utils.ReturnAllUrlChunks();
+            urlDto.UrlResourceDirChunks = utils.ReturnUrlChunks(urlDto.UrlResourceDir);
+            urlDto.UrlAllChunks = utils.ReturnUrlChunks(url);
+            urlDto.RemappedParentDir = utils.ReturnRemappedUrlParentDir(url, urlHeaderMaps);
             return urlDto;
         }
 
