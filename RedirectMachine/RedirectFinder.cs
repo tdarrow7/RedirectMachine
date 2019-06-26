@@ -31,7 +31,7 @@ namespace RedirectMachine
         //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
         string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
         //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
+        //string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
         string existingRedirectsFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\ExistingRedirects.csv";
         string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
         string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -72,7 +72,7 @@ namespace RedirectMachine
             ImportExistingRedirects(existingRedirectsFile);
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
-            catchAllUtilObject.GenerateCatchAllParams(osCatchAllUrlFile);
+            catchAllUtilObject.GenerateCatchAllParams(existingRedirectsFile);
             //FindUrlMatches(redirectUrls);
             FindUrlMatches(urlDtos);
             //StartThreads();
