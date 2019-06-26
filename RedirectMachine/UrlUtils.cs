@@ -108,7 +108,8 @@ namespace RedirectMachine
             }
             else if (value.StartsWith("http"))
             {
-                value = "/" + new Uri(value).Segments[1];
+                string[] segments = new Uri(value).Segments;
+                value = "/" + ((segments.Length > 2) ? segments[1] : "");
                 value = value.Substring(0, value.Length - 1);
             }
             int index = value.IndexOf("/");

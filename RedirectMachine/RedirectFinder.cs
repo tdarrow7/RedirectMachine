@@ -27,14 +27,12 @@ namespace RedirectMachine
             { "https://www.google.com", "/googleness/" }
         };
 
-        string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
-        //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
-        string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
-        //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        string existingRedirectsFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\ExistingRedirects.csv";
-        string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
-        string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
-        string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
+        public string osUrlFile = @"c:\users\timothy.darrow\source\repos\redirectmachine\OldSiteUrls.csv";
+        public string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
+        public string existingRedirectsFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\ExistingRedirects.csv";
+        public string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
+        public string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
+        public string catchAllFile = @"C:\Users\timothy.darrow\Downloads\Probabilities.csv";
 
         //string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteUrls.csv";
         ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
@@ -69,7 +67,8 @@ namespace RedirectMachine
             Console.WriteLine("begin search: ");
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
-            catchAllUtilObject.GenerateCatchAllParams(existingRedirectsFile);
+            ImportExistingRedirects(existingRedirectsFile);
+            //catchAllUtilObject.GenerateCatchAllParams(existingRedirectsFile);
             FindUrlMatches(urlDtos);
             //StartThreads();
             catchAllUtilObject.ExportCatchAllsToCSV(catchAllFile);
@@ -99,6 +98,7 @@ namespace RedirectMachine
                     newUrlSiteMap.Add(new Tuple<string, string>(tempArray[0], "/" + tempArray[1] + "/"));
                 }
             }
+            Console.WriteLine("Done importing new urls into list");
         }
 
         /// <summary>
@@ -116,6 +116,7 @@ namespace RedirectMachine
                         urlDtos.Add(createUrlDto(url));
                 }
             }
+            Console.WriteLine("Done importing old urls into list");
         }
 
 
@@ -145,6 +146,7 @@ namespace RedirectMachine
                     existingRedirects.Add(url);
                 }
             }
+            Console.WriteLine("Done Importing");
         }
 
         /// <summary>
@@ -159,6 +161,7 @@ namespace RedirectMachine
         /// <param name="newList"></param>
         public void FindUrlMatches(List<UrlDto> chunkOfRedirects)
         {
+            Console.WriteLine("within url finder");
             foreach (var urlDto in chunkOfRedirects)
             {
                 if (!redirectUrlUtils.findMatching301(urlDto, newUrlSiteMap))
@@ -172,6 +175,7 @@ namespace RedirectMachine
 
                 }
             }
+            Console.WriteLine("Done Finding Url Matches");
         }
          
         //public void StartThreads()
