@@ -21,7 +21,8 @@ namespace RedirectMachine
 
         internal void IncreaseCount()
         {
-            Count++;
+            int count = Count;
+            Count = count++;
         }
     }
 }

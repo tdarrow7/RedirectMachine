@@ -31,7 +31,6 @@ namespace RedirectMachine
         //string osUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestBatch.csv";
         string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\NewSiteUrls.csv";
         //string nsUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        //string osCatchAllUrlFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
         string existingRedirectsFile = @"C:\Users\timothy.darrow\source\repos\RedirectMachine\ExistingRedirects.csv";
         string lostUrlFile = @"C:\Users\timothy.darrow\Downloads\LostUrls.csv";
         string foundUrlFile = @"C:\Users\timothy.darrow\Downloads\FoundUrls.csv";
@@ -41,7 +40,6 @@ namespace RedirectMachine
         ////string osUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestBatch.csv";
         //string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\NewSiteUrls.csv";
         ////string nsUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\TestNewSiteUrls.csv";
-        //string osCatchAllUrlFile = @"C:\Users\timot\source\repos\RedirectMachine\OldSiteCatchAlls.csv";
         //string existingRedirectsFile = @"C:\Users\timot\source\repos\RedirectMachine\ExistingRedirects.csv";
         //string lostUrlFile = @"C:\Users\timot\Downloads\LostUrls.csv";
         //string foundUrlFile = @"C:\Users\timot\Downloads\FoundUrls.csv";
@@ -69,11 +67,9 @@ namespace RedirectMachine
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.WriteLine("begin search: ");
-            ImportExistingRedirects(existingRedirectsFile);
             ImportNewUrlsIntoList(nsUrlFile);
             ImportOldUrlsIntoList(osUrlFile);
             catchAllUtilObject.GenerateCatchAllParams(existingRedirectsFile);
-            //FindUrlMatches(redirectUrls);
             FindUrlMatches(urlDtos);
             //StartThreads();
             catchAllUtilObject.ExportCatchAllsToCSV(catchAllFile);
@@ -117,7 +113,6 @@ namespace RedirectMachine
                 {
                     string url = reader.ReadLine().ToLower();
                     if (!catchAllUtilObject.CheckExistingCatchallParams(url) && !existingRedirects.Contains(url))
-                        //redirectUrls.Add(new RedirectUrl(url, urlHeaderMaps));
                         urlDtos.Add(createUrlDto(url));
                 }
             }
@@ -166,8 +161,6 @@ namespace RedirectMachine
         {
             foreach (var urlDto in chunkOfRedirects)
             {
-                //if (oldUrl.BasicUrlFinder(newUrlSiteMap) || oldUrl.AdvancedUrlFinder(newUrlSiteMap) || oldUrl.ReverseAdvancedUrlFinder(newUrlSiteMap) || oldUrl.UrlChunkFinder(newUrlSiteMap)) { }
-                //else
                 if (!redirectUrlUtils.findMatching301(urlDto, newUrlSiteMap))
                 {
                     urlDto.Flag = "no match";

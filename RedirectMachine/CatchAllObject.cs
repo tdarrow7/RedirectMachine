@@ -72,16 +72,9 @@ namespace RedirectMachine
         internal void checkIfCatchAllIsCreated(string url)
         {
             if (!catchAllList.ContainsKey(url))
-            {
                 catchAllList.Add(url, new CatchAllUrl(url));
-                //Console.WriteLine(url);
-            }
             else
-            {
                 catchAllList[url].IncreaseCount();
-                //Console.WriteLine(url);
-            }
-                
         }
 
 
@@ -96,8 +89,7 @@ namespace RedirectMachine
                 tw.WriteLine("Potential Probability,Number of times seen");
                 foreach (var keyValuePair in catchAllList)
                 {
-                    //if (keyValuePair.Value.Count > 1)
-                        tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value.Count}");
+                    tw.WriteLine($"{keyValuePair.Key},{keyValuePair.Value.Count}");
                 }
                 foreach (var tuple in catchAllParams)
                 {
